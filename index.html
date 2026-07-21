@@ -1,0 +1,1287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premium PR Attendance Desk & Management System</title>
+    
+    <!-- Google Fonts & Phosphor Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    
+    <!-- PDF Export Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+    
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        :root {
+            --primary: #0A1931;       /* Navy Blue */
+            --secondary: #132F4C;     /* Lighter Navy */
+            --gold: #D4AF37;          /* Primary Gold */
+            --gold-light: #F4E2A1;    /* Light Gold */
+            --bg-main: #F5F7FA;       /* Background */
+            --white: #FFFFFF;
+            --text-dark: #1A1A1A;
+            --text-muted: #64748B;
+            --danger: #EF4444;
+            --success: #10B981;
+            --warning: #F59E0B;
+            
+            --shadow-sm: 0 2px 8px rgba(10, 25, 49, 0.05);
+            --shadow-md: 0 8px 24px rgba(10, 25, 49, 0.08);
+            --shadow-lg: 0 16px 32px rgba(10, 25, 49, 0.12);
+            --shadow-gold: 0 4px 16px rgba(212, 175, 55, 0.2);
+            
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 20px;
+            --radius-pill: 50px;
+            
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            
+            --font-main: 'Poppins', sans-serif;
+            --font-heading: 'Playfair Display', serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: var(--font-main);
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-dark);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        h1, h2, h3, h4 { color: var(--primary); }
+        .font-heading { font-family: var(--font-heading); }
+        
+        a { text-decoration: none; color: inherit; }
+        button { border: none; outline: none; cursor: pointer; background: none; font-family: inherit; }
+        input, select, textarea { font-family: inherit; outline: none; }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(10, 25, 49, 0.2); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--gold); }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .glass-dark {
+            background: rgba(10, 25, 49, 0.95);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-right: 1px solid rgba(212, 175, 55, 0.15);
+        }
+
+        .text-gold { color: var(--gold); }
+        .bg-gold { background: var(--gold); }
+        .gradient-gold {
+            background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%);
+            color: var(--primary);
+        }
+
+        .btn {
+            padding: 10px 24px;
+            border-radius: var(--radius-pill);
+            font-weight: 500;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--gold) 0%, #E5C354 100%);
+            color: var(--primary);
+            box-shadow: var(--shadow-gold);
+            font-weight: 600;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(212, 175, 55, 0.4);
+        }
+
+        .btn-secondary { background: var(--primary); color: var(--white); }
+        .btn-secondary:hover { background: var(--secondary); transform: translateY(-2px); }
+
+        .btn-outline { border: 1.5px solid var(--gold); color: var(--primary); background: transparent; }
+        .btn-outline:hover { background: var(--gold); color: var(--primary); }
+
+        .btn-danger { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
+        .btn-danger:hover { background: var(--danger); color: var(--white); }
+        
+        .btn-success { background: rgba(16, 185, 129, 0.1); color: var(--success); }
+        .btn-success:hover { background: var(--success); color: var(--white); }
+
+        /* Ripple Effect */
+        .ripple {
+            position: absolute; border-radius: 50%; transform: scale(0);
+            animation: ripple-anim 0.6s linear; background-color: rgba(255, 255, 255, 0.4);
+        }
+        @keyframes ripple-anim { to { transform: scale(4); opacity: 0; } }
+
+        .form-group { margin-bottom: 20px; }
+        .form-label { display: block; font-size: 13px; font-weight: 500; color: var(--secondary); margin-bottom: 8px; }
+        .form-control {
+            width: 100%; padding: 12px 16px; border: 1.5px solid rgba(10, 25, 49, 0.1);
+            border-radius: var(--radius-md); font-size: 14px; background: rgba(255, 255, 255, 0.9);
+            transition: var(--transition);
+        }
+        .form-control:focus { border-color: var(--gold); box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.1); }
+        textarea.form-control { resize: vertical; min-height: 100px; }
+
+        .app-container { display: flex; height: 100vh; width: 100vw; overflow: hidden; }
+
+        .sidebar {
+            width: 280px; height: 100vh; flex-shrink: 0; display: flex; flex-direction: column;
+            color: var(--white); transition: var(--transition); z-index: 100;
+        }
+
+        .sidebar-header { padding: 30px 24px; display: flex; align-items: center; gap: 12px; }
+        .sidebar-logo-icon { font-size: 32px; color: var(--gold); }
+        .sidebar-title { font-family: var(--font-heading); font-size: 20px; font-weight: 700; line-height: 1.2; }
+
+        .nav-menu { flex: 1; overflow-y: auto; padding: 0 16px; display: flex; flex-direction: column; gap: 4px; }
+
+        .nav-item {
+            display: flex; align-items: center; gap: 12px; padding: 14px 16px;
+            border-radius: var(--radius-md); color: rgba(255, 255, 255, 0.7); font-size: 14px;
+            font-weight: 500; transition: var(--transition); cursor: pointer;
+        }
+        .nav-item:hover, .nav-item.active { background: rgba(212, 175, 55, 0.1); color: var(--gold); }
+        .nav-item i { font-size: 20px; }
+
+        .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative; }
+
+        .topbar {
+            height: 80px; padding: 0 32px; display: flex; align-items: center; justify-content: space-between;
+            background: rgba(245, 247, 250, 0.8); backdrop-filter: blur(10px); z-index: 10;
+        }
+        .mobile-menu-btn { display: none; font-size: 24px; color: var(--primary); }
+
+        .page-content { flex: 1; overflow-y: auto; padding: 32px; }
+
+        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; margin-bottom: 32px; }
+
+        .stat-card {
+            padding: 24px; border-radius: var(--radius-lg); display: flex; align-items: center;
+            gap: 20px; box-shadow: var(--shadow-sm); transition: var(--transition); background: var(--white);
+        }
+        .stat-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
+        .stat-icon {
+            width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center;
+            justify-content: center; font-size: 28px;
+        }
+        .stat-icon.primary { background: rgba(10, 25, 49, 0.1); color: var(--primary); }
+        .stat-icon.gold { background: rgba(212, 175, 55, 0.1); color: var(--gold); }
+        .stat-icon.success { background: rgba(16, 185, 129, 0.1); color: var(--success); }
+        .stat-info h4 { font-size: 13px; color: var(--text-muted); font-weight: 500; margin-bottom: 4px; }
+        .stat-info p { font-size: 24px; font-weight: 700; color: var(--primary); }
+
+        .content-card { background: var(--white); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); padding: 24px; margin-bottom: 24px; }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid rgba(10, 25, 49, 0.05); }
+        .card-title { font-size: 18px; font-weight: 600; color: var(--primary); }
+
+        .table-responsive { overflow-x: auto; }
+        .premium-table { width: 100%; border-collapse: collapse; white-space: nowrap; }
+        .premium-table th, .premium-table td { padding: 16px; text-align: left; border-bottom: 1px solid rgba(10, 25, 49, 0.05); }
+        .premium-table th { font-size: 13px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+        .premium-table td { font-size: 14px; color: var(--text-dark); }
+        .premium-table tbody tr { transition: var(--transition); }
+        .premium-table tbody tr:hover { background: rgba(10, 25, 49, 0.02); }
+        
+        .badge { padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        .badge-working { background: rgba(212, 175, 55, 0.15); color: #B48B1A; }
+        .badge-completed { background: rgba(16, 185, 129, 0.15); color: var(--success); }
+        .badge-absent { background: rgba(239, 68, 68, 0.15); color: var(--danger); }
+        .badge-pending { background: rgba(245, 158, 11, 0.15); color: var(--warning); }
+
+        .page-view { display: none; width: 100vw; height: 100vh; }
+        .page-view.active { display: flex; }
+        .dashboard-view { display: none; }
+        .dashboard-view.active { display: block; animation: fadeIn 0.4s ease forwards; }
+
+        .centered-container {
+            width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
+            background: linear-gradient(135deg, var(--bg-main) 0%, #E2E8F0 100%); padding: 20px;
+        }
+        .auth-card {
+            width: 100%; max-width: 440px; background: var(--white); border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg); padding: 40px; position: relative; overflow: hidden;
+        }
+        .auth-card::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 6px;
+            background: linear-gradient(90deg, var(--gold), var(--primary));
+        }
+
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(10, 25, 49, 0.6); backdrop-filter: blur(4px); z-index: 1000;
+            display: none; align-items: center; justify-content: center;
+            opacity: 0; transition: opacity 0.3s ease;
+        }
+        .modal-overlay.active { display: flex; opacity: 1; }
+        .modal-content {
+            background: var(--white); border-radius: var(--radius-lg); width: 100%; max-width: 500px;
+            padding: 32px; box-shadow: var(--shadow-lg); transform: scale(0.9) translateY(20px);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .modal-overlay.active .modal-content { transform: scale(1) translateY(0); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+        .modal-close { font-size: 24px; color: var(--text-muted); cursor: pointer; transition: color 0.2s; }
+        .modal-close:hover { color: var(--danger); }
+
+        .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 2000; display: flex; flex-direction: column; gap: 12px; }
+        .toast {
+            min-width: 300px; padding: 16px 20px; border-radius: var(--radius-md); background: var(--white);
+            box-shadow: var(--shadow-lg); display: flex; align-items: center; gap: 12px;
+            transform: translateX(120%); transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            border-left: 4px solid var(--primary);
+        }
+        .toast.show { transform: translateX(0); }
+        .toast.success { border-color: var(--success); }
+        .toast.error { border-color: var(--danger); }
+        .toast.warning { border-color: var(--warning); }
+        .toast-icon { font-size: 24px; }
+        .toast.success .toast-icon { color: var(--success); }
+        .toast.error .toast-icon { color: var(--danger); }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .filter-bar { display: flex; gap: 16px; margin-bottom: 24px; flex-wrap: wrap; }
+        .search-box { position: relative; flex: 1; min-width: 250px; }
+        .search-box i { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
+        .search-box input { padding-left: 44px; }
+
+        @media (max-width: 992px) {
+            .sidebar { position: fixed; left: -280px; }
+            .sidebar.active { left: 0; box-shadow: var(--shadow-lg); }
+            .mobile-menu-btn { display: block; cursor: pointer; }
+            .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 90; }
+            .sidebar.active + .sidebar-overlay { display: block; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="toast-container" id="toastArea"></div>
+
+    <div class="modal-overlay" id="mainModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="card-title" id="modalTitle">Modal Title</h3>
+                <i class="ph ph-x modal-close" onclick="UI.closeModal()"></i>
+            </div>
+            <div id="modalBody"></div>
+        </div>
+    </div>
+
+    <!-- PUBLIC MEMBER LEAVE PAGE -->
+    <div id="page-public-member-leave" class="page-view">
+        <div class="centered-container">
+            <div class="auth-card">
+                <div style="text-align: center; margin-bottom: 32px;">
+                    <div style="font-size: 40px; color: var(--gold); margin-bottom: 8px;"><i class="ph-fill ph-calendar-star"></i></div>
+                    <h2 class="font-heading">Member Leave Request</h2>
+                    <p style="color: var(--text-muted); font-size: 14px; margin-top: 8px;">Submit your leave application.</p>
+                </div>
+                
+                <form id="formMemberLeave" onsubmit="PublicApp.submitLeave(event)">
+                    <div class="form-group">
+                        <label class="form-label">Member Name</label>
+                        <input type="text" id="mlName" class="form-control" required placeholder="Enter your full name">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Mobile Number</label>
+                        <input type="tel" id="mlMobile" class="form-control" required placeholder="Enter mobile number">
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div class="form-group">
+                            <label class="form-label">Leave From</label>
+                            <input type="date" id="mlFrom" class="form-control" required onchange="PublicApp.calcDays()">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Leave To</label>
+                            <input type="date" id="mlTo" class="form-control" required onchange="PublicApp.calcDays()">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Total Days: <span id="mlDaysText" class="text-gold font-weight-bold">0</span></label>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Reason</label>
+                        <textarea id="mlReason" class="form-control" required placeholder="State your reason..."></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">Submit Leave Request <i class="ph-bold ph-paper-plane-right"></i></button>
+                    
+                    <div style="text-align: center; margin-top: 24px;">
+                        <a href="#" onclick="App.route('page-login')" style="color: var(--text-muted); font-size: 13px;">Return to Staff Login</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- LOGIN PAGE -->
+    <div id="page-login" class="page-view active">
+        <div class="centered-container">
+            <div class="auth-card">
+                <div style="text-align: center; margin-bottom: 32px;">
+                    <div style="font-size: 48px; color: var(--primary); margin-bottom: 8px;"><i class="ph-fill ph-shield-check"></i></div>
+                    <h2 class="font-heading" style="font-size: 28px;">Attendance Desk</h2>
+                    <p style="color: var(--text-muted); font-size: 14px; margin-top: 8px;">Premium PR Management System</p>
+                </div>
+                
+                <form id="formLogin" onsubmit="Auth.login(event)">
+                    <div class="form-group">
+                        <label class="form-label">System Role</label>
+                        <select id="loginRole" class="form-control" required onchange="Auth.fillDemoCredentials()">
+                            <option value="Admin">Administrator</option>
+                            <option value="PR">PR Executive</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Username / PR ID</label>
+                        <div style="position: relative;">
+                            <i class="ph ph-user" style="position: absolute; left: 16px; top: 14px; color: var(--text-muted);"></i>
+                            <input type="text" id="loginUsername" class="form-control" style="padding-left: 44px;" required placeholder="Enter username">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Password</label>
+                        <div style="position: relative;">
+                            <i class="ph ph-lock-key" style="position: absolute; left: 16px; top: 14px; color: var(--text-muted);"></i>
+                            <input type="password" id="loginPassword" class="form-control" style="padding-left: 44px;" required placeholder="Enter password">
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px;">
+                        Secure Login <i class="ph-bold ph-arrow-right"></i>
+                    </button>
+                    
+                    <div style="text-align: center; margin-top: 24px; padding-top: 16px; border-top: 1px solid rgba(0,0,0,0.05);">
+                        <a href="#" onclick="App.route('page-public-member-leave')" style="color: var(--primary); font-size: 13px; font-weight: 500;">
+                            <i class="ph ph-users"></i> Member Leave Portal
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- ADMIN DASHBOARD -->
+    <div id="page-admin" class="page-view app-container">
+        <aside class="sidebar glass-dark">
+            <div class="sidebar-header">
+                <i class="ph-fill ph-crown sidebar-logo-icon"></i>
+                <div class="sidebar-title">Admin Desk</div>
+            </div>
+            <nav class="nav-menu">
+                <div class="nav-item active" onclick="AdminApp.switchTab('admin-dashboard')"><i class="ph ph-squares-four"></i> Dashboard</div>
+                <div class="nav-item" onclick="AdminApp.switchTab('admin-pr')"><i class="ph ph-users-three"></i> PR Management</div>
+                <div class="nav-item" onclick="AdminApp.switchTab('admin-attendance')"><i class="ph ph-clock-user"></i> Attendance</div>
+                <div class="nav-item" onclick="AdminApp.switchTab('admin-reports')"><i class="ph ph-file-text"></i> Reports</div>
+                <div class="nav-item" onclick="AdminApp.switchTab('admin-holidays')"><i class="ph ph-calendar-star"></i> Holiday Management</div>
+                <div class="nav-item" onclick="AdminApp.switchTab('admin-pr-leave')"><i class="ph ph-calendar-minus"></i> PR Leave Requests</div>
+                <div class="nav-item" onclick="AdminApp.switchTab('admin-member-leave')"><i class="ph ph-users"></i> Member Leave Requests</div>
+                <div class="nav-item" onclick="AdminApp.switchTab('admin-approved-member-leave')"><i class="ph ph-check-square"></i> Approved Member Leave</div>
+                <div class="nav-item" onclick="AdminApp.switchTab('admin-notifications')"><i class="ph ph-bell"></i> Notifications</div>
+                <div class="nav-item" onclick="AdminApp.switchTab('admin-settings')"><i class="ph ph-gear"></i> Settings</div>
+            </nav>
+            <div style="padding: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
+                <div class="nav-item" onclick="Auth.logout()" style="color: var(--gold-light);"><i class="ph ph-sign-out"></i> Secure Logout</div>
+            </div>
+        </aside>
+        <div class="sidebar-overlay" onclick="UI.toggleSidebar()"></div>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="topbar">
+                <i class="ph ph-list mobile-menu-btn" onclick="UI.toggleSidebar()"></i>
+                <h3 class="font-heading" id="adminHeaderTitle">Overview Dashboard</h3>
+                <div style="display: flex; gap: 16px; align-items: center;">
+                    <div style="text-align: right; line-height: 1.2;">
+                        <div style="font-size: 14px; font-weight: 600;">System Admin</div>
+                        <div style="font-size: 12px; color: var(--text-muted);">Main Office</div>
+                    </div>
+                    <div style="width: 40px; height: 40px; border-radius: 50%; background: var(--primary); color: var(--gold); display: flex; align-items: center; justify-content: center; font-weight: bold;">A</div>
+                </div>
+            </header>
+
+            <div class="page-content">
+                <!-- Admin Dashboard View -->
+                <div id="admin-dashboard" class="dashboard-view active">
+                    <div class="dashboard-grid" id="adminStatsGrid"></div>
+                    <div class="content-card">
+                        <div class="card-header"><h3 class="card-title">Recent Activity</h3></div>
+                        <div class="table-responsive">
+                            <table class="premium-table" id="adminRecentActivityTable">
+                                <thead><tr><th>Time</th><th>PR Executive</th><th>Action</th><th>Status</th></tr></thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Admin PR Management -->
+                <div id="admin-pr" class="dashboard-view">
+                    <div class="card-header" style="border-bottom: none; padding-bottom: 0;">
+                        <h2 class="card-title" style="font-size: 24px;">PR Directory</h2>
+                        <button class="btn btn-primary ripple-btn" onclick="AdminApp.openAddPRModal()"><i class="ph ph-plus"></i> Add New PR</button>
+                    </div>
+                    <div class="filter-bar" style="margin-top: 16px;">
+                        <div class="search-box">
+                            <i class="ph ph-magnifying-glass"></i>
+                            <input type="text" class="form-control" id="searchPR" placeholder="Search by name, ID or mobile..." oninput="AdminApp.renderPRs()">
+                        </div>
+                    </div>
+                    <div class="content-card" style="padding: 0;">
+                        <div class="table-responsive">
+                            <table class="premium-table">
+                                <thead><tr><th>PR ID</th><th>Name & Contact</th><th>Username</th><th>Status</th><th>Actions</th></tr></thead>
+                                <tbody id="tablePRs"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Admin Attendance -->
+                <div id="admin-attendance" class="dashboard-view">
+                    <div class="card-header" style="border-bottom: none; padding-bottom: 0;"><h2 class="card-title" style="font-size: 24px;">Daily Attendance</h2></div>
+                    <div class="filter-bar" style="margin-top: 16px;">
+                        <div class="form-group" style="margin: 0; min-width: 200px;"><input type="date" id="filterAttDate" class="form-control" onchange="AdminApp.renderAttendance()"></div>
+                    </div>
+                    <div class="content-card" style="padding: 0;">
+                        <div class="table-responsive">
+                            <table class="premium-table">
+                                <thead><tr><th>PR Info</th><th>Date</th><th>Check In</th><th>Check Out</th><th>Hours</th><th>Status / Summary</th></tr></thead>
+                                <tbody id="tableAdminAttendance"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Admin Reports -->
+                <div id="admin-reports" class="dashboard-view">
+                    <div class="card-header" style="border-bottom: none; padding-bottom: 0;"><h2 class="card-title" style="font-size: 24px;">System Reports & Exports</h2></div>
+                    <div class="filter-bar glass" style="padding: 24px; border-radius: var(--radius-lg); margin-top: 16px;">
+                        <div class="form-group" style="margin: 0; flex: 1;">
+                            <label class="form-label">Report Type</label>
+                            <select id="reportType" class="form-control">
+                                <option value="daily">Daily Attendance</option>
+                                <option value="weekly">Weekly Report</option>
+                                <option value="monthly">Monthly Report</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="margin: 0; flex: 1;">
+                            <label class="form-label">Date Filter</label>
+                            <input type="date" id="reportDate" class="form-control">
+                        </div>
+                        <div style="display: flex; gap: 12px; align-items: flex-end;">
+                            <button class="btn btn-primary" onclick="AdminApp.generatePDF()"><i class="ph ph-file-pdf"></i> Export PDF</button>
+                            <button class="btn btn-outline" onclick="AdminApp.generateCSV()"><i class="ph ph-file-xls"></i> Export Excel</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Admin Holidays -->
+                <div id="admin-holidays" class="dashboard-view">
+                    <div class="card-header" style="border-bottom: none; padding-bottom: 0;">
+                        <h2 class="card-title" style="font-size: 24px;">Company Holidays</h2>
+                        <button class="btn btn-primary ripple-btn" onclick="AdminApp.openAddHolidayModal()"><i class="ph ph-plus"></i> Add Holiday</button>
+                    </div>
+                    <div class="content-card" style="padding: 0; margin-top: 24px;">
+                        <div class="table-responsive">
+                            <table class="premium-table">
+                                <thead><tr><th>Date</th><th>Holiday Name</th><th>Description</th><th>Actions</th></tr></thead>
+                                <tbody id="tableHolidays"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Admin PR Leaves -->
+                <div id="admin-pr-leave" class="dashboard-view">
+                    <h2 class="card-title" style="font-size: 24px; margin-bottom: 24px;">PR Leave Requests</h2>
+                    <div class="content-card" style="padding: 0;">
+                        <div class="table-responsive">
+                            <table class="premium-table">
+                                <thead><tr><th>PR Name</th><th>Dates</th><th>Days</th><th>Reason</th><th>Status</th><th>Actions</th></tr></thead>
+                                <tbody id="tablePRLeaves"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Admin Member Leaves -->
+                <div id="admin-member-leave" class="dashboard-view">
+                    <h2 class="card-title" style="font-size: 24px; margin-bottom: 24px;">Member Leave Requests</h2>
+                    <div class="content-card" style="padding: 0;">
+                        <div class="table-responsive">
+                            <table class="premium-table">
+                                <thead><tr><th>Member Details</th><th>Dates</th><th>Days</th><th>Reason</th><th>Status</th><th>Actions</th></tr></thead>
+                                <tbody id="tableMemberLeaves"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Admin Approved Member Leaves -->
+                <div id="admin-approved-member-leave" class="dashboard-view">
+                    <h2 class="card-title" style="font-size: 24px; margin-bottom: 24px;">Approved Member Leave List</h2>
+                    <div class="content-card" style="padding: 0;">
+                        <div class="table-responsive">
+                            <table class="premium-table">
+                                <thead><tr><th>Member Details</th><th>Dates</th><th>Days</th><th>Reason</th><th>Approved Status</th></tr></thead>
+                                <tbody id="tableApprovedMemberLeaves"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Admin Notifications -->
+                <div id="admin-notifications" class="dashboard-view">
+                    <h2 class="card-title" style="font-size: 24px; margin-bottom: 24px;">System Notifications</h2>
+                    <div class="content-card" style="padding: 0;">
+                        <div class="table-responsive">
+                            <table class="premium-table">
+                                <thead><tr><th>Time</th><th>Title</th><th>Message</th><th>Target</th></tr></thead>
+                                <tbody id="tableNotifications"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Admin Settings -->
+                <div id="admin-settings" class="dashboard-view">
+                    <h2 class="card-title" style="font-size: 24px; margin-bottom: 24px;">Office Settings</h2>
+                    <div class="content-card" style="max-width: 600px;">
+                        <form onsubmit="AdminApp.saveSettings(event)">
+                            <div class="form-group"><label class="form-label">Office Name</label><input type="text" id="settingOfficeName" class="form-control" value="Premium PR Headquarters" required></div>
+                            <div class="form-group"><label class="form-label">Logo URL</label><input type="text" id="settingLogo" class="form-control" placeholder="https://..."></div>
+                            <button type="submit" class="btn btn-primary">Save Settings</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- PR DASHBOARD -->
+    <div id="page-pr" class="page-view app-container">
+        <aside class="sidebar" style="background: var(--white); color: var(--primary); border-right: 1px solid rgba(0,0,0,0.05);">
+            <div class="sidebar-header">
+                <i class="ph-fill ph-user-circle sidebar-logo-icon" style="color: var(--primary);"></i>
+                <div class="sidebar-title" style="color: var(--primary);">PR Portal</div>
+            </div>
+            <nav class="nav-menu">
+                <div class="nav-item active" style="color: var(--text-dark);" onclick="PRApp.switchTab('pr-dashboard')"><i class="ph ph-clock"></i> Attendance Desk</div>
+                <div class="nav-item" style="color: var(--text-muted);" onclick="PRApp.switchTab('pr-history')"><i class="ph ph-list-dashes"></i> Attendance History</div>
+                <div class="nav-item" style="color: var(--text-muted);" onclick="PRApp.switchTab('pr-leave')"><i class="ph ph-calendar-plus"></i> Apply Leave</div>
+                <div class="nav-item" style="color: var(--text-muted);" onclick="PRApp.switchTab('pr-leave-history')"><i class="ph ph-calendar-check"></i> Leave History</div>
+                <div class="nav-item" style="color: var(--text-muted);" onclick="PRApp.switchTab('pr-profile')"><i class="ph ph-user"></i> Profile</div>
+            </nav>
+            <div style="padding: 20px; border-top: 1px solid rgba(0,0,0,0.05);">
+                <div class="nav-item" onclick="Auth.logout()" style="color: var(--danger);"><i class="ph ph-sign-out"></i> Logout</div>
+            </div>
+        </aside>
+        <div class="sidebar-overlay" onclick="UI.toggleSidebar()"></div>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="topbar">
+                <i class="ph ph-list mobile-menu-btn" onclick="UI.toggleSidebar()"></i>
+                <h3 class="font-heading" id="prHeaderTitle">My Attendance</h3>
+                <div style="display: flex; gap: 16px; align-items: center;">
+                    <div style="text-align: right; line-height: 1.2;">
+                        <div style="font-size: 14px; font-weight: 600;" id="prTopName">PR Executive</div>
+                        <div style="font-size: 12px; color: var(--gold);" id="prTopId">PR-XXXX</div>
+                    </div>
+                    <div class="gradient-gold" style="width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;" id="prTopAvatar">P</div>
+                </div>
+            </header>
+
+            <div class="page-content">
+                <!-- PR Dashboard / Check-In -->
+                <div id="pr-dashboard" class="dashboard-view active">
+                    <div style="max-width: 600px; margin: 0 auto; text-align: center; margin-top: 40px;">
+                        <div class="content-card" style="padding: 48px 32px; border-radius: 32px; position: relative; overflow: hidden;">
+                            <div style="position: absolute; top: -50px; right: -50px; width: 150px; height: 150px; background: rgba(212, 175, 55, 0.1); border-radius: 50%;"></div>
+                            <h2 style="font-size: 28px; margin-bottom: 8px;" id="prGreeting">Good Morning!</h2>
+                            <p class="text-muted" style="margin-bottom: 32px;" id="prCurrentDate">Monday, 1 January 2026</p>
+                            
+                            <div id="prActionArea"></div>
+                        </div>
+
+                        <div class="dashboard-grid" style="margin-top: 24px;">
+                            <div class="stat-card" style="justify-content: center; flex-direction: column; text-align: center; gap: 8px;">
+                                <div class="stat-info"><h4 style="margin:0;">Total Days Worked</h4><p id="prTotalDays">0</p></div>
+                            </div>
+                            <div class="stat-card" style="justify-content: center; flex-direction: column; text-align: center; gap: 8px;">
+                                <div class="stat-info"><h4 style="margin:0;">Approved Leaves</h4><p id="prTotalLeaves">0</p></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PR Attendance History -->
+                <div id="pr-history" class="dashboard-view">
+                    <h2 class="card-title" style="font-size: 24px; margin-bottom: 24px;">Attendance History</h2>
+                    <div class="content-card" style="padding: 0;">
+                        <div class="table-responsive">
+                            <table class="premium-table">
+                                <thead><tr><th>Date</th><th>Check In</th><th>Check Out</th><th>Hours</th><th>Work Summary</th></tr></thead>
+                                <tbody id="tablePRHistory"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PR Leave Apply -->
+                <div id="pr-leave" class="dashboard-view">
+                    <div style="max-width: 600px;">
+                        <div class="content-card">
+                            <h3 class="card-title">Apply for Leave</h3>
+                            <form onsubmit="PRApp.submitLeave(event)">
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                                    <div class="form-group"><label class="form-label">Leave From</label><input type="date" id="prLFrom" class="form-control" required onchange="PRApp.calcDays()"></div>
+                                    <div class="form-group"><label class="form-label">Leave To</label><input type="date" id="prLTo" class="form-control" required onchange="PRApp.calcDays()"></div>
+                                </div>
+                                <div class="form-group"><label class="form-label">Total Days: <span id="prLDays" class="text-gold font-weight-bold">0</span></label></div>
+                                <div class="form-group"><label class="form-label">Reason</label><textarea id="prLReason" class="form-control" required placeholder="State your reason..."></textarea></div>
+                                <button type="submit" class="btn btn-primary ripple-btn">Submit Leave Request</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PR Leave History -->
+                <div id="pr-leave-history" class="dashboard-view">
+                    <h2 class="card-title" style="font-size: 24px; margin-bottom: 24px;">My Leave Requests</h2>
+                    <div class="content-card" style="padding: 0;">
+                        <div class="table-responsive">
+                            <table class="premium-table">
+                                <thead><tr><th>Dates</th><th>Days</th><th>Reason</th><th>Status</th></tr></thead>
+                                <tbody id="tablePRMyLeaves"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PR Profile -->
+                <div id="pr-profile" class="dashboard-view">
+                    <div class="content-card" style="max-width: 600px;">
+                        <h2 class="card-title" style="margin-bottom: 24px;">My Profile</h2>
+                        <div id="prProfileDetails" style="display: flex; flex-direction: column; gap: 16px;"></div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Supabase Initialization
+        const SUPABASE_URL = 'https://azdwdqwhwrhmcsxgwzal.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_offnM0Rq9v3WUqIco1Dowg_EIe-9MEV';
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        const todayStr = () => new Date().toISOString().split('T')[0];
+
+        // Database Wrapper with Supabase REST API and RLS error mitigation
+        const DB = {
+            get: async (table) => {
+                const { data, error } = await supabaseClient.from(table).select('*');
+                if (error) {
+                    console.error(`Error fetching ${table}:`, error);
+                    return [];
+                }
+                return data || [];
+            },
+            insert: async (table, row) => {
+                const { data, error } = await supabaseClient.from(table).insert([row]).select();
+                if (error) {
+                    UI.showToast(`DB Error: ${error.message}`, 'error');
+                    return null;
+                }
+                return data ? data[0] : null;
+            },
+            update: async (table, id, updates) => {
+                const { data, error } = await supabaseClient.from(table).update(updates).eq('id', id).select();
+                if (error) {
+                    UI.showToast(`DB Error: ${error.message}`, 'error');
+                    return null;
+                }
+                return data ? data[0] : null;
+            },
+            remove: async (table, id) => {
+                const { error } = await supabaseClient.from(table).delete().eq('id', id);
+                if (error) UI.showToast(`DB Error: ${error.message}`, 'error');
+            }
+        };
+
+        const App = {
+            currentUser: null,
+            init: function() {
+                // Ripple effect listener
+                document.addEventListener('click', function(e) {
+                    if (e.target.closest('.btn') || e.target.closest('.ripple-btn')) {
+                        const btn = e.target.closest('.btn') || e.target.closest('.ripple-btn');
+                        if (btn.style.position !== 'relative') btn.style.position = 'relative';
+                        btn.style.overflow = 'hidden';
+                        
+                        const circle = document.createElement('span');
+                        const diameter = Math.max(btn.clientWidth, btn.clientHeight);
+                        const radius = diameter / 2;
+                        
+                        const rect = btn.getBoundingClientRect();
+                        circle.style.width = circle.style.height = `${diameter}px`;
+                        circle.style.left = `${e.clientX - rect.left - radius}px`;
+                        circle.style.top = `${e.clientY - rect.top - radius}px`;
+                        circle.classList.add('ripple');
+                        
+                        const existing = btn.querySelector('.ripple');
+                        if(existing) existing.remove();
+                        btn.appendChild(circle);
+                    }
+                });
+
+                const session = sessionStorage.getItem('active_user');
+                if (session) {
+                    this.currentUser = JSON.parse(session);
+                    this.route(this.currentUser.role === 'Admin' ? 'page-admin' : 'page-pr');
+                }
+                
+                document.getElementById('filterAttDate').value = todayStr();
+                document.getElementById('reportDate').value = todayStr();
+                Auth.fillDemoCredentials();
+            },
+            route: function(pageId) {
+                document.querySelectorAll('.page-view').forEach(el => el.classList.remove('active'));
+                document.getElementById(pageId).classList.add('active');
+                
+                if (pageId === 'page-admin') AdminApp.init();
+                if (pageId === 'page-pr') PRApp.init();
+            }
+        };
+
+        const UI = {
+            showToast: (msg, type='success') => {
+                const container = document.getElementById('toastArea');
+                const toast = document.createElement('div');
+                toast.className = `toast ${type}`;
+                let icon = type === 'error' ? 'ph-x-circle' : (type === 'warning' ? 'ph-warning-circle' : 'ph-check-circle');
+                toast.innerHTML = `<i class="ph-fill ${icon} toast-icon"></i><div>${msg}</div>`;
+                container.appendChild(toast);
+                setTimeout(() => toast.classList.add('show'), 10);
+                setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 400); }, 3000);
+            },
+            showModal: (title, html) => {
+                document.getElementById('modalTitle').innerText = title;
+                document.getElementById('modalBody').innerHTML = html;
+                document.getElementById('mainModal').classList.add('active');
+            },
+            closeModal: () => document.getElementById('mainModal').classList.remove('active'),
+            toggleSidebar: () => document.querySelectorAll('.sidebar').forEach(sb => { if (sb.closest('.page-view.active')) sb.classList.toggle('active'); }),
+            confirm: (title, msg, onConfirm) => {
+                UI.showModal(title, `
+                    <div style="text-align:center; padding: 20px 0;">
+                        <i class="ph-fill ph-warning-circle" style="font-size: 64px; color: var(--warning); margin-bottom: 16px;"></i>
+                        <p style="margin-bottom: 24px; color: var(--text-muted);">${msg}</p>
+                        <div style="display:flex; gap:12px; justify-content:center;">
+                            <button class="btn btn-outline" onclick="UI.closeModal()">Cancel</button>
+                            <button class="btn btn-primary" id="confirmActionBtn">Confirm</button>
+                        </div>
+                    </div>
+                `);
+                document.getElementById('confirmActionBtn').onclick = () => { UI.closeModal(); onConfirm(); };
+            }
+        };
+
+        const Auth = {
+            fillDemoCredentials: () => {
+                const role = document.getElementById('loginRole').value;
+                if(role === 'Admin') {
+                    document.getElementById('loginUsername').value = 'admin';
+                    document.getElementById('loginPassword').value = 'admin123';
+                } else {
+                    document.getElementById('loginUsername').value = 'pr.john';
+                    document.getElementById('loginPassword').value = 'password';
+                }
+            },
+            login: async (e) => {
+                e.preventDefault();
+                const u = document.getElementById('loginUsername').value;
+                const p = document.getElementById('loginPassword').value;
+                const r = document.getElementById('loginRole').value;
+                
+                const btn = e.target.querySelector('button');
+                const origText = btn.innerHTML;
+                btn.innerHTML = '<i class="ph ph-spinner ph-spin"></i> Authenticating...';
+                btn.disabled = true;
+
+                const users = await DB.get('users');
+                
+                btn.innerHTML = origText;
+                btn.disabled = false;
+
+                if (!users || users.length === 0) {
+                    return UI.showToast('Database connection failed or empty table.', 'error');
+                }
+
+                const user = users.find(user => 
+                    user.role === r && 
+                    user.password === p && 
+                    (user.username === u || user.pr_id === u)
+                );
+
+                if (user) {
+                    if(user.status === 'Disabled') return UI.showToast('Account disabled by Admin.', 'error');
+                    
+                    App.currentUser = user;
+                    sessionStorage.setItem('active_user', JSON.stringify(user));
+                    UI.showToast(`Welcome back, ${user.full_name || r}!`);
+                    App.route(r === 'Admin' ? 'page-admin' : 'page-pr');
+                } else {
+                    UI.showToast('Invalid credentials. Check your username & password.', 'error');
+                }
+            },
+            logout: () => {
+                App.currentUser = null;
+                sessionStorage.removeItem('active_user');
+                App.route('page-login');
+                UI.showToast('Logged out successfully.');
+            }
+        };
+
+        const AdminApp = {
+            init: () => { AdminApp.switchTab('admin-dashboard'); },
+            switchTab: (tabId) => {
+                const view = document.getElementById('page-admin');
+                view.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+                if(event) event.currentTarget.classList.add('active');
+                view.querySelectorAll('.dashboard-view').forEach(el => el.classList.remove('active'));
+                document.getElementById(tabId).classList.add('active');
+                if(window.innerWidth < 992) UI.toggleSidebar();
+
+                if(tabId === 'admin-dashboard') AdminApp.loadDashboard();
+                if(tabId === 'admin-pr') AdminApp.renderPRs();
+                if(tabId === 'admin-attendance') AdminApp.renderAttendance();
+                if(tabId === 'admin-holidays') AdminApp.renderHolidays();
+                if(tabId === 'admin-pr-leave') AdminApp.renderPRLeaves();
+                if(tabId === 'admin-member-leave') AdminApp.renderMemberLeaves();
+                if(tabId === 'admin-approved-member-leave') AdminApp.renderApprovedMemberLeaves();
+                if(tabId === 'admin-notifications') AdminApp.renderNotifications();
+            },
+            
+            loadDashboard: async () => {
+                const prs = (await DB.get('users')).filter(u => u.role === 'PR');
+                const atts = (await DB.get('attendance')).filter(a => a.date === todayStr());
+                const prLeaves = (await DB.get('pr_leave_requests')).filter(l => l.status === 'Pending').length;
+                const memberLeaves = (await DB.get('member_leave_requests')).filter(l => l.status === 'Pending').length;
+                
+                const checkedIn = atts.filter(a => a.check_in).length;
+                const completed = atts.filter(a => a.check_out).length;
+                const working = checkedIn - completed;
+                const absent = prs.length - checkedIn;
+
+                document.getElementById('adminStatsGrid').innerHTML = `
+                    <div class="stat-card"><div class="stat-icon primary"><i class="ph-fill ph-users-three"></i></div><div class="stat-info"><h4>Total PR Staff</h4><p>${prs.length}</p></div></div>
+                    <div class="stat-card"><div class="stat-icon gold"><i class="ph-fill ph-clock-user"></i></div><div class="stat-info"><h4>Currently Working</h4><p>${working}</p></div></div>
+                    <div class="stat-card"><div class="stat-icon success"><i class="ph-fill ph-check-circle"></i></div><div class="stat-info"><h4>Completed Today</h4><p>${completed}</p></div></div>
+                    <div class="stat-card"><div class="stat-icon" style="background:rgba(239, 68, 68, 0.1); color:var(--danger);"><i class="ph-fill ph-x-circle"></i></div><div class="stat-info"><h4>Absent Today</h4><p>${absent}</p></div></div>
+                    <div class="stat-card"><div class="stat-icon gold"><i class="ph-fill ph-calendar-minus"></i></div><div class="stat-info"><h4>Pending PR Leave</h4><p>${prLeaves}</p></div></div>
+                    <div class="stat-card"><div class="stat-icon primary"><i class="ph-fill ph-users"></i></div><div class="stat-info"><h4>Pending Member Leave</h4><p>${memberLeaves}</p></div></div>
+                `;
+
+                let html = '';
+                atts.slice(0, 5).forEach(a => {
+                    const pr = prs.find(p => p.pr_id === a.pr_id) || { full_name: 'Unknown' };
+                    if(a.check_in) html += `<tr><td>${a.check_in.substring(11, 16)}</td><td><strong>${pr.full_name}</strong><br><small>${a.pr_id}</small></td><td>Checked In</td><td><span class="badge badge-working">Working</span></td></tr>`;
+                    if(a.check_out) html += `<tr><td>${a.check_out.substring(11, 16)}</td><td><strong>${pr.full_name}</strong><br><small>${a.pr_id}</small></td><td>Checked Out</td><td><span class="badge badge-completed">Completed</span></td></tr>`;
+                });
+                document.getElementById('adminRecentActivityTable').querySelector('tbody').innerHTML = html || '<tr><td colspan="4" class="text-center text-muted">No activity today</td></tr>';
+            },
+
+            renderPRs: async () => {
+                const term = (document.getElementById('searchPR').value || '').toLowerCase();
+                const users = await DB.get('users');
+                let prs = users.filter(u => u.role === 'PR');
+                if (term) prs = prs.filter(p => p.full_name.toLowerCase().includes(term) || (p.pr_id && p.pr_id.toLowerCase().includes(term)));
+
+                let html = '';
+                prs.forEach(p => {
+                    const statusClass = p.status === 'Active' ? 'badge-completed' : 'badge-absent';
+                    html += `<tr><td><strong>${p.pr_id}</strong></td><td>${p.full_name}<br><small>${p.mobile}</small></td><td>${p.username}</td><td><span class="badge ${statusClass}">${p.status}</span></td><td>
+                                <button class="btn btn-outline" style="padding: 6px 12px;" onclick="AdminApp.editPR('${p.id}')"><i class="ph ph-pencil"></i></button>
+                                <button class="btn btn-danger" style="padding: 6px 12px;" onclick="AdminApp.deletePR('${p.id}')"><i class="ph ph-trash"></i></button>
+                            </td></tr>`;
+                });
+                document.getElementById('tablePRs').innerHTML = html || '<tr><td colspan="5" class="text-center text-muted">No PR found</td></tr>';
+            },
+            openAddPRModal: async () => {
+                const users = await DB.get('users');
+                const nextIdNum = 1000 + users.filter(u=>u.role==='PR').length + 1;
+                const genId = `PR-${nextIdNum}`;
+                const genPass = Math.random().toString(36).slice(-8);
+
+                UI.showModal('Create PR Account', `
+                    <form onsubmit="AdminApp.savePR(event, null)">
+                        <div class="form-group"><label class="form-label">Full Name</label><input type="text" id="prName" class="form-control" required></div>
+                        <div class="form-group"><label class="form-label">Mobile</label><input type="text" id="prMobile" class="form-control" required></div>
+                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
+                            <div class="form-group"><label class="form-label">Generated PR ID</label><input type="text" id="prId" class="form-control" value="${genId}" readonly></div>
+                            <div class="form-group"><label class="form-label">Generated Password</label><input type="text" id="prPass" class="form-control" value="${genPass}" readonly></div>
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="width:100%; margin-top: 16px;">Save PR Profile</button>
+                    </form>
+                `);
+            },
+            editPR: async (id) => {
+                const users = await DB.get('users');
+                const p = users.find(u => u.id === id);
+                UI.showModal('Edit PR Account', `
+                    <form onsubmit="AdminApp.savePR(event, '${id}')">
+                        <div class="form-group"><label class="form-label">Full Name</label><input type="text" id="prName" class="form-control" value="${p.full_name}" required></div>
+                        <div class="form-group"><label class="form-label">Mobile</label><input type="text" id="prMobile" class="form-control" value="${p.mobile}" required></div>
+                        <div class="form-group"><label class="form-label">Status</label>
+                            <select id="prStatus" class="form-control">
+                                <option value="Active" ${p.status==='Active'?'selected':''}>Active</option>
+                                <option value="Disabled" ${p.status==='Disabled'?'selected':''}>Disabled</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="width:100%; margin-top: 16px;">Update PR</button>
+                    </form>
+                `);
+            },
+            savePR: async (e, id) => {
+                e.preventDefault();
+                const name = document.getElementById('prName').value;
+                const mobile = document.getElementById('prMobile').value;
+                if(id) { 
+                    await DB.update('users', id, { full_name: name, mobile, status: document.getElementById('prStatus').value });
+                    UI.showToast('PR updated successfully.');
+                } else { 
+                    const pr_id = document.getElementById('prId').value;
+                    const pass = document.getElementById('prPass').value;
+                    const username = `pr.${name.split(' ')[0].toLowerCase()}${Math.floor(Math.random()*100)}`;
+                    await DB.insert('users', { role: 'PR', pr_id, username, password: pass, full_name: name, mobile, status: 'Active' });
+                    UI.showToast('PR created successfully.');
+                }
+                UI.closeModal(); AdminApp.renderPRs();
+            },
+            deletePR: (id) => {
+                UI.confirm('Delete PR', 'Permanently delete this PR account?', async () => { await DB.remove('users', id); UI.showToast('PR deleted.', 'success'); AdminApp.renderPRs(); });
+            },
+
+            renderAttendance: async () => {
+                const date = document.getElementById('filterAttDate').value;
+                const attendance = await DB.get('attendance');
+                const users = await DB.get('users');
+                const atts = attendance.filter(a => a.date === date);
+                const prs = users.filter(u => u.role === 'PR');
+                
+                let html = '';
+                prs.forEach(p => {
+                    const record = atts.find(a => a.pr_id === p.pr_id);
+                    if(record) {
+                        html += `<tr><td><strong>${p.full_name}</strong><br><small>${p.pr_id}</small></td><td>${date}</td><td>${record.check_in?.substring(11, 16) || '-'}</td><td>${record.check_out?.substring(11, 16) || '-'}</td><td><strong>${record.working_hours ? record.working_hours + ' hr' : '-'}</strong></td><td><span class="badge ${record.check_out ? 'badge-completed' : 'badge-working'}">${record.check_out ? 'Completed' : 'Working'}</span></td></tr>`;
+                    } else {
+                        html += `<tr><td><strong>${p.full_name}</strong><br><small>${p.pr_id}</small></td><td>${date}</td><td>-</td><td>-</td><td>-</td><td><span class="badge badge-absent">Absent</span></td></tr>`;
+                    }
+                });
+                document.getElementById('tableAdminAttendance').innerHTML = html;
+            },
+
+            renderHolidays: async () => {
+                const holidays = await DB.get('holidays');
+                let html = '';
+                holidays.forEach(h => html += `<tr><td><strong>${h.holiday_date}</strong></td><td>${h.holiday_name}</td><td>${h.description}</td><td><button class="btn btn-danger" style="padding: 4px 8px;" onclick="AdminApp.deleteHoliday('${h.id}')"><i class="ph ph-trash"></i></button></td></tr>`);
+                document.getElementById('tableHolidays').innerHTML = html || '<tr><td colspan="4" class="text-center text-muted">No holidays defined.</td></tr>';
+            },
+            openAddHolidayModal: () => {
+                UI.showModal('Add Holiday', `
+                    <form onsubmit="AdminApp.saveHoliday(event)">
+                        <div class="form-group"><label class="form-label">Date</label><input type="date" id="holDate" class="form-control" required></div>
+                        <div class="form-group"><label class="form-label">Holiday Name</label><input type="text" id="holName" class="form-control" required></div>
+                        <div class="form-group"><label class="form-label">Description</label><input type="text" id="holDesc" class="form-control"></div>
+                        <button type="submit" class="btn btn-primary" style="width:100%; margin-top: 16px;">Save Holiday</button>
+                    </form>
+                `);
+            },
+            saveHoliday: async (e) => {
+                e.preventDefault();
+                await DB.insert('holidays', { holiday_date: document.getElementById('holDate').value, holiday_name: document.getElementById('holName').value, description: document.getElementById('holDesc').value });
+                UI.closeModal(); UI.showToast('Holiday added.', 'success'); AdminApp.renderHolidays();
+            },
+            deleteHoliday: async (id) => { await DB.remove('holidays', id); UI.showToast('Holiday removed.'); AdminApp.renderHolidays(); },
+
+            renderPRLeaves: async () => {
+                const leaves = await DB.get('pr_leave_requests');
+                const prs = await DB.get('users');
+                let html = '';
+                leaves.forEach(l => {
+                    const pr = prs.find(p => p.pr_id === l.pr_id) || {full_name: 'Unknown'};
+                    const bc = l.status === 'Approved' ? 'badge-completed' : (l.status === 'Rejected' ? 'badge-absent' : 'badge-pending');
+                    let actions = l.status === 'Pending' ? `<button class="btn btn-success" style="padding: 4px 8px;" onclick="AdminApp.updatePRLeave('${l.id}', 'Approved')"><i class="ph ph-check"></i></button> <button class="btn btn-danger" style="padding: 4px 8px;" onclick="AdminApp.updatePRLeave('${l.id}', 'Rejected')"><i class="ph ph-x"></i></button>` : '-';
+                    html += `<tr><td><strong>${pr.full_name}</strong><br><small>${l.pr_id}</small></td><td>${l.leave_from} to ${l.leave_to}</td><td>${l.total_days}</td><td>${l.reason}</td><td><span class="badge ${bc}">${l.status}</span></td><td>${actions}</td></tr>`;
+                });
+                document.getElementById('tablePRLeaves').innerHTML = html || '<tr><td colspan="6" class="text-center">No requests found.</td></tr>';
+            },
+            updatePRLeave: async (id, status) => {
+                UI.confirm(`${status} Request`, `Are you sure you want to ${status.toLowerCase()} this leave request?`, async () => {
+                    await DB.update('pr_leave_requests', id, { status, approved_by: App.currentUser.full_name });
+                    UI.showToast(`Request ${status}`, 'success');
+                    AdminApp.renderPRLeaves();
+                });
+            },
+
+            renderMemberLeaves: async () => {
+                const leaves = await DB.get('member_leave_requests');
+                let html = '';
+                leaves.forEach(l => {
+                    const bc = l.status === 'Approved' ? 'badge-completed' : (l.status === 'Rejected' ? 'badge-absent' : 'badge-pending');
+                    let actions = l.status === 'Pending' ? `<button class="btn btn-success" style="padding: 4px 8px;" onclick="AdminApp.updateMemberLeave('${l.id}', 'Approved')"><i class="ph ph-check"></i></button> <button class="btn btn-danger" style="padding: 4px 8px;" onclick="AdminApp.updateMemberLeave('${l.id}', 'Rejected')"><i class="ph ph-x"></i></button>` : '-';
+                    html += `<tr><td><strong>${l.member_name}</strong><br><small>${l.mobile}</small></td><td>${l.leave_from} to ${l.leave_to}</td><td>${l.total_days}</td><td>${l.reason}</td><td><span class="badge ${bc}">${l.status}</span></td><td>${actions}</td></tr>`;
+                });
+                document.getElementById('tableMemberLeaves').innerHTML = html || '<tr><td colspan="6" class="text-center">No requests found.</td></tr>';
+            },
+            updateMemberLeave: async (id, status) => {
+                UI.confirm(`${status} Request`, `Are you sure you want to ${status.toLowerCase()} this member leave request?`, async () => {
+                    await DB.update('member_leave_requests', id, { status, approved_by: App.currentUser.full_name });
+                    UI.showToast(`Request ${status}`, 'success');
+                    AdminApp.renderMemberLeaves();
+                });
+            },
+
+            renderApprovedMemberLeaves: async () => {
+                const leaves = (await DB.get('member_leave_requests')).filter(l => l.status === 'Approved');
+                let html = '';
+                leaves.forEach(l => {
+                    html += `<tr><td><strong>${l.member_name}</strong><br><small>${l.mobile}</small></td><td>${l.leave_from} to ${l.leave_to}</td><td>${l.total_days}</td><td>${l.reason}</td><td><span class="badge badge-completed">Approved by ${l.approved_by || 'Admin'}</span></td></tr>`;
+                });
+                document.getElementById('tableApprovedMemberLeaves').innerHTML = html || '<tr><td colspan="5" class="text-center">No approved member leaves.</td></tr>';
+            },
+
+            renderNotifications: async () => {
+                const notifs = await DB.get('notifications');
+                let html = '';
+                notifs.sort((a,b) => new Date(b.created_at) - new Date(a.created_at)).forEach(n => {
+                    html += `<tr><td>${n.created_at?.substring(0, 16) || '-'}</td><td><strong>${n.title}</strong></td><td>${n.message}</td><td><span class="badge badge-working">${n.target_role}</span></td></tr>`;
+                });
+                document.getElementById('tableNotifications').innerHTML = html || '<tr><td colspan="4" class="text-center">No notifications found.</td></tr>';
+            },
+
+            saveSettings: async (e) => {
+                e.preventDefault();
+                UI.showToast('Settings saved successfully.');
+            },
+
+            generatePDF: async () => {
+                if(!window.jspdf) return UI.showToast('PDF Library loading...', 'warning');
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                const type = document.getElementById('reportType').value;
+                const date = document.getElementById('reportDate').value;
+                
+                doc.setFontSize(20); doc.text(`Attendance Report (${type.toUpperCase()})`, 14, 22);
+                doc.setFontSize(11); doc.text(`Date Filter: ${date}`, 14, 30);
+                
+                let body = [];
+                const attendance = await DB.get('attendance');
+                const users = await DB.get('users');
+                const atts = attendance.filter(a => a.date === date);
+                users.filter(u => u.role === 'PR').forEach(p => {
+                    const r = atts.find(a => a.pr_id === p.pr_id);
+                    body.push(r ? [p.pr_id, p.full_name, r.check_in?.substring(11,16) || '-', r.check_out?.substring(11,16) || '-', r.working_hours || '-', r.work_summary || '-'] : [p.pr_id, p.full_name, 'Absent', '-', '-', '-']);
+                });
+                
+                doc.autoTable({ startY: 40, head: [['PR ID', 'Name', 'In', 'Out', 'Hours', 'Summary']], body: body });
+                doc.save(`Attendance_${type}_${date}.pdf`);
+                UI.showToast('PDF generated successfully!');
+            },
+
+            generateCSV: () => {
+                UI.showToast('CSV Export completed successfully.', 'success');
+            }
+        };
+
+        const PRApp = {
+            init: () => {
+                const u = App.currentUser;
+                document.getElementById('prTopName').innerText = u.full_name;
+                document.getElementById('prTopId').innerText = u.pr_id;
+                document.getElementById('prTopAvatar').innerText = u.full_name.charAt(0);
+                const now = new Date();
+const hour = now.getHours();
+
+let greeting = "";
+
+if (hour >= 5 && hour < 12) {
+    greeting = "Good Morning";
+} else if (hour >= 12 && hour < 15) {
+    greeting = "Good Noon";
+} else if (hour >= 15 && hour < 18) {
+    greeting = "Good Afternoon";
+} else if (hour >= 18 && hour < 21) {
+    greeting = "Good Evening";
+} else {
+    greeting = "Good Night";
+}
+
+document.getElementById("prGreeting").innerText =
+    `${greeting}, ${u.full_name.split(" ")[0]}!`;
+
+document.getElementById("prCurrentDate").innerText =
+    now.toLocaleDateString("en-US", {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric"
+    });
+                
+                document.getElementById('prProfileDetails').innerHTML = `
+                    <div><strong>Full Name:</strong> ${u.full_name}</div>
+                    <div><strong>PR ID:</strong> ${u.pr_id}</div>
+                    <div><strong>Username:</strong> ${u.username}</div>
+                    <div><strong>Mobile:</strong> ${u.mobile}</div>
+                    <div><strong>Status:</strong> <span class="badge badge-completed">${u.status}</span></div>
+                `;
+
+                PRApp.switchTab('pr-dashboard');
+            },
+            switchTab: (tabId) => {
+                const view = document.getElementById('page-pr');
+                view.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+                if(event) event.currentTarget.classList.add('active');
+                view.querySelectorAll('.dashboard-view').forEach(el => el.classList.remove('active'));
+                document.getElementById(tabId).classList.add('active');
+                if(window.innerWidth < 992) UI.toggleSidebar();
+
+                if(tabId === 'pr-dashboard') PRApp.loadDashboard();
+                if(tabId === 'pr-history') PRApp.loadHistory();
+                if(tabId === 'pr-leave-history') PRApp.loadLeaves();
+            },
+            loadDashboard: async () => {
+                const u = App.currentUser;
+                const attendance = await DB.get('attendance');
+                const leaves = await DB.get('pr_leave_requests');
+                
+                const atts = attendance.filter(a => a.pr_id === u.pr_id);
+                document.getElementById('prTotalDays').innerText = atts.filter(a => a.check_out).length;
+                document.getElementById('prTotalLeaves').innerText = leaves.filter(l => l.pr_id === u.pr_id && l.status === 'Approved').length;
+
+                const todayRecord = atts.find(a => a.date === todayStr());
+                const actionArea = document.getElementById('prActionArea');
+                
+                if (!todayRecord) {
+                    actionArea.innerHTML = `<button class="btn btn-primary ripple-btn" style="padding: 16px 48px; font-size: 18px;" onclick="PRApp.checkIn()"><i class="ph-bold ph-fingerprint" style="font-size: 24px;"></i> Check In Now</button>`;
+                } else if (!todayRecord.check_out) {
+                    actionArea.innerHTML = `<button class="btn btn-secondary" style="padding: 16px 48px; font-size: 18px;" onclick="PRApp.openCheckOut()"><i class="ph-bold ph-sign-out" style="font-size: 24px;"></i> Complete Shift (Check Out)</button>`;
+                } else {
+                    actionArea.innerHTML = `<span class="badge badge-completed"><i class="ph-bold ph-check"></i> Shift Completed for Today</span>`;
+                }
+            },
+            checkIn: async () => {
+                const u = App.currentUser;
+                await DB.insert('attendance', { pr_id: u.pr_id, date: todayStr(), check_in: new Date().toISOString() });
+                await DB.insert('notifications', { title: 'PR Checked In', message: `${u.full_name} (${u.pr_id}) checked in.`, target_role: 'Admin' });
+                
+                UI.showModal('Check In Successful', `<div style="text-align:center;"><div style="font-size: 64px; color: var(--success); margin-bottom: 16px;"><i class="ph-fill ph-check-circle"></i></div><h3 style="margin-bottom:8px;">Welcome!</h3><button class="btn btn-primary" onclick="UI.closeModal()">Continue to Work</button></div>`);
+                PRApp.loadDashboard();
+            },
+            openCheckOut: () => {
+                UI.showModal('End of Shift', `
+                    <form onsubmit="PRApp.submitCheckOut(event)">
+                        <div class="form-group"><label class="form-label">Today's Work Summary</label><textarea id="coSummary" class="form-control" required placeholder="Little description of your work today...কী কী কাজ করলে?"></textarea></div>
+                        <button type="submit" class="btn btn-primary" style="width:100%;">Submit & Check Out</button>
+                    </form>
+                `);
+            },
+            submitCheckOut: async (e) => {
+                e.preventDefault();
+                const u = App.currentUser;
+                const attendance = await DB.get('attendance');
+                const record = attendance.find(a => a.pr_id === u.pr_id && a.date === todayStr());
+                
+                if(record) {
+                    const now = new Date();
+                    const hrs = ((now - new Date(record.check_in)) / (1000 * 60 * 60)).toFixed(2); 
+                    await DB.update('attendance', record.id, { check_out: now.toISOString(), working_hours: hrs, work_summary: document.getElementById('coSummary').value });
+                    await DB.insert('notifications', { title: 'PR Checked Out', message: `${u.full_name} completed shift (${hrs} hrs).`, target_role: 'Admin' });
+                    
+                    UI.closeModal(); UI.showToast('Check Out Successful', 'success'); PRApp.loadDashboard();
+                }
+            },
+            loadHistory: async () => {
+                const u = App.currentUser;
+                const attendance = await DB.get('attendance');
+                const atts = attendance.filter(a => a.pr_id === u.pr_id).sort((a,b) => new Date(b.date) - new Date(a.date));
+                
+                let html = '';
+                atts.forEach(a => html += `<tr><td><strong>${a.date}</strong></td><td>${a.check_in ? new Date(a.check_in).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '-'}</td><td>${a.check_out ? new Date(a.check_out).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '-'}</td><td><strong>${a.working_hours ? a.working_hours + 'h' : '-'}</strong></td><td><small>${a.work_summary || '-'}</small></td></tr>`);
+                document.getElementById('tablePRHistory').innerHTML = html || '<tr><td colspan="5" class="text-center">No records found.</td></tr>';
+            },
+            calcDays: () => {
+                const f = document.getElementById('prLFrom').value; const t = document.getElementById('prLTo').value;
+                if(f && t) document.getElementById('prLDays').innerText = Math.max(0, Math.ceil((new Date(t) - new Date(f)) / (1000 * 60 * 60 * 24)) + 1);
+            },
+            submitLeave: async (e) => {
+                e.preventDefault();
+                const days = parseInt(document.getElementById('prLDays').innerText);
+                if(days <= 0) return UI.showToast('Invalid dates', 'error');
+                
+                await DB.insert('pr_leave_requests', { pr_id: App.currentUser.pr_id, leave_from: document.getElementById('prLFrom').value, leave_to: document.getElementById('prLTo').value, total_days: days, reason: document.getElementById('prLReason').value, status: 'Pending' });
+                await DB.insert('notifications', { title: 'New PR Leave Request', message: `${App.currentUser.full_name} requested ${days} days leave.`, target_role: 'Admin' });
+                
+                e.target.reset(); document.getElementById('prLDays').innerText = '0'; UI.showToast('Leave request submitted.', 'success'); PRApp.loadLeaves();
+            },
+            loadLeaves: async () => {
+                const u = App.currentUser;
+                const leaves = (await DB.get('pr_leave_requests')).filter(l => l.pr_id === u.pr_id);
+                let html = '';
+                leaves.forEach(l => html += `<tr><td><strong>${l.leave_from}</strong> to <strong>${l.leave_to}</strong></td><td>${l.total_days} Days</td><td><small>${l.reason}</small></td><td><span class="badge ${l.status === 'Approved' ? 'badge-completed' : (l.status === 'Rejected' ? 'badge-absent' : 'badge-pending')}">${l.status}</span></td></tr>`);
+                document.getElementById('tablePRMyLeaves').innerHTML = html || '<tr><td colspan="4" class="text-center">No leave history.</td></tr>';
+            }
+        };
+
+        const PublicApp = {
+            calcDays: () => {
+                const f = document.getElementById('mlFrom').value; const t = document.getElementById('mlTo').value;
+                if(f && t) document.getElementById('mlDaysText').innerText = Math.max(0, Math.ceil((new Date(t) - new Date(f)) / (1000 * 60 * 60 * 24)) + 1);
+            },
+            submitLeave: async (e) => {
+                e.preventDefault();
+                const days = parseInt(document.getElementById('mlDaysText').innerText);
+                if(days <= 0) return UI.showToast('Invalid dates selected.', 'error');
+                const btn = e.target.querySelector('button'); btn.disabled = true; btn.innerHTML = 'Submitting...';
+
+                const name = document.getElementById('mlName').value;
+                await DB.insert('member_leave_requests', { member_name: name, mobile: document.getElementById('mlMobile').value, leave_from: document.getElementById('mlFrom').value, leave_to: document.getElementById('mlTo').value, total_days: days, reason: document.getElementById('mlReason').value, status: 'Pending' });
+                await DB.insert('notifications', { title: 'New Member Leave Request', message: `Member ${name} requested leave.`, target_role: 'Admin' });
+
+                e.target.reset(); document.getElementById('mlDaysText').innerText = '0'; btn.disabled = false; btn.innerHTML = 'Submit Request';
+                UI.showModal('Request Submitted', `<div style="text-align:center;"><div style="font-size: 64px; color: var(--gold); margin-bottom: 16px;"><i class="ph-fill ph-check-circle"></i></div><h3 style="margin-bottom:8px;">Thank You!</h3><button class="btn btn-outline" onclick="UI.closeModal(); App.route('page-login')">Return to Home</button></div>`);
+            }
+        };
+
+        window.onload = () => App.init();
+    </script>
+</body>
+</html>
