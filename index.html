@@ -1099,6 +1099,9 @@
                 const doc = new jsPDF();
                 const type = document.getElementById('reportType').value;
                 const date = document.getElementById('reportDate').value;
+                  doc.addFileToVFS("NotoSansBengali-Regular.ttf", window.NotoSansBengaliFont);
+    doc.addFont("NotoSansBengali-Regular.ttf", "NotoSansBengali", "normal");
+    doc.setFont("NotoSansBengali");
                 
                 doc.setFontSize(20); doc.text(`Attendance Report (${type.toUpperCase()})`, 14, 22);
                 doc.setFontSize(11); doc.text(`Date Filter: ${date}`, 14, 30);
