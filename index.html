@@ -1099,7 +1099,7 @@
                 UI.showToast('Settings saved successfully.');
             },
 
-            //generate: async () => {
+            generate: async () => {
                 if(!window.jspdf) return UI.showToast('PDF Library loading...', 'warning');
                 const { jsPDF } = window.jspdf;
                 const doc = new jsPDF();
