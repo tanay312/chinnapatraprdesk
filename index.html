@@ -502,7 +502,7 @@
                             <input type="date" id="reportDate" class="form-control">
                         </div>
                         <div style="display: flex; gap: 12px; align-items: flex-end;">
-                            <button class="btn btn-primary" onclick="AdminApp.generatePDF()"><i class="ph ph-file-pdf"></i> Export PDF</button>
+                            <button class="btn btn-primary" onclick="AdminApp.generate()"><i class="ph ph-file-"></i> Export </button>
                             <button class="btn btn-outline" onclick="AdminApp.generateCSV()"><i class="ph ph-file-xls"></i> Export Excel</button>
                         </div>
                     </div>
@@ -1099,7 +1099,7 @@
                 UI.showToast('Settings saved successfully.');
             },
 
-            generatePDF: async () => {
+            //generate: async () => {
                 if(!window.jspdf) return UI.showToast('PDF Library loading...', 'warning');
                 const { jsPDF } = window.jspdf;
                 const doc = new jsPDF();
@@ -1126,9 +1126,87 @@
                 UI.showToast('PDF generated successfully!');
             },
 
-            generateCSV: () => {
-                UI.showToast('CSV Export completed successfully.', 'success');
-            }
+            generateCSV: async () => {
+
+    const type = document.getElementById("reportType").value;
+    const date = document.getElementById("reportDate").value;
+
+    const attendance = await DB.get("attendance");
+    const users = await DB.get("users");
+
+    const todayAttendance = attendance.filter(a => a.date === date);
+
+    const rows = [];
+
+    rows.push([
+        "PR ID",
+        "Name",
+        "Check In",
+        "Check Out",
+        "Hours",
+        "Summary"
+    ]);
+
+    users.filter(u => u.role === "PR").forEach(user => {
+
+        const record = todayAttendance.find(a => a.pr_id === user.pr_id);
+
+        if (record) {
+
+            rows.push([
+                user.pr_id,
+                user.full_name,
+                record.check_in ? record.check_in.substring(11,16) : "",
+                record.check_out ? record.check_out.substring(11,16) : "",
+                record.working_hours || "",
+                record.work_summary || ""
+            ]);
+
+        } else {
+
+            rows.push([
+                user.pr_id,
+                user.full_name,
+                "Absent",
+                "",
+                "",
+                ""
+            ]);
+
+        }
+
+    });
+
+    const csvContent = rows
+        .map(row =>
+            row.map(value =>
+                `"${String(value).replace(/"/g, '""')}"`
+            ).join(",")
+        )
+        .join("\n");
+
+    const blob = new Blob(
+        ["\uFEFF" + csvContent],
+        {
+            type: "text/csv;charset=utf-8;"
+        }
+    );
+
+    const link = document.createElement("a");
+
+    link.href = URL.createObjectURL(blob);
+    link.download = `Attendance_${type}_${date}.csv`;
+
+    document.body.appendChild(link);
+
+    link.click();
+
+    document.body.removeChild(link);
+
+    URL.revokeObjectURL(link.href);
+
+    UI.showToast("CSV downloaded successfully!", "success");
+},
         };
 
         const PRApp = {
