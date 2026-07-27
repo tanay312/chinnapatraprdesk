@@ -478,8 +478,14 @@
                     <div class="content-card" style="padding: 0;">
                         <div class="table-responsive">
                             <table class="premium-table">
-                                <thead><tr><th>PR Info</th><th>Date</th><th>Check In</th><th>Check Out</th><th>Hours</th><th>Status / Summary</th></tr></thead>
+                                <thead><tr><th>PR Info</th><th>Date</th><th>Session</th><th>Hours</th><th>Status / Summary</th><th>Action</th></tr></thead>
                                 <tbody id="tableAdminAttendance"></tbody>
+                                <td><button
+    class="btn btn-success"
+    onclick="AdminApp.sendReminderAll()">
+    <i class="ph ph-whatsapp-logo"></i>
+    Reminder All
+</button></td>
                             </table>
                         </div>
                     </div>
@@ -895,7 +901,115 @@
                 if(tabId === 'admin-approved-member-leave') AdminApp.renderApprovedMemberLeaves();
                 if(tabId === 'admin-notifications') AdminApp.renderNotifications();
             },
-            
+            sendReminder: async (prId) => {
+
+    const users = await DB.get("users");
+
+    const user = users.find(u => u.pr_id === prId);
+
+    if (!user || !user.mobile) {
+        return UI.showToast("Mobile number not found", "error");
+    }
+
+    const message =
+`🌿 নমস্কার, ${user.full_name},
+
+🙏 ছিন্নপত্র পরিবারের পক্ষ থেকে শুভেচ্ছা।
+
+📌 আমাদের রেকর্ড অনুযায়ী আজকের আপনার উপস্থিতি (Attendance) এখনও নথিভুক্ত হয়নি।
+
+✅ অনুগ্রহ করে যত দ্রুত সম্ভব আপনার Check-In সম্পন্ন করুন।
+
+📝 যদি আপনি ইতোমধ্যে Check-In করে থাকেন অথবা অনুমোদিত ছুটিতে (Approved Leave) থাকেন, তাহলে এই বার্তাটি উপেক্ষা করুন।
+
+🤝 আপনার সহযোগিতার জন্য আন্তরিক ধন্যবাদ।
+
+🌱 শুভেচ্ছান্তে,
+✨ Team Chinnapatra`;
+
+    const url =
+`https://wa.me/91${user.mobile}?text=${encodeURIComponent(message)}`;
+
+    window.open(url, "_blank");
+
+},
+            sendReminderAll: async () => {
+
+    const date = todayStr();
+
+    const attendance = await DB.get("attendance");
+    const users = await DB.get("users");
+    const leaves = await DB.get("pr_leave_requests");
+
+    const todayAttendance = attendance.filter(a => a.date === date);
+
+    const absents = users.filter(user => {
+
+        if (user.role !== "PR") return false;
+
+        // Attendance exists?
+        const record = todayAttendance.find(a => a.pr_id === user.pr_id);
+
+        if (record) return false;
+
+        // Approved leave?
+        const onLeave = leaves.find(l =>
+            l.pr_id === user.pr_id &&
+            l.status === "Approved" &&
+            date >= l.leave_from &&
+            date <= l.leave_to
+        );
+
+        if (onLeave) return false;
+
+        // Mobile number exists?
+        if (!user.mobile || user.mobile.trim() === "") return false;
+
+        return true;
+
+    });
+
+    if (absents.length === 0) {
+
+        UI.showToast(
+            "No absent employees found. Everyone is present or on leave.",
+            "success"
+        );
+
+        return;
+
+    }
+
+    absents.forEach((user, index) => {
+
+        setTimeout(() => {
+
+            const msg =
+`Hello ${user.full_name},
+
+This is a friendly reminder to mark your attendance for today.
+
+Please check in as soon as possible.
+
+Thank you.`;
+
+            const phone = user.mobile.replace(/\D/g, "");
+
+            window.open(
+                `https://wa.me/91${phone}?text=${encodeURIComponent(msg)}`,
+                "_blank"
+            );
+
+        }, index * 1500);
+
+    });
+
+    UI.showToast(
+        `${absents.length} reminder(s) are being opened in WhatsApp.`,
+        "success"
+    );
+
+},
             loadDashboard: async () => {
                 const prs = (await DB.get('users')).filter(u => u.role === 'PR');
                 const atts = (await DB.get('attendance')).filter(a => a.date === todayStr());
@@ -997,23 +1111,172 @@
             },
 
             renderAttendance: async () => {
-                const date = document.getElementById('filterAttDate').value;
-                const attendance = await DB.get('attendance');
-                const users = await DB.get('users');
-                const atts = attendance.filter(a => a.date === date);
-                const prs = users.filter(u => u.role === 'PR');
-                
-                let html = '';
-                prs.forEach(p => {
-                    const record = atts.find(a => a.pr_id === p.pr_id);
-                    if(record) {
-                        html += `<tr><td><strong>${p.full_name}</strong><br><small>${p.pr_id}</small></td><td>${date}</td><td>${record.check_in?.substring(11, 16) || '-'}</td><td>${record.check_out?.substring(11, 16) || '-'}</td><td><strong>${record.working_hours ? record.working_hours + ' hr' : '-'}</strong></td><td><span class="badge ${record.check_out ? 'badge-completed' : 'badge-working'}">${record.check_out ? 'Completed' : 'Working'}</span></td></tr>`;
-                    } else {
-                        html += `<tr><td><strong>${p.full_name}</strong><br><small>${p.pr_id}</small></td><td>${date}</td><td>-</td><td>-</td><td>-</td><td><span class="badge badge-absent">Absent</span></td></tr>`;
-                    }
-                });
-                document.getElementById('tableAdminAttendance').innerHTML = html;
-            },
+
+    const date = document.getElementById("filterAttDate").value;
+
+    const attendance = await DB.get("attendance");
+    const users = await DB.get("users");
+    const leaves = await DB.get("pr_leave_requests");
+
+    const atts = attendance.filter(a => a.date === date);
+    const prs = users.filter(u => u.role === "PR");
+
+    let html = "";
+
+    prs.forEach(p => {
+
+        const record = atts.find(a => a.pr_id === p.pr_id);
+
+        // Check approved leave
+        const onLeave = leaves.find(l =>
+            l.pr_id === p.pr_id &&
+            l.status === "Approved" &&
+            date >= l.leave_from &&
+            date <= l.leave_to
+        );
+
+        // No attendance
+        if (!record) {
+
+            // Employee is on leave
+            if (onLeave) {
+
+                html += `
+                <tr>
+                    <td>
+                        <strong>${p.full_name}</strong><br>
+                        <small>${p.pr_id}</small>
+                    </td>
+
+                    <td>${date}</td>
+
+                    <td>-</td>
+
+                    <td>-</td>
+
+                    <td>
+                        <span class="badge badge-pending">
+                            On Leave
+                        </span>
+                    </td>
+
+                    <td>
+                        <span style="color:#888;">-</span>
+                    </td>
+                </tr>`;
+
+            } else {
+
+                // Truly absent
+                html += `
+                <tr>
+                    <td>
+                        <strong>${p.full_name}</strong><br>
+                        <small>${p.pr_id}</small>
+                    </td>
+
+                    <td>${date}</td>
+
+                    <td>-</td>
+
+                    <td>-</td>
+
+                    <td>
+                        <span class="badge badge-absent">
+                            Absent
+                        </span>
+                    </td>
+
+                    <td>
+                        <button
+                            class="btn btn-warning btn-sm"
+                            onclick="AdminApp.sendReminder('${p.pr_id}')">
+                            <i class="ph ph-whatsapp-logo"></i>
+                            Reminder
+                        </button>
+                    </td>
+                </tr>`;
+
+            }
+
+            return;
+        }
+
+        // Attendance found
+        const sessions = record.sessions || [];
+
+        let sessionText = "-";
+
+        if (sessions.length) {
+
+            sessionText = sessions.map((s, i) => {
+
+                const inTime = s.check_in
+                    ? new Date(s.check_in).toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit"
+                    })
+                    : "--";
+
+                const outTime = s.check_out
+                    ? new Date(s.check_out).toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit"
+                    })
+                    : "--";
+
+                return `#${i + 1}: ${inTime} → ${outTime}`;
+
+            }).join("<br>");
+
+        }
+
+        const totalHours =
+            ((record.total_minutes || 0) / 60).toFixed(2);
+
+        const status =
+            sessions.length &&
+            sessions[sessions.length - 1].check_out === null
+                ? "Working"
+                : "Completed";
+
+        html += `
+        <tr>
+
+            <td>
+                <strong>${p.full_name}</strong><br>
+                <small>${p.pr_id}</small>
+            </td>
+
+            <td>${date}</td>
+
+            <td>${sessionText}</td>
+
+            <td>
+                <strong>${totalHours} hrs</strong>
+            </td>
+
+            <td>
+                <span class="badge ${status === "Working"
+                    ? "badge-working"
+                    : "badge-completed"}">
+                    ${status}
+                </span>
+            </td>
+
+            <td>
+                <span style="color:green;">
+                    <i class="ph-fill ph-check-circle"></i>
+                </span>
+            </td>
+
+        </tr>`;
+
+    });
+
+    document.getElementById("tableAdminAttendance").innerHTML = html;
+
+},
 
             renderHolidays: async () => {
                 const holidays = await DB.get('holidays');
@@ -1100,31 +1363,133 @@
             },
 
             generate: async () => {
-                if(!window.jspdf) return UI.showToast('PDF Library loading...', 'warning');
-                const { jsPDF } = window.jspdf;
-                const doc = new jsPDF();
-                const type = document.getElementById('reportType').value;
-                const date = document.getElementById('reportDate').value;
-                  doc.addFileToVFS("NotoSansBengali-Regular.ttf", window.NotoSansBengaliFont);
-    doc.addFont("NotoSansBengali-Regular.ttf", "NotoSansBengali", "normal");
+
+    if (!window.jspdf)
+        return UI.showToast("PDF Library loading...", "warning");
+
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+
+    const type = document.getElementById("reportType").value;
+    const date = document.getElementById("reportDate").value;
+
+    // Bengali Font
+    doc.addFileToVFS(
+        "NotoSansBengali-Regular.ttf",
+        window.NotoSansBengaliFont
+    );
+    doc.addFont(
+        "NotoSansBengali-Regular.ttf",
+        "NotoSansBengali",
+        "normal"
+    );
     doc.setFont("NotoSansBengali");
-                
-                doc.setFontSize(20); doc.text(`Attendance Report (${type.toUpperCase()})`, 14, 22);
-                doc.setFontSize(11); doc.text(`Date Filter: ${date}`, 14, 30);
-                
-                let body = [];
-                const attendance = await DB.get('attendance');
-                const users = await DB.get('users');
-                const atts = attendance.filter(a => a.date === date);
-                users.filter(u => u.role === 'PR').forEach(p => {
-                    const r = atts.find(a => a.pr_id === p.pr_id);
-                    body.push(r ? [p.pr_id, p.full_name, r.check_in?.substring(11,16) || '-', r.check_out?.substring(11,16) || '-', r.working_hours || '-', r.work_summary || '-'] : [p.pr_id, p.full_name, 'Absent', '-', '-', '-']);
-                });
-                
-                doc.autoTable({ startY: 40, head: [['PR ID', 'Name', 'In', 'Out', 'Hours', 'Summary']], body: body });
-                doc.save(`Attendance_${type}_${date}.pdf`);
-                UI.showToast('PDF generated successfully!');
-            },
+
+    doc.setFontSize(20);
+    doc.text(`Attendance Report (${type.toUpperCase()})`, 14, 22);
+
+    doc.setFontSize(11);
+    doc.text(`Date Filter: ${date}`, 14, 30);
+
+    const attendance = await DB.get("attendance");
+    const users = await DB.get("users");
+
+    const atts = attendance.filter(a => a.date === date);
+
+    let body = [];
+
+    users
+        .filter(u => u.role === "PR")
+        .forEach(user => {
+
+            const record = atts.find(a => a.pr_id === user.pr_id);
+
+            if (!record) {
+
+                body.push([
+                    user.pr_id,
+                    user.full_name,
+                    "Absent",
+                    "",
+                    ""
+                ]);
+
+                return;
+            }
+
+            const sessions = record.sessions || [];
+
+            const sessionText = sessions.map((s, index) => {
+
+                const inTime = s.check_in
+                    ? new Date(s.check_in).toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit"
+                      })
+                    : "--";
+
+                const outTime = s.check_out
+                    ? new Date(s.check_out).toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit"
+                      })
+                    : "--";
+
+                return `#${index + 1}: ${inTime}-${outTime}`;
+
+            }).join("\n");
+
+            const hours =
+                ((record.total_minutes || 0) / 60).toFixed(2) + " hrs";
+
+            body.push([
+                user.pr_id,
+                user.full_name,
+                sessionText,
+                hours,
+                record.work_summary || ""
+            ]);
+
+        });
+
+    doc.autoTable({
+
+        startY: 40,
+
+        head: [[
+            "PR ID",
+            "Name",
+            "Sessions",
+            "Hours",
+            "Summary"
+        ]],
+
+        body: body,
+
+        styles: {
+            font: "NotoSansBengali",
+            fontSize: 9,
+            cellPadding: 3,
+            overflow: "linebreak"
+        },
+
+        headStyles: {
+            font: "NotoSansBengali",
+            fontStyle: "bold"
+        },
+
+        columnStyles: {
+            2: { cellWidth: 60 }, // Sessions
+            4: { cellWidth: 60 }  // Summary (supports Bengali)
+        }
+
+    });
+
+    doc.save(`Attendance_${type}_${date}.pdf`);
+
+    UI.showToast("PDF generated successfully!");
+
+},
 
             generateCSV: async () => {
 
@@ -1141,8 +1506,7 @@
     rows.push([
         "PR ID",
         "Name",
-        "Check In",
-        "Check Out",
+        "Sessions",
         "Hours",
         "Summary"
     ]);
@@ -1153,12 +1517,33 @@
 
         if (record) {
 
+            const sessions = record.sessions || [];
+
+            const sessionText = sessions.map((s, index) => {
+
+                const inTime = s.check_in
+                    ? new Date(s.check_in).toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit"
+                    })
+                    : "--";
+
+                const outTime = s.check_out
+                    ? new Date(s.check_out).toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit"
+                    })
+                    : "--";
+
+                return `#${index + 1}: ${inTime}-${outTime}`;
+
+            }).join(" | ");
+
             rows.push([
                 user.pr_id,
                 user.full_name,
-                record.check_in ? record.check_in.substring(11,16) : "",
-                record.check_out ? record.check_out.substring(11,16) : "",
-                record.working_hours || "",
+                sessionText,
+                ((record.total_minutes || 0) / 60).toFixed(2) + " hrs",
                 record.work_summary || ""
             ]);
 
@@ -1168,7 +1553,6 @@
                 user.pr_id,
                 user.full_name,
                 "Absent",
-                "",
                 "",
                 ""
             ]);
@@ -1266,86 +1650,298 @@ document.getElementById("prCurrentDate").innerText =
                 if(tabId === 'pr-leave-history') PRApp.loadLeaves();
             },
             loadDashboard: async () => {
-                const u = App.currentUser;
-                const attendance = await DB.get('attendance');
-                const leaves = await DB.get('pr_leave_requests');
-                
-                const atts = attendance.filter(a => a.pr_id === u.pr_id);
-                document.getElementById('prTotalDays').innerText = atts.filter(a => a.check_out).length;
-                document.getElementById('prTotalLeaves').innerText = leaves.filter(l => l.pr_id === u.pr_id && l.status === 'Approved').length;
+    const u = App.currentUser;
 
-                const todayRecord = atts.find(a => a.date === todayStr());
-                const actionArea = document.getElementById('prActionArea');
-                
-                if (!todayRecord) {
-                    actionArea.innerHTML = `<button class="btn btn-primary ripple-btn" style="padding: 16px 48px; font-size: 18px;" onclick="PRApp.checkIn()"><i class="ph-bold ph-fingerprint" style="font-size: 24px;"></i> Check In Now</button>`;
-                } else if (!todayRecord.check_out) {
-                    actionArea.innerHTML = `<button class="btn btn-secondary" style="padding: 16px 48px; font-size: 18px;" onclick="PRApp.openCheckOut()"><i class="ph-bold ph-sign-out" style="font-size: 24px;"></i> Complete Shift (Check Out)</button>`;
-                } else {
-                    actionArea.innerHTML = `<span class="badge badge-completed"><i class="ph-bold ph-check"></i> Shift Completed for Today</span>`;
+    const attendance = await DB.get("attendance");
+    const leaves = await DB.get("pr_leave_requests");
+
+    const atts = attendance.filter(a => a.pr_id === u.pr_id);
+
+    document.getElementById("prTotalDays").innerText = atts.length;
+
+    document.getElementById("prTotalLeaves").innerText =
+        leaves.filter(l => l.pr_id === u.pr_id && l.status === "Approved").length;
+
+    const todayRecord = atts.find(a => a.date === todayStr());
+
+    const actionArea = document.getElementById("prActionArea");
+
+    if (!todayRecord) {
+
+        actionArea.innerHTML = `
+            <button class="btn btn-primary ripple-btn"
+                style="padding:16px 48px;font-size:18px;"
+                onclick="PRApp.checkIn()">
+                <i class="ph-bold ph-fingerprint" style="font-size:24px;"></i>
+                Check In Now
+            </button>`;
+
+        return;
+    }
+
+    const sessions = todayRecord.sessions || [];
+
+    if (sessions.length === 0) {
+
+        actionArea.innerHTML = `
+            <button class="btn btn-primary ripple-btn"
+                style="padding:16px 48px;font-size:18px;"
+                onclick="PRApp.checkIn()">
+                <i class="ph-bold ph-fingerprint"></i>
+                Check In Now
+            </button>`;
+
+        return;
+    }
+
+    const lastSession = sessions[sessions.length - 1];
+
+    if (lastSession.check_out === null) {
+
+        actionArea.innerHTML = `
+            <button class="btn btn-secondary"
+                style="padding:16px 48px;font-size:18px;"
+                onclick="PRApp.openCheckOut()">
+                <i class="ph-bold ph-sign-out" style="font-size:24px;"></i>
+                Check Out
+            </button>`;
+
+    } else {
+
+        actionArea.innerHTML = `
+            <button class="btn btn-primary ripple-btn"
+                style="padding:16px 48px;font-size:18px;"
+                onclick="PRApp.checkIn()">
+                <i class="ph-bold ph-fingerprint" style="font-size:24px;"></i>
+                Check In Again
+            </button>
+
+            <div style="margin-top:10px;font-size:14px;color:green;">
+                Today's Sessions : ${sessions.length}
+            </div>`;
+    }
+},
+
+checkIn: async () => {
+
+    const u = App.currentUser;
+    const now = new Date().toISOString();
+
+    const attendance = await DB.get("attendance");
+
+    let record = attendance.find(a =>
+        a.pr_id === u.pr_id &&
+        a.date === todayStr()
+    );
+
+    if (!record) {
+
+        await DB.insert("attendance", {
+            pr_id: u.pr_id,
+            date: todayStr(),
+            sessions: [
+                {
+                    check_in: now,
+                    check_out: null
                 }
-            },
-            checkIn: async () => {
-                const u = App.currentUser;
-                await DB.insert('attendance', { pr_id: u.pr_id, date: todayStr(), check_in: new Date().toISOString() });
-                await DB.insert('notifications', { title: 'PR Checked In', message: `${u.full_name} (${u.pr_id}) checked in.`, target_role: 'Admin' });
-                
-                UI.showModal('Check In Successful', `<div style="text-align:center;"><div style="font-size: 64px; color: var(--success); margin-bottom: 16px;"><i class="ph-fill ph-check-circle"></i></div><h3 style="margin-bottom:8px;">Welcome!</h3><button class="btn btn-primary" onclick="UI.closeModal()">Continue to Work</button></div>`);
-                PRApp.loadDashboard();
-            },
-            openCheckOut: () => {
-                UI.showModal('End of Shift', `
-                    <form onsubmit="PRApp.submitCheckOut(event)">
-                        <div class="form-group"><label class="form-label">Today's Work Summary</label><textarea id="coSummary" class="form-control" required placeholder="Little description of your work today...কী কী কাজ করলে?"></textarea></div>
-                        <button type="submit" class="btn btn-primary" style="width:100%;">Submit & Check Out</button>
-                    </form>
-                `);
-            },
-            submitCheckOut: async (e) => {
-                e.preventDefault();
-                const u = App.currentUser;
-                const attendance = await DB.get('attendance');
-                const record = attendance.find(a => a.pr_id === u.pr_id && a.date === todayStr());
-                
-                if(record) {
-                    const now = new Date();
-                    const hrs = ((now - new Date(record.check_in)) / (1000 * 60 * 60)).toFixed(2); 
-                    await DB.update('attendance', record.id, { check_out: now.toISOString(), working_hours: hrs, work_summary: document.getElementById('coSummary').value });
-                    await DB.insert('notifications', { title: 'PR Checked Out', message: `${u.full_name} completed shift (${hrs} hrs).`, target_role: 'Admin' });
-                    
-                    UI.closeModal(); UI.showToast('Check Out Successful', 'success'); PRApp.loadDashboard();
-                }
-            },
+            ],
+            total_minutes: 0,
+            work_summary: ""
+        });
+
+    } else {
+
+        let sessions = record.sessions || [];
+
+        if (
+            sessions.length &&
+            sessions[sessions.length - 1].check_out === null
+        ) {
+            return UI.showToast("Already Checked In", "warning");
+        }
+
+        sessions.push({
+            check_in: now,
+            check_out: null
+        });
+
+        await DB.update("attendance", record.id, {
+            sessions: sessions
+        });
+    }
+
+    await DB.insert("notifications", {
+        title: "PR Checked In",
+        message: `${u.full_name} (${u.pr_id}) checked in.`,
+        target_role: "Admin"
+    });
+
+    UI.showModal(
+        "Check In Successful",
+        `<div style="text-align:center;">
+            <div style="font-size:64px;color:var(--success);margin-bottom:16px;">
+                <i class="ph-fill ph-check-circle"></i>
+            </div>
+            <h3>Welcome!</h3>
+            <button class="btn btn-primary" onclick="UI.closeModal()">
+                Continue
+            </button>
+        </div>`
+    );
+
+    PRApp.loadDashboard();
+},
+
+openCheckOut: () => {
+
+    UI.showModal("Check Out", `
+        <form onsubmit="PRApp.submitCheckOut(event)">
+
+            <div class="form-group">
+                <label class="form-label">Work Summary</label>
+                <textarea
+                    id="coSummary"
+                    class="form-control"
+                    placeholder="Describe today's work..."></textarea>
+            </div>
+
+            <button
+                type="submit"
+                class="btn btn-primary"
+                style="width:100%;">
+                Check Out
+            </button>
+
+        </form>
+    `);
+
+},
+
+submitCheckOut: async (e) => {
+
+    e.preventDefault();
+
+    const u = App.currentUser;
+
+    const attendance = await DB.get("attendance");
+
+    const record = attendance.find(a =>
+        a.pr_id === u.pr_id &&
+        a.date === todayStr()
+    );
+
+    if (!record) {
+        return UI.showToast("Attendance not found", "error");
+    }
+
+    let sessions = record.sessions || [];
+
+    if (
+        !sessions.length ||
+        sessions[sessions.length - 1].check_out !== null
+    ) {
+        return UI.showToast("No active check in", "warning");
+    }
+
+    const now = new Date().toISOString();
+
+    sessions[sessions.length - 1].check_out = now;
+
+    let totalMinutes = 0;
+
+    sessions.forEach(s => {
+
+        if (s.check_in && s.check_out) {
+
+            totalMinutes += Math.floor(
+                (new Date(s.check_out) - new Date(s.check_in)) / 60000
+            );
+
+        }
+
+    });
+
+    await DB.update("attendance", record.id, {
+        sessions: sessions,
+        total_minutes: totalMinutes,
+        work_summary: document.getElementById("coSummary").value
+    });
+
+    await DB.insert("notifications", {
+        title: "PR Checked Out",
+        message: `${u.full_name} checked out.`,
+        target_role: "Admin"
+    });
+
+    UI.closeModal();
+
+    UI.showToast("Checked Out Successfully", "success");
+
+    PRApp.loadDashboard();
+},
             loadHistory: async () => {
-                const u = App.currentUser;
-                const attendance = await DB.get('attendance');
-                const atts = attendance.filter(a => a.pr_id === u.pr_id).sort((a,b) => new Date(b.date) - new Date(a.date));
-                
-                let html = '';
-                atts.forEach(a => html += `<tr><td><strong>${a.date}</strong></td><td>${a.check_in ? new Date(a.check_in).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '-'}</td><td>${a.check_out ? new Date(a.check_out).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '-'}</td><td><strong>${a.working_hours ? a.working_hours + 'h' : '-'}</strong></td><td><small>${a.work_summary || '-'}</small></td></tr>`);
-                document.getElementById('tablePRHistory').innerHTML = html || '<tr><td colspan="5" class="text-center">No records found.</td></tr>';
-            },
-            calcDays: () => {
-                const f = document.getElementById('prLFrom').value; const t = document.getElementById('prLTo').value;
-                if(f && t) document.getElementById('prLDays').innerText = Math.max(0, Math.ceil((new Date(t) - new Date(f)) / (1000 * 60 * 60 * 24)) + 1);
-            },
-            submitLeave: async (e) => {
-                e.preventDefault();
-                const days = parseInt(document.getElementById('prLDays').innerText);
-                if(days <= 0) return UI.showToast('Invalid dates', 'error');
-                
-                await DB.insert('pr_leave_requests', { pr_id: App.currentUser.pr_id, leave_from: document.getElementById('prLFrom').value, leave_to: document.getElementById('prLTo').value, total_days: days, reason: document.getElementById('prLReason').value, status: 'Pending' });
-                await DB.insert('notifications', { title: 'New PR Leave Request', message: `${App.currentUser.full_name} requested ${days} days leave.`, target_role: 'Admin' });
-                
-                e.target.reset(); document.getElementById('prLDays').innerText = '0'; UI.showToast('Leave request submitted.', 'success'); PRApp.loadLeaves();
-            },
-            loadLeaves: async () => {
-                const u = App.currentUser;
-                const leaves = (await DB.get('pr_leave_requests')).filter(l => l.pr_id === u.pr_id);
-                let html = '';
-                leaves.forEach(l => html += `<tr><td><strong>${l.leave_from}</strong> to <strong>${l.leave_to}</strong></td><td>${l.total_days} Days</td><td><small>${l.reason}</small></td><td><span class="badge ${l.status === 'Approved' ? 'badge-completed' : (l.status === 'Rejected' ? 'badge-absent' : 'badge-pending')}">${l.status}</span></td></tr>`);
-                document.getElementById('tablePRMyLeaves').innerHTML = html || '<tr><td colspan="4" class="text-center">No leave history.</td></tr>';
-            }
+
+    const u = App.currentUser;
+
+    const attendance = await DB.get("attendance");
+
+    const atts = attendance
+        .filter(a => a.pr_id === u.pr_id)
+        .sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    let html = "";
+
+    atts.forEach(a => {
+
+        const sessions = a.sessions || [];
+
+        let sessionList = "-";
+
+        if (sessions.length > 0) {
+
+            sessionList = sessions.map((s, index) => {
+
+                const inTime = s.check_in
+                    ? new Date(s.check_in).toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit"
+                    })
+                    : "--";
+
+                const outTime = s.check_out
+                    ? new Date(s.check_out).toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit"
+                    })
+                    : "--";
+
+                return `#${index + 1}: ${inTime} → ${outTime}`;
+
+            }).join("<br>");
+
+        }
+
+        const totalHours = ((a.total_minutes || 0) / 60).toFixed(2);
+
+        html += `
+            <tr>
+                <td><strong>${a.date}</strong></td>
+                <td>${sessionList}</td>
+                <td><strong>${totalHours} hrs</strong></td>
+                <td><small>${a.work_summary || "-"}</small></td>
+            </tr>
+        `;
+
+    });
+
+    document.getElementById("tablePRHistory").innerHTML =
+        html ||
+        `<tr>
+            <td colspan="4" class="text-center">
+                No records found.
+            </td>
+        </tr>`;
+},
         };
 
         const PublicApp = {
