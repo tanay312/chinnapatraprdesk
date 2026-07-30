@@ -160,6 +160,41 @@
             width: 280px; height: 100vh; flex-shrink: 0; display: flex; flex-direction: column;
             color: var(--white); transition: var(--transition); z-index: 100;
         }
+        /* Real-Time Clock Styles */
+        .realtime-clock {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 8px 20px;
+            border-radius: var(--radius-pill);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            transition: var(--transition);
+        }
+        .realtime-clock:hover {
+            box-shadow: var(--shadow-gold);
+            transform: translateY(-1px);
+        }
+        .clock-time {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--primary);
+            font-family: var(--font-heading);
+            letter-spacing: 1px;
+        }
+        .clock-date {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            border-left: 2px solid rgba(212, 175, 55, 0.3);
+            padding-left: 12px;
+            letter-spacing: 0.5px;
+        }
+        
+        /* Hide clock on mobile to save space */
+        
 
         .sidebar-header { padding: 30px 24px; display: flex; align-items: center; gap: 12px; }
         .sidebar-logo-icon { font-size: 32px; color: var(--gold); }
@@ -247,8 +282,10 @@
         .modal-overlay.active { display: flex; opacity: 1; }
         .modal-content {
             background: var(--white); border-radius: var(--radius-lg); width: 100%; max-width: 500px;
-            padding: 32px; box-shadow: var(--shadow-lg); transform: scale(0.9) translateY(20px);
+            padding: 24px 32px; box-shadow: var(--shadow-lg); transform: scale(0.9) translateY(20px);
             transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            max-height: 90vh; /* Prevents modal from exceeding screen height */
+            overflow-y: auto; /* Adds a scrollbar if the content is too tall */
         }
         .modal-overlay.active .modal-content { transform: scale(1) translateY(0); }
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
@@ -421,9 +458,21 @@
         <!-- Main Content -->
         <main class="main-content">
             <header class="topbar">
-                <i class="ph ph-list mobile-menu-btn" onclick="UI.toggleSidebar()"></i>
-                <h3 class="font-heading" id="adminHeaderTitle">Overview Dashboard</h3>
-                <div style="display: flex; gap: 16px; align-items: center;">
+                <div style="display: flex; align-items: center; gap: 16px; flex: 1;">
+                    <i class="ph ph-list mobile-menu-btn" onclick="UI.toggleSidebar()"></i>
+                    <h3 class="font-heading" id="adminHeaderTitle">Overview Dashboard</h3>
+                </div>
+                
+                <!-- Center Clock -->
+                <div class="clock-container" style="display: flex; justify-content: center; flex: 1;">
+                    <div class="realtime-clock">
+                        <i class="ph-fill ph-clock text-gold" style="font-size: 20px;"></i>
+                        <div class="clock-time" id="adminTime">--:--:--</div>
+                        <div class="clock-date" id="adminDate">---</div>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 16px; align-items: center; flex: 1; justify-content: flex-end;">
                     <div style="text-align: right; line-height: 1.2;">
                         <div style="font-size: 14px; font-weight: 600;">System Admin</div>
                         <div style="font-size: 12px; color: var(--text-muted);">Main Office</div>
@@ -570,17 +619,31 @@
                 </div>
 
                 <!-- Admin Notifications -->
-                <div id="admin-notifications" class="dashboard-view">
-                    <h2 class="card-title" style="font-size: 24px; margin-bottom: 24px;">System Notifications</h2>
-                    <div class="content-card" style="padding: 0;">
-                        <div class="table-responsive">
-                            <table class="premium-table">
-                                <thead><tr><th>Time</th><th>Title</th><th>Message</th><th>Target</th></tr></thead>
-                                <tbody id="tableNotifications"></tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
+<div id="admin-notifications" class="dashboard-view">
+    <div class="card-header" style="border-bottom: none; padding-bottom: 0;">
+        <h2 class="card-title" style="font-size: 24px;">System Notifications</h2>
+        <button class="btn btn-primary ripple-btn" onclick="AdminApp.openNotificationModal()">
+            <i class="ph ph-bell-ringing"></i> Send Notification
+        </button>
+    </div>
+    <div class="content-card" style="padding: 0; margin-top: 24px;">
+        <div class="table-responsive">
+            <table class="premium-table">
+                <thead>
+                    <tr>
+                        <th>Time</th>
+                        <th>Title & Urgency</th>
+                        <th>Message & Action</th>
+                        <th>Targets</th>
+                        <th>Attachment</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="tableNotifications"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
 
                 <!-- Admin Settings -->
                 <div id="admin-settings" class="dashboard-view">
@@ -609,6 +672,7 @@
                 <div class="nav-item" style="color: var(--text-muted);" onclick="PRApp.switchTab('pr-history')"><i class="ph ph-list-dashes"></i> Attendance History</div>
                 <div class="nav-item" style="color: var(--text-muted);" onclick="PRApp.switchTab('pr-leave')"><i class="ph ph-calendar-plus"></i> Apply Leave</div>
                 <div class="nav-item" style="color: var(--text-muted);" onclick="PRApp.switchTab('pr-leave-history')"><i class="ph ph-calendar-check"></i> Leave History</div>
+                <div class="nav-item" style="color: var(--text-muted);" onclick="PRApp.switchTab('pr-notifications')"><i class="ph ph-bell"></i> My Notifications</div>
                 <div class="nav-item" style="color: var(--text-muted);" onclick="PRApp.switchTab('pr-profile')"><i class="ph ph-user"></i> Profile</div>
             </nav>
             <div style="padding: 20px; border-top: 1px solid rgba(0,0,0,0.05);">
@@ -620,9 +684,21 @@
         <!-- Main Content -->
         <main class="main-content">
             <header class="topbar">
-                <i class="ph ph-list mobile-menu-btn" onclick="UI.toggleSidebar()"></i>
-                <h3 class="font-heading" id="prHeaderTitle">My Attendance</h3>
-                <div style="display: flex; gap: 16px; align-items: center;">
+                <div style="display: flex; align-items: center; gap: 16px; flex: 1;">
+                    <i class="ph ph-list mobile-menu-btn" onclick="UI.toggleSidebar()"></i>
+                    <h3 class="font-heading" id="prHeaderTitle">My Attendance</h3>
+                </div>
+
+                <!-- Center Clock -->
+                <div class="clock-container" style="display: flex; justify-content: center; flex: 1;">
+                    <div class="realtime-clock">
+                        <i class="ph-fill ph-clock text-gold" style="font-size: 20px;"></i>
+                        <div class="clock-time" id="prTime">--:--:--</div>
+                        <div class="clock-date" id="prDate">---</div>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 16px; align-items: center; flex: 1; justify-content: flex-end;">
                     <div style="text-align: right; line-height: 1.2;">
                         <div style="font-size: 14px; font-weight: 600;" id="prTopName">PR Executive</div>
                         <div style="font-size: 12px; color: var(--gold);" id="prTopId">PR-XXXX</div>
@@ -697,6 +773,26 @@
                         </div>
                     </div>
                 </div>
+                <!-- PR Notifications -->
+<div id="pr-notifications" class="dashboard-view">
+    <h2 class="card-title" style="font-size: 24px; margin-bottom: 24px;">My Notifications</h2>
+    <div class="content-card" style="padding: 0;">
+        <div class="table-responsive">
+            <table class="premium-table">
+                <thead>
+                    <tr>
+                        <th>Date & Time</th>
+                        <th>Title & Urgency</th>
+                        <th>Details & Required Action</th>
+                        <th>Attachment</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="tablePRMyNotifications"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
 
                 <!-- PR Profile -->
                 <div id="pr-profile" class="dashboard-view">
@@ -714,7 +810,12 @@
         const SUPABASE_URL = 'https://azdwdqwhwrhmcsxgwzal.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_offnM0Rq9v3WUqIco1Dowg_EIe-9MEV';
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-        const todayStr = () => new Date().toISOString().split('T')[0];
+        const todayStr = () => {
+    const d = new Date();
+    // Adjust for the local timezone offset before getting the string
+    d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+    return d.toISOString().split('T')[0];
+};
 
         // Database Wrapper with Supabase REST API and RLS error mitigation
         const DB = {
@@ -751,6 +852,10 @@
         const App = {
             currentUser: null,
             init: function() {
+                // START THE CLOCK HERE
+                LiveClock.init();
+
+                // Ripple effect listene
                 // Ripple effect listener
                 document.addEventListener('click', function(e) {
                     if (e.target.closest('.btn') || e.target.closest('.ripple-btn')) {
@@ -825,7 +930,7 @@
                 document.getElementById('confirmActionBtn').onclick = () => { UI.closeModal(); onConfirm(); };
             }
         };
-
+        
         const Auth = {
             fillDemoCredentials: () => {
                 const role = document.getElementById('loginRole').value;
@@ -1352,12 +1457,190 @@ Thank you.`;
             },
 
             renderNotifications: async () => {
-                const notifs = await DB.get('notifications');
+                // Fetch notifications and their targets
+                const { data: notifs, error } = await supabaseClient
+                    .from('pr_notifications')
+                    .select('*, pr_notification_targets(pr_id)')
+                    .order('created_at', { ascending: false });
+
+                if (error) {
+                    console.error("Error fetching notifications:", error);
+                    return;
+                }
+
                 let html = '';
-                notifs.sort((a,b) => new Date(b.created_at) - new Date(a.created_at)).forEach(n => {
-                    html += `<tr><td>${n.created_at?.substring(0, 16) || '-'}</td><td><strong>${n.title}</strong></td><td>${n.message}</td><td><span class="badge badge-working">${n.target_role}</span></td></tr>`;
+                (notifs || []).forEach(n => {
+                    // Set urgency coloring based on existing CSS classes
+                    let uClass = n.urgency === 'urgent' ? 'badge-absent' : (n.urgency === 'important' ? 'badge-pending' : 'badge-working');
+                    
+                    // Attachment link
+                    let attachHtml = n.attachment ? `<a href="${n.attachment}" target="_blank" style="color:var(--primary); font-weight:600;"><i class="ph-bold ph-paperclip"></i> View File</a>` : '-';
+                    
+                    // Format targets gracefully
+                    let targetsCount = n.pr_notification_targets ? n.pr_notification_targets.length : 0;
+                    let targetsHtml = targetsCount > 3 ? `${targetsCount} PRs Selected` : (n.pr_notification_targets || []).map(t => t.pr_id).join(', ');
+
+                    html += `<tr>
+                        <td>${new Date(n.created_at + 'Z').toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })}</td>
+                        <td>
+                            <strong>${n.title}</strong><br>
+                            <span class="badge ${uClass}" style="margin-top:6px; display:inline-block; font-size:11px;">${n.urgency.toUpperCase()}</span>
+                        </td>
+                        <td style="white-space: pre-wrap; max-width: 300px;">${n.message}</td>
+                        <td><small>${targetsHtml}</small></td>
+                        <td>${attachHtml}</td>
+                        <td>
+                            <button class="btn btn-danger" style="padding: 6px 12px;" onclick="AdminApp.deleteNotification('${n.id}')" title="Delete">
+                                <i class="ph ph-trash"></i>
+                            </button>
+                        </td>
+                    </tr>`;
                 });
-                document.getElementById('tableNotifications').innerHTML = html || '<tr><td colspan="4" class="text-center">No notifications found.</td></tr>';
+                document.getElementById('tableNotifications').innerHTML = html || '<tr><td colspan="6" class="text-center">No notifications found.</td></tr>';
+            },
+
+            openNotificationModal: async () => {
+                const users = await DB.get('users');
+                const prs = users.filter(u => u.role === 'PR');
+
+                let prOptions = `<div style="max-height: 160px; overflow-y: auto; border: 1.5px solid rgba(10, 25, 49, 0.1); border-radius: var(--radius-md); padding: 12px; margin-top: 8px; background: #fff;">
+                    <label style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px; cursor: pointer;">
+                        <input type="checkbox" id="notifSelectAll" onchange="AdminApp.toggleAllPRs(this)" style="width: 16px; height: 16px;"> 
+                        <strong style="color: var(--primary);">Select All PRs</strong>
+                    </label>
+                    <hr style="margin: 8px 0; border-color: rgba(10, 25, 49, 0.05);">`;
+
+                prs.forEach(pr => {
+                    prOptions += `<label style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px; cursor: pointer;">
+                        <input type="checkbox" class="pr-target-cb" value="${pr.pr_id}" style="width: 16px; height: 16px;"> 
+                        <span style="font-size: 14px;">${pr.full_name} <small style="color: var(--text-muted);">(${pr.pr_id})</small></span>
+                    </label>`;
+                });
+                prOptions += `</div>`;
+
+                UI.showModal('Broadcast Notification', `
+                    <form onsubmit="AdminApp.sendNotification(event)">
+                        <div class="form-group"><label class="form-label">Title</label><input type="text" id="notifTitle" class="form-control" required placeholder="Main subject"></div>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                            <div class="form-group">
+                                <label class="form-label">Urgency Level</label>
+                                <select id="notifUrgency" class="form-control">
+                                    <option value="normal">🔵 Normal</option>
+                                    <option value="important">🟠 Important</option>
+                                    <option value="urgent">🔴 Urgent</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Attachment (.jpg, .png, .pdf)</label>
+                                <input type="file" id="notifFile" class="form-control" accept=".jpg,.jpeg,.png,.pdf">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Detailed Message</label>
+                            <textarea id="notifMessage" class="form-control" required placeholder="Explain the details..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Needed Action (Optional)</label>
+                            <input type="text" id="notifAction" class="form-control" placeholder="e.g. Reply back by 5 PM, Review the attached PDF...">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Select Target Audience</label>
+                            ${prOptions}
+                        </div>
+                        <button type="submit" id="btnSendNotif" class="btn btn-primary" style="width:100%; margin-top: 16px;">Send Notification <i class="ph-bold ph-paper-plane-right"></i></button>
+                    </form>
+                `);
+            },
+
+            toggleAllPRs: (cb) => {
+                document.querySelectorAll('.pr-target-cb').forEach(c => c.checked = cb.checked);
+            },
+
+            sendNotification: async (e) => {
+                e.preventDefault();
+                const btn = document.getElementById('btnSendNotif');
+                const origText = btn.innerHTML;
+                
+                // Get selected targets
+                const selectedPRs = Array.from(document.querySelectorAll('.pr-target-cb:checked')).map(cb => cb.value);
+                if(selectedPRs.length === 0) {
+                    return UI.showToast('Please select at least one PR to notify.', 'error');
+                }
+
+                btn.disabled = true; 
+                btn.innerHTML = '<i class="ph ph-spinner ph-spin"></i> Processing...';
+
+                const title = document.getElementById('notifTitle').value;
+                let message = document.getElementById('notifMessage').value;
+                const action = document.getElementById('notifAction').value;
+                const urgency = document.getElementById('notifUrgency').value;
+                const fileInput = document.getElementById('notifFile');
+                let attachmentUrl = null;
+
+                // Format the needed action prominently in the message body
+                if(action.trim() !== '') {
+                    message += `\n\n📌 **NEEDED ACTION:**\n${action}`;
+                }
+
+                try {
+                    // 1. Upload Attachment if provided
+                    if (fileInput.files.length > 0) {
+                        const file = fileInput.files[0];
+                        const fileExt = file.name.split('.').pop();
+                        const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+                        
+                        const { data, error } = await supabaseClient.storage.from('notifications').upload(fileName, file);
+                        if (error) throw new Error("File upload failed: " + error.message);
+                        
+                        const { data: publicUrlData } = supabaseClient.storage.from('notifications').getPublicUrl(fileName);
+                        attachmentUrl = publicUrlData.publicUrl;
+                    }
+
+                    // 2. Insert into pr_notifications
+                    const { data: notifData, error: notifError } = await supabaseClient.from('pr_notifications').insert([{
+                        title: title, 
+                        message: message, 
+                        urgency: urgency, 
+                        attachment: attachmentUrl, 
+                        created_by: App.currentUser.full_name
+                    }]).select();
+
+                    if (notifError) throw notifError;
+                    const notifId = notifData[0].id;
+
+                    // 3. Insert Targets mapping
+                    const targets = selectedPRs.map(pr_id => ({
+                        notification_id: notifId,
+                        pr_id: pr_id,
+                        is_read: false
+                    }));
+
+                    const { error: targetsError } = await supabaseClient.from('pr_notification_targets').insert(targets);
+                    if (targetsError) throw targetsError;
+
+                    UI.showToast(`Notification sent to ${selectedPRs.length} PR(s)!`, 'success');
+                    UI.closeModal();
+                    AdminApp.renderNotifications();
+                } catch (err) {
+                    UI.showToast(`Error: ${err.message}`, 'error');
+                    btn.disabled = false; 
+                    btn.innerHTML = origText;
+                }
+            },
+
+            deleteNotification: async (id) => {
+                UI.confirm('Delete Notification', 'Are you sure? This will permanently delete the message and attachments for all recipients.', async () => {
+                    const { error } = await supabaseClient.from('pr_notifications').delete().eq('id', id);
+                    if (error) {
+                        UI.showToast(`Error: ${error.message}`, 'error');
+                    } else {
+                        UI.showToast('Notification safely removed.', 'success');
+                        AdminApp.renderNotifications();
+                    }
+                });
             },
 
             saveSettings: async (e) => {
@@ -1640,7 +1923,7 @@ document.getElementById("prCurrentDate").innerText =
 
                 PRApp.switchTab('pr-dashboard');
             },
-            switchTab: (tabId) => {
+           switchTab: (tabId) => {
                 const view = document.getElementById('page-pr');
                 view.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
                 if(event) event.currentTarget.classList.add('active');
@@ -1651,6 +1934,7 @@ document.getElementById("prCurrentDate").innerText =
                 if(tabId === 'pr-dashboard') PRApp.loadDashboard();
                 if(tabId === 'pr-history') PRApp.loadHistory();
                 if(tabId === 'pr-leave-history') PRApp.loadLeaves();
+                if(tabId === 'pr-notifications') PRApp.loadNotifications(); // <-- ADD THIS
             },
             loadDashboard: async () => {
     const u = App.currentUser;
@@ -1945,6 +2229,53 @@ submitCheckOut: async (e) => {
             </td>
         </tr>`;
 },
+loadNotifications: async () => {
+                const u = App.currentUser;
+                
+                // Fetch targets joining with notification details
+                const { data: targets, error } = await supabaseClient
+                    .from('pr_notification_targets')
+                    .select('*, pr_notifications(*)')
+                    .eq('pr_id', u.pr_id);
+
+                if (error) {
+                    return console.error("Failed fetching PR notifications", error);
+                }
+
+                // Sort newest first
+                targets.sort((a,b) => new Date(b.pr_notifications.created_at) - new Date(a.pr_notifications.created_at));
+
+                let html = '';
+                targets.forEach(t => {
+                    let n = t.pr_notifications;
+                    let uClass = n.urgency === 'urgent' ? 'badge-absent' : (n.urgency === 'important' ? 'badge-pending' : 'badge-working');
+                    let attachHtml = n.attachment ? `<a href="${n.attachment}" target="_blank" class="btn btn-outline" style="padding: 4px 12px; font-size:12px;"><i class="ph-bold ph-paperclip"></i> View File</a>` : '-';
+                    let readBtn = t.is_read ? 
+                        `<span class="badge badge-completed"><i class="ph-fill ph-checks"></i> Read</span>` : 
+                        `<button class="btn btn-primary" style="padding: 6px 12px; font-size:12px;" onclick="PRApp.markNotifRead('${t.id}')">Mark Read</button>`;
+
+                    // Highlight unread rows slightly
+                    let rowStyle = t.is_read ? '' : 'background: rgba(212, 175, 55, 0.05); font-weight: 500;';
+
+                    html += `<tr style="${rowStyle}">
+                        <td>${new Date(n.created_at + 'Z').toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })}</td>
+                        <td>
+                            <strong style="font-size:15px;">${n.title}</strong><br>
+                            <span class="badge ${uClass}" style="margin-top:6px; display:inline-block; font-size:11px;">${n.urgency.toUpperCase()}</span>
+                        </td>
+                        <td style="white-space: pre-wrap; max-width:300px; line-height:1.5;">${n.message}</td>
+                        <td>${attachHtml}</td>
+                        <td>${readBtn}</td>
+                    </tr>`;
+                });
+                document.getElementById('tablePRMyNotifications').innerHTML = html || '<tr><td colspan="5" class="text-center">You have no new notifications.</td></tr>';
+            },
+
+            markNotifRead: async (targetId) => {
+                await supabaseClient.from('pr_notification_targets').update({ is_read: true }).eq('id', targetId);
+                UI.showToast('Notification marked as read.');
+                PRApp.loadNotifications(); // refresh table
+            },
         };
 
         const PublicApp = {
@@ -1966,8 +2297,46 @@ submitCheckOut: async (e) => {
                 UI.showModal('Request Submitted', `<div style="text-align:center;"><div style="font-size: 64px; color: var(--gold); margin-bottom: 16px;"><i class="ph-fill ph-check-circle"></i></div><h3 style="margin-bottom:8px;">Thank You!</h3><button class="btn btn-outline" onclick="UI.closeModal(); App.route('page-login')">Return to Home</button></div>`);
             }
         };
+        const LiveClock = {
+            init: () => {
+                LiveClock.tick(); // Initial call
+                setInterval(LiveClock.tick, 1000); // Update every second
+            },
+            tick: () => {
+                const now = new Date();
+                
+                // Format Time (12-hour format with AM/PM)
+                let hours = now.getHours();
+                const ampm = hours >= 12 ? 'PM' : 'AM';
+                hours = hours % 12;
+                hours = hours ? hours : 12; 
+                const minutes = now.getMinutes().toString().padStart(2, '0');
+                const seconds = now.getSeconds().toString().padStart(2, '0');
+                const timeHtml = `${hours}:${minutes}:${seconds} <span style="font-size: 12px; color: var(--gold);">${ampm}</span>`;
 
-        window.onload = () => App.init();
+                // Format Date (e.g., "Wed, 12 Oct 2026")
+                const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+                const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                const dateHtml = `${days[now.getDay()]}, ${now.getDate().toString().padStart(2, '0')} ${months[now.getMonth()]} ${now.getFullYear()}`;
+
+                // Update DOM if elements are currently rendered
+                const aTime = document.getElementById('adminTime');
+                const aDate = document.getElementById('adminDate');
+                const pTime = document.getElementById('prTime');
+                const pDate = document.getElementById('prDate');
+
+                if (aTime) aTime.innerHTML = timeHtml;
+                if (aDate) aDate.innerText = dateHtml;
+                if (pTime) pTime.innerHTML = timeHtml;
+                if (pDate) pDate.innerText = dateHtml;
+            }
+        };
+
+
+        window.onload = () => {
+            App.init();
+            LiveClock.init();
+        };
     </script>
 </body>
 </html>
