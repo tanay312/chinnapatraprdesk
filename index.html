@@ -736,7 +736,7 @@
                     <div class="content-card" style="padding: 0;">
                         <div class="table-responsive">
                             <table class="premium-table">
-                                <thead><tr><th>Date</th><th>Check In</th><th>Check Out</th><th>Hours</th><th>Work Summary</th></tr></thead>
+                                <thead><tr><th>Date</th><th>Session</th><th>Hours</th><th>Work Summary</th></tr></thead>
                                 <tbody id="tablePRHistory"></tbody>
                             </table>
                         </div>
@@ -999,12 +999,19 @@
 
                 if(tabId === 'admin-dashboard') AdminApp.loadDashboard();
                 if(tabId === 'admin-pr') AdminApp.renderPRs();
-                if(tabId === 'admin-attendance') AdminApp.renderAttendance();
+                
+                // AUTOMATICALLY FETCH TODAY'S DATE FOR ATTENDANCE
+                if(tabId === 'admin-attendance') {
+                    document.getElementById('filterAttDate').value = todayStr();
+                    AdminApp.renderAttendance();
+                }
+                
                 if(tabId === 'admin-holidays') AdminApp.renderHolidays();
                 if(tabId === 'admin-pr-leave') AdminApp.renderPRLeaves();
                 if(tabId === 'admin-member-leave') AdminApp.renderMemberLeaves();
                 if(tabId === 'admin-approved-member-leave') AdminApp.renderApprovedMemberLeaves();
                 if(tabId === 'admin-notifications') AdminApp.renderNotifications();
+                if (tabId === 'admin-dashboard') AdminApp.startRealtimeDashboard();
             },
             sendReminder: async (prId) => {
 
@@ -1118,16 +1125,45 @@ Thank you.`;
     );
 
 },
+            dashboardInterval: null,
+
+            startRealtimeDashboard: () => {
+                if (AdminApp.dashboardInterval) clearInterval(AdminApp.dashboardInterval);
+                AdminApp.loadDashboard();
+                // Refresh dashboard stats every 5 seconds automatically
+                AdminApp.dashboardInterval = setInterval(() => {
+                    const dashView = document.getElementById('admin-dashboard');
+                    if (dashView && dashView.classList.contains('active')) {
+                        AdminApp.loadDashboard();
+                    }
+                }, 5000);
+            },
+
             loadDashboard: async () => {
                 const prs = (await DB.get('users')).filter(u => u.role === 'PR');
                 const atts = (await DB.get('attendance')).filter(a => a.date === todayStr());
                 const prLeaves = (await DB.get('pr_leave_requests')).filter(l => l.status === 'Pending').length;
                 const memberLeaves = (await DB.get('member_leave_requests')).filter(l => l.status === 'Pending').length;
                 
-                const checkedIn = atts.filter(a => a.check_in).length;
-                const completed = atts.filter(a => a.check_out).length;
-                const working = checkedIn - completed;
-                const absent = prs.length - checkedIn;
+                let working = 0;
+                let completed = 0;
+                let checkedInCount = 0;
+
+                // Correctly inspect the sessions array for each PR
+                atts.forEach(a => {
+                    const sessions = a.sessions || [];
+                    if (sessions.length > 0) {
+                        checkedInCount++;
+                        const lastSession = sessions[sessions.length - 1];
+                        if (lastSession.check_out === null) {
+                            working++;
+                        } else {
+                            completed++;
+                        }
+                    }
+                });
+
+                const absent = Math.max(0, prs.length - checkedInCount);
 
                 document.getElementById('adminStatsGrid').innerHTML = `
                     <div class="stat-card"><div class="stat-icon primary"><i class="ph-fill ph-users-three"></i></div><div class="stat-info"><h4>Total PR Staff</h4><p>${prs.length}</p></div></div>
@@ -1138,12 +1174,41 @@ Thank you.`;
                     <div class="stat-card"><div class="stat-icon primary"><i class="ph-fill ph-users"></i></div><div class="stat-info"><h4>Pending Member Leave</h4><p>${memberLeaves}</p></div></div>
                 `;
 
-                let html = '';
-                atts.slice(0, 5).forEach(a => {
+                // Render Recent Activity dynamically from sessions
+                let activityItems = [];
+                atts.forEach(a => {
                     const pr = prs.find(p => p.pr_id === a.pr_id) || { full_name: 'Unknown' };
-                    if(a.check_in) html += `<tr><td>${a.check_in.substring(11, 16)}</td><td><strong>${pr.full_name}</strong><br><small>${a.pr_id}</small></td><td>Checked In</td><td><span class="badge badge-working">Working</span></td></tr>`;
-                    if(a.check_out) html += `<tr><td>${a.check_out.substring(11, 16)}</td><td><strong>${pr.full_name}</strong><br><small>${a.pr_id}</small></td><td>Checked Out</td><td><span class="badge badge-completed">Completed</span></td></tr>`;
+                    (a.sessions || []).forEach(s => {
+                        if (s.check_in) {
+                            activityItems.push({
+                                time: new Date(s.check_in),
+                                pr_name: pr.full_name,
+                                pr_id: a.pr_id,
+                                action: 'Checked In',
+                                badge: '<span class="badge badge-working">Working</span>'
+                            });
+                        }
+                        if (s.check_out) {
+                            activityItems.push({
+                                time: new Date(s.check_out),
+                                pr_name: pr.full_name,
+                                pr_id: a.pr_id,
+                                action: 'Checked Out',
+                                badge: '<span class="badge badge-completed">Completed</span>'
+                            });
+                        }
+                    });
                 });
+
+                // Sort activity list so newest shows on top
+                activityItems.sort((a, b) => b.time - a.time);
+
+                let html = '';
+                activityItems.slice(0, 5).forEach(act => {
+                    const timeStr = act.time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    html += `<tr><td>${timeStr}</td><td><strong>${act.pr_name}</strong><br><small>${act.pr_id}</small></td><td>${act.action}</td><td>${act.badge}</td></tr>`;
+                });
+
                 document.getElementById('adminRecentActivityTable').querySelector('tbody').innerHTML = html || '<tr><td colspan="4" class="text-center text-muted">No activity today</td></tr>';
             },
 
@@ -1220,16 +1285,21 @@ Thank you.`;
 
             renderAttendance: async () => {
 
-    const date = document.getElementById("filterAttDate").value;
+                // Get date from picker, if empty fallback to today automatically
+                let date = document.getElementById("filterAttDate").value;
+                if (!date) {
+                    date = todayStr();
+                    document.getElementById("filterAttDate").value = date;
+                }
 
-    const attendance = await DB.get("attendance");
-    const users = await DB.get("users");
-    const leaves = await DB.get("pr_leave_requests");
+                const attendance = await DB.get("attendance");
+                const users = await DB.get("users");
+                const leaves = await DB.get("pr_leave_requests");
 
-    const atts = attendance.filter(a => a.date === date);
-    const prs = users.filter(u => u.role === "PR");
+                const atts = attendance.filter(a => a.date === date);
+                const prs = users.filter(u => u.role === "PR");
 
-    let html = "";
+                let html = "";
 
     prs.forEach(p => {
 
@@ -2010,7 +2080,6 @@ document.getElementById("prCurrentDate").innerText =
 },
 
 checkIn: async () => {
-
     const u = App.currentUser;
     const now = new Date().toISOString();
 
@@ -2022,7 +2091,6 @@ checkIn: async () => {
     );
 
     if (!record) {
-
         await DB.insert("attendance", {
             pr_id: u.pr_id,
             date: todayStr(),
@@ -2035,9 +2103,7 @@ checkIn: async () => {
             total_minutes: 0,
             work_summary: ""
         });
-
     } else {
-
         let sessions = record.sessions || [];
 
         if (
@@ -2056,12 +2122,6 @@ checkIn: async () => {
             sessions: sessions
         });
     }
-
-    await DB.insert("notifications", {
-        title: "PR Checked In",
-        message: `${u.full_name} (${u.pr_id}) checked in.`,
-        target_role: "Admin"
-    });
 
     UI.showModal(
         "Check In Successful",
@@ -2105,11 +2165,9 @@ openCheckOut: () => {
 },
 
 submitCheckOut: async (e) => {
-
     e.preventDefault();
 
     const u = App.currentUser;
-
     const attendance = await DB.get("attendance");
 
     const record = attendance.find(a =>
@@ -2131,39 +2189,38 @@ submitCheckOut: async (e) => {
     }
 
     const now = new Date().toISOString();
-
     sessions[sessions.length - 1].check_out = now;
 
     let totalMinutes = 0;
 
     sessions.forEach(s => {
-
         if (s.check_in && s.check_out) {
-
             totalMinutes += Math.floor(
                 (new Date(s.check_out) - new Date(s.check_in)) / 60000
             );
-
         }
-
     });
+
+    const newSummary = document.getElementById("coSummary").value.trim();
+    let updatedSummary = record.work_summary || "";
+
+    // Only append if the user actually typed a summary
+    if (newSummary !== "") {
+        const formattedNewSummary = `Session ${sessions.length}: ${newSummary}`;
+        
+        updatedSummary = updatedSummary
+            ? updatedSummary + " | \n" + formattedNewSummary
+            : formattedNewSummary;
+    }
 
     await DB.update("attendance", record.id, {
         sessions: sessions,
         total_minutes: totalMinutes,
-        work_summary: document.getElementById("coSummary").value
-    });
-
-    await DB.insert("notifications", {
-        title: "PR Checked Out",
-        message: `${u.full_name} checked out.`,
-        target_role: "Admin"
+        work_summary: updatedSummary
     });
 
     UI.closeModal();
-
     UI.showToast("Checked Out Successfully", "success");
-
     PRApp.loadDashboard();
 },
             loadHistory: async () => {
@@ -2290,10 +2347,22 @@ loadNotifications: async () => {
                 const btn = e.target.querySelector('button'); btn.disabled = true; btn.innerHTML = 'Submitting...';
 
                 const name = document.getElementById('mlName').value;
-                await DB.insert('member_leave_requests', { member_name: name, mobile: document.getElementById('mlMobile').value, leave_from: document.getElementById('mlFrom').value, leave_to: document.getElementById('mlTo').value, total_days: days, reason: document.getElementById('mlReason').value, status: 'Pending' });
-                await DB.insert('notifications', { title: 'New Member Leave Request', message: `Member ${name} requested leave.`, target_role: 'Admin' });
+                
+                await DB.insert('member_leave_requests', { 
+                    member_name: name, 
+                    mobile: document.getElementById('mlMobile').value, 
+                    leave_from: document.getElementById('mlFrom').value, 
+                    leave_to: document.getElementById('mlTo').value, 
+                    total_days: days, 
+                    reason: document.getElementById('mlReason').value, 
+                    status: 'Pending' 
+                });
 
-                e.target.reset(); document.getElementById('mlDaysText').innerText = '0'; btn.disabled = false; btn.innerHTML = 'Submit Request';
+                e.target.reset(); 
+                document.getElementById('mlDaysText').innerText = '0'; 
+                btn.disabled = false; 
+                btn.innerHTML = 'Submit Request';
+                
                 UI.showModal('Request Submitted', `<div style="text-align:center;"><div style="font-size: 64px; color: var(--gold); margin-bottom: 16px;"><i class="ph-fill ph-check-circle"></i></div><h3 style="margin-bottom:8px;">Thank You!</h3><button class="btn btn-outline" onclick="UI.closeModal(); App.route('page-login')">Return to Home</button></div>`);
             }
         };
