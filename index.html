@@ -2333,22 +2333,116 @@ loadNotifications: async () => {
                 UI.showToast('Notification marked as read.');
                 PRApp.loadNotifications(); // refresh table
             },
+
+        calcDays: () => {
+                const f = document.getElementById('prLFrom').value;
+                const t = document.getElementById('prLTo').value;
+                if (f && t) {
+                    const days = Math.max(0, Math.ceil((new Date(t) - new Date(f)) / (1000 * 60 * 60 * 24)) + 1);
+                    document.getElementById('prLDays').innerText = days;
+                } else {
+                    document.getElementById('prLDays').innerText = '0';
+                }
+            },
+
+            submitLeave: async (e) => {
+                e.preventDefault();
+                const days = parseInt(document.getElementById('prLDays').innerText);
+                if(isNaN(days) || days <= 0) {
+                    return UI.showToast('Invalid dates selected. Check your From and To dates.', 'error');
+                }
+
+                const btn = e.target.querySelector('button'); 
+                const originalText = btn.innerHTML;
+                btn.disabled = true; 
+                btn.innerHTML = '<i class="ph ph-spinner ph-spin"></i> Submitting...';
+
+                const u = App.currentUser;
+                const result = await DB.insert('pr_leave_requests', { 
+                    pr_id: u.pr_id,
+                    leave_from: document.getElementById('prLFrom').value, 
+                    leave_to: document.getElementById('prLTo').value, 
+                    total_days: days, 
+                    reason: document.getElementById('prLReason').value, 
+                    status: 'Pending' 
+                });
+
+                if (!result) {
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
+                    return; 
+                }
+
+                e.target.reset(); 
+                document.getElementById('prLDays').innerText = '0'; 
+                btn.disabled = false; 
+                btn.innerHTML = originalText;
+                
+                UI.showToast('Leave request submitted successfully!', 'success');
+                PRApp.switchTab('pr-leave-history');
+            },
+            // Load PR Leave History
+            loadLeaves: async () => {
+                const u = App.currentUser;
+                
+                // Fetch all leaves from DB
+                const allLeaves = await DB.get("pr_leave_requests");
+                
+                // Filter only leaves belonging to the logged-in PR
+                const myLeaves = allLeaves.filter(l => l.pr_id === u.pr_id);
+
+                // Sort so the newest leave requests show up at the top
+                myLeaves.sort((a, b) => new Date(b.leave_from) - new Date(a.leave_from));
+
+                let html = "";
+
+                myLeaves.forEach(l => {
+                    // Set the badge color dynamically based on the status
+                    const bc = l.status === 'Approved' ? 'badge-completed' : (l.status === 'Rejected' ? 'badge-absent' : 'badge-pending');
+                    
+                    html += `
+                        <tr>
+                            <td><strong>${l.leave_from}</strong> <br><small>to</small><br> <strong>${l.leave_to}</strong></td>
+                            <td>${l.total_days}</td>
+                            <td style="white-space: pre-wrap; max-width: 300px;">${l.reason}</td>
+                            <td><span class="badge ${bc}">${l.status}</span></td>
+                        </tr>
+                    `;
+                });
+
+                document.getElementById("tablePRMyLeaves").innerHTML = 
+                    html || 
+                    `<tr><td colspan="4" class="text-center text-muted">No leave requests found.</td></tr>`;
+            }
+
         };
 
         const PublicApp = {
             calcDays: () => {
-                const f = document.getElementById('mlFrom').value; const t = document.getElementById('mlTo').value;
-                if(f && t) document.getElementById('mlDaysText').innerText = Math.max(0, Math.ceil((new Date(t) - new Date(f)) / (1000 * 60 * 60 * 24)) + 1);
+                const f = document.getElementById('mlFrom').value; 
+                const t = document.getElementById('mlTo').value;
+                if (f && t) {
+                    const days = Math.max(0, Math.ceil((new Date(t) - new Date(f)) / (1000 * 60 * 60 * 24)) + 1);
+                    document.getElementById('mlDaysText').innerText = days;
+                } else {
+                    document.getElementById('mlDaysText').innerText = '0';
+                }
             },
+            
             submitLeave: async (e) => {
                 e.preventDefault();
                 const days = parseInt(document.getElementById('mlDaysText').innerText);
-                if(days <= 0) return UI.showToast('Invalid dates selected.', 'error');
-                const btn = e.target.querySelector('button'); btn.disabled = true; btn.innerHTML = 'Submitting...';
+                if(isNaN(days) || days <= 0) {
+                    return UI.showToast('Invalid dates selected. Check your From and To dates.', 'error');
+                }
+
+                const btn = e.target.querySelector('button'); 
+                const originalText = btn.innerHTML;
+                btn.disabled = true; 
+                btn.innerHTML = '<i class="ph ph-spinner ph-spin"></i> Submitting...';
 
                 const name = document.getElementById('mlName').value;
-                
-                await DB.insert('member_leave_requests', { 
+                const result = await DB.insert('member_leave_requests', { 
                     member_name: name, 
                     mobile: document.getElementById('mlMobile').value, 
                     leave_from: document.getElementById('mlFrom').value, 
@@ -2358,12 +2452,29 @@ loadNotifications: async () => {
                     status: 'Pending' 
                 });
 
+                if (!result) {
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
+                    return;
+                }
+
                 e.target.reset(); 
                 document.getElementById('mlDaysText').innerText = '0'; 
                 btn.disabled = false; 
-                btn.innerHTML = 'Submit Request';
+                btn.innerHTML = originalText;
                 
-                UI.showModal('Request Submitted', `<div style="text-align:center;"><div style="font-size: 64px; color: var(--gold); margin-bottom: 16px;"><i class="ph-fill ph-check-circle"></i></div><h3 style="margin-bottom:8px;">Thank You!</h3><button class="btn btn-outline" onclick="UI.closeModal(); App.route('page-login')">Return to Home</button></div>`);
+                UI.showModal('Request Submitted', `
+                    <div style="text-align:center;">
+                        <div style="font-size: 64px; color: var(--success); margin-bottom: 16px;">
+                            <i class="ph-fill ph-check-circle"></i>
+                        </div>
+                        <h3 style="margin-bottom:8px;">Thank You!</h3>
+                        <p style="color: var(--text-muted); margin-bottom: 24px;">Your leave request has been submitted to the Admin.</p>
+                        <button class="btn btn-primary" onclick="UI.closeModal(); App.route('page-login')">
+                            Return to Login
+                        </button>
+                    </div>
+                `);
             }
         };
         const LiveClock = {
