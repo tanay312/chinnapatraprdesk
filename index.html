@@ -428,6 +428,12 @@
 
                 <!-- Admin Attendance -->
                 <div id="admin-attendance" class="dashboard-view">
+                    <div class="card-header" style="border-bottom: none; padding-bottom: 0;">
+                        <h2 class="card-title" style="font-size: 24px;">Daily Attendance</h2>
+                        <button class="btn btn-outline ripple-btn" onclick="AdminApp.exportAttendanceCSV()">
+                            <i class="ph ph-file-csv"></i> Download CSV
+                        </button>
+                    </div>
                     <div class="card-header" style="border-bottom: none; padding-bottom: 0;"><h2 class="card-title" style="font-size: 24px;">Daily Attendance</h2></div>
                     <div class="filter-bar" style="margin-top: 16px;">
                         <div class="form-group" style="margin: 0; min-width: 200px;"><input type="date" id="filterAttDate" class="form-control" onchange="AdminApp.renderAttendance()"></div>
@@ -1667,6 +1673,83 @@
                     `;
                 });
                 container.innerHTML = html;
+            },
+            exportAttendanceCSV: async () => {
+                let date = document.getElementById("filterAttDate").value;
+                if (!date) { date = todayStr(); }
+
+                const btn = document.querySelector('#admin-attendance .card-header button');
+                const origHtml = btn.innerHTML;
+                btn.innerHTML = '<i class="ph ph-spinner ph-spin"></i> Exporting...';
+                btn.disabled = true;
+
+                const attendance = await DB.get("attendance");
+                const users = await DB.get("users");
+                const leaves = await DB.get("pr_leave_requests");
+                
+                const atts = attendance.filter(a => a.date === date);
+                const prs = users.filter(u => u.role === "PR");
+
+                // Define CSV Headers
+                const rows = [["PR ID", "Name", "Date", "Sessions (In-Out)", "Total Hours", "Status", "Work Summary / Description"]];
+
+                prs.forEach(p => {
+                    const record = atts.find(a => a.pr_id === p.pr_id);
+                    const onLeave = leaves.find(l => l.pr_id === p.pr_id && l.status === "Approved" && date >= l.leave_from && date <= l.leave_to) || p.status === 'Disabled';
+
+                    if (!record) {
+                        rows.push([
+                            p.pr_id, 
+                            p.full_name, 
+                            date, 
+                            "-", 
+                            "-", 
+                            onLeave ? "On Leave" : "Absent", 
+                            "-"
+                        ]);
+                    } else {
+                        const sessions = record.sessions || [];
+                        let sessionText = "-";
+                        if (sessions.length) {
+                            sessionText = sessions.map((s, i) => {
+                                const inTime = s.check_in ? new Date(s.check_in).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "--";
+                                const outTime = s.check_out ? new Date(s.check_out).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "--";
+                                return `#${i + 1}: ${inTime} to ${outTime}`;
+                            }).join(" | ");
+                        }
+                        
+                        const totalHours = ((record.total_minutes || 0) / 60).toFixed(2) + " hrs";
+                        const status = sessions.length && sessions[sessions.length - 1].check_out === null ? "Working" : "Completed";
+                        
+                        // Clean up line breaks in summary so it doesn't break the CSV row formatting
+                        const summary = record.work_summary ? record.work_summary.replace(/(\r\n|\n|\r)/gm, " | ") : "No description provided";
+
+                        rows.push([
+                            p.pr_id, 
+                            p.full_name, 
+                            date, 
+                            sessionText, 
+                            totalHours, 
+                            status, 
+                            summary
+                        ]);
+                    }
+                });
+
+                // Generate and download the CSV File
+                const csvContent = "\uFEFF" + rows.map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(",")).join("\n");
+                const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+                const link = document.createElement("a");
+                link.href = URL.createObjectURL(blob);
+                link.download = `Daily_Attendance_${date}.csv`;
+                
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                btn.innerHTML = origHtml;
+                btn.disabled = false;
+                UI.showToast("Attendance Data Exported Successfully!", "success");
             },
             updateTempSession: (idx, type, val) => {
                 const isoVal = val ? new Date(val).toISOString() : null;
