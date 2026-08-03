@@ -12,12 +12,6 @@
     <!-- PDF Export Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js"></script>
-    <script src="jspdf.umd.min.js"></script>
-<script src="jspdf.plugin.autotable.min.js"></script>
-<script src="fonts/NotoSansBengali-Regular.js"></script>
-<script src="app.js"></script>
     
     <!-- Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -52,20 +46,8 @@
             --font-heading: 'Playfair Display', serif;
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: var(--font-main);
-        }
-
-        body {
-            background-color: var(--bg-main);
-            color: var(--text-dark);
-            overflow-x: hidden;
-            -webkit-font-smoothing: antialiased;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: var(--font-main); }
+        body { background-color: var(--bg-main); color: var(--text-dark); overflow-x: hidden; -webkit-font-smoothing: antialiased; }
         h1, h2, h3, h4 { color: var(--primary); }
         .font-heading { font-family: var(--font-heading); }
         
@@ -73,164 +55,62 @@
         button { border: none; outline: none; cursor: pointer; background: none; font-family: inherit; }
         input, select, textarea { font-family: inherit; outline: none; }
 
-        /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: rgba(10, 25, 49, 0.2); border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: var(--gold); }
 
-        .glass {
-            background: rgba(255, 255, 255, 0.75);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.5);
-        }
-
-        .glass-dark {
-            background: rgba(10, 25, 49, 0.95);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border-right: 1px solid rgba(212, 175, 55, 0.15);
-        }
-
+        .glass { background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.5); }
+        .glass-dark { background: rgba(10, 25, 49, 0.95); backdrop-filter: blur(16px); border-right: 1px solid rgba(212, 175, 55, 0.15); }
         .text-gold { color: var(--gold); }
         .bg-gold { background: var(--gold); }
-        .gradient-gold {
-            background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%);
-            color: var(--primary);
-        }
+        .gradient-gold { background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%); color: var(--primary); }
 
-        .btn {
-            padding: 10px 24px;
-            border-radius: var(--radius-pill);
-            font-weight: 500;
-            font-size: 14px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            transition: var(--transition);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, var(--gold) 0%, #E5C354 100%);
-            color: var(--primary);
-            box-shadow: var(--shadow-gold);
-            font-weight: 600;
-        }
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(212, 175, 55, 0.4);
-        }
-
+        .btn { padding: 10px 24px; border-radius: var(--radius-pill); font-weight: 500; font-size: 14px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; transition: var(--transition); position: relative; overflow: hidden; }
+        .btn-primary { background: linear-gradient(135deg, var(--gold) 0%, #E5C354 100%); color: var(--primary); box-shadow: var(--shadow-gold); font-weight: 600; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(212, 175, 55, 0.4); }
         .btn-secondary { background: var(--primary); color: var(--white); }
         .btn-secondary:hover { background: var(--secondary); transform: translateY(-2px); }
-
         .btn-outline { border: 1.5px solid var(--gold); color: var(--primary); background: transparent; }
         .btn-outline:hover { background: var(--gold); color: var(--primary); }
-
-        .btn-danger { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
+        .btn-danger { background: rgba(239, 68, 68, 0.1); color: var(--danger); border: 1px solid transparent; }
         .btn-danger:hover { background: var(--danger); color: var(--white); }
-        
         .btn-success { background: rgba(16, 185, 129, 0.1); color: var(--success); }
         .btn-success:hover { background: var(--success); color: var(--white); }
 
-        /* Ripple Effect */
-        .ripple {
-            position: absolute; border-radius: 50%; transform: scale(0);
-            animation: ripple-anim 0.6s linear; background-color: rgba(255, 255, 255, 0.4);
-        }
+        .ripple { position: absolute; border-radius: 50%; transform: scale(0); animation: ripple-anim 0.6s linear; background-color: rgba(255, 255, 255, 0.4); }
         @keyframes ripple-anim { to { transform: scale(4); opacity: 0; } }
 
         .form-group { margin-bottom: 20px; }
         .form-label { display: block; font-size: 13px; font-weight: 500; color: var(--secondary); margin-bottom: 8px; }
-        .form-control {
-            width: 100%; padding: 12px 16px; border: 1.5px solid rgba(10, 25, 49, 0.1);
-            border-radius: var(--radius-md); font-size: 14px; background: rgba(255, 255, 255, 0.9);
-            transition: var(--transition);
-        }
+        .form-control { width: 100%; padding: 12px 16px; border: 1.5px solid rgba(10, 25, 49, 0.1); border-radius: var(--radius-md); font-size: 14px; background: rgba(255, 255, 255, 0.9); transition: var(--transition); }
         .form-control:focus { border-color: var(--gold); box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.1); }
         textarea.form-control { resize: vertical; min-height: 100px; }
 
         .app-container { display: flex; height: 100vh; width: 100vw; overflow: hidden; }
-
-        .sidebar {
-            width: 280px; height: 100vh; flex-shrink: 0; display: flex; flex-direction: column;
-            color: var(--white); transition: var(--transition); z-index: 100;
-        }
-        /* Real-Time Clock Styles */
-        .realtime-clock {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            background: rgba(255, 255, 255, 0.9);
-            padding: 8px 20px;
-            border-radius: var(--radius-pill);
-            box-shadow: var(--shadow-sm);
-            border: 1px solid rgba(212, 175, 55, 0.3);
-            transition: var(--transition);
-        }
-        .realtime-clock:hover {
-            box-shadow: var(--shadow-gold);
-            transform: translateY(-1px);
-        }
-        .clock-time {
-            font-size: 16px;
-            font-weight: 700;
-            color: var(--primary);
-            font-family: var(--font-heading);
-            letter-spacing: 1px;
-        }
-        .clock-date {
-            font-size: 12px;
-            color: var(--text-muted);
-            font-weight: 600;
-            text-transform: uppercase;
-            border-left: 2px solid rgba(212, 175, 55, 0.3);
-            padding-left: 12px;
-            letter-spacing: 0.5px;
-        }
-        
-        /* Hide clock on mobile to save space */
-        
-
+        .sidebar { width: 280px; height: 100vh; flex-shrink: 0; display: flex; flex-direction: column; color: var(--white); transition: var(--transition); z-index: 100; }
         .sidebar-header { padding: 30px 24px; display: flex; align-items: center; gap: 12px; }
         .sidebar-logo-icon { font-size: 32px; color: var(--gold); }
         .sidebar-title { font-family: var(--font-heading); font-size: 20px; font-weight: 700; line-height: 1.2; }
-
         .nav-menu { flex: 1; overflow-y: auto; padding: 0 16px; display: flex; flex-direction: column; gap: 4px; }
-
-        .nav-item {
-            display: flex; align-items: center; gap: 12px; padding: 14px 16px;
-            border-radius: var(--radius-md); color: rgba(255, 255, 255, 0.7); font-size: 14px;
-            font-weight: 500; transition: var(--transition); cursor: pointer;
-        }
+        .nav-item { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: var(--radius-md); color: rgba(255, 255, 255, 0.7); font-size: 14px; font-weight: 500; transition: var(--transition); cursor: pointer; }
         .nav-item:hover, .nav-item.active { background: rgba(212, 175, 55, 0.1); color: var(--gold); }
         .nav-item i { font-size: 20px; }
 
+        .realtime-clock { display: flex; align-items: center; gap: 12px; background: rgba(255, 255, 255, 0.9); padding: 8px 20px; border-radius: var(--radius-pill); box-shadow: var(--shadow-sm); border: 1px solid rgba(212, 175, 55, 0.3); transition: var(--transition); }
+        .realtime-clock:hover { box-shadow: var(--shadow-gold); transform: translateY(-1px); }
+        .clock-time { font-size: 16px; font-weight: 700; color: var(--primary); font-family: var(--font-heading); letter-spacing: 1px; }
+        .clock-date { font-size: 12px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; border-left: 2px solid rgba(212, 175, 55, 0.3); padding-left: 12px; letter-spacing: 0.5px; }
+        
         .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative; }
-
-        .topbar {
-            height: 80px; padding: 0 32px; display: flex; align-items: center; justify-content: space-between;
-            background: rgba(245, 247, 250, 0.8); backdrop-filter: blur(10px); z-index: 10;
-        }
-        .mobile-menu-btn { display: none; font-size: 24px; color: var(--primary); }
-
+        .topbar { height: 80px; padding: 0 32px; display: flex; align-items: center; justify-content: space-between; background: rgba(245, 247, 250, 0.8); backdrop-filter: blur(10px); z-index: 10; border-bottom: 1px solid rgba(0,0,0,0.05); }
+        .mobile-menu-btn { display: none; font-size: 24px; color: var(--primary); cursor: pointer; }
         .page-content { flex: 1; overflow-y: auto; padding: 32px; }
 
         .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; margin-bottom: 32px; }
-
-        .stat-card {
-            padding: 24px; border-radius: var(--radius-lg); display: flex; align-items: center;
-            gap: 20px; box-shadow: var(--shadow-sm); transition: var(--transition); background: var(--white);
-        }
+        .stat-card { padding: 24px; border-radius: var(--radius-lg); display: flex; align-items: center; gap: 20px; box-shadow: var(--shadow-sm); transition: var(--transition); background: var(--white); }
         .stat-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
-        .stat-icon {
-            width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center;
-            justify-content: center; font-size: 28px;
-        }
+        .stat-icon { width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; }
         .stat-icon.primary { background: rgba(10, 25, 49, 0.1); color: var(--primary); }
         .stat-icon.gold { background: rgba(212, 175, 55, 0.1); color: var(--gold); }
         .stat-icon.success { background: rgba(16, 185, 129, 0.1); color: var(--success); }
@@ -245,11 +125,17 @@
         .premium-table { width: 100%; border-collapse: collapse; white-space: nowrap; }
         .premium-table th, .premium-table td { padding: 16px; text-align: left; border-bottom: 1px solid rgba(10, 25, 49, 0.05); }
         .premium-table th { font-size: 13px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
-        .premium-table td { font-size: 14px; color: var(--text-dark); }
+        .premium-table td { font-size: 14px; color: var(--text-dark); vertical-align: middle; }
         .premium-table tbody tr { transition: var(--transition); }
         .premium-table tbody tr:hover { background: rgba(10, 25, 49, 0.02); }
         
-        .badge { padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        /* Animated Performance Bar */
+        .perf-bar-wrapper { width: 100%; background: rgba(10, 25, 49, 0.05); border-radius: 20px; height: 20px; overflow: hidden; position: relative; border: 1px solid rgba(0,0,0,0.05); margin-top: 6px; }
+        .perf-bar-fill { height: 100%; border-radius: 20px; transition: width 1.5s cubic-bezier(0.34, 1.56, 0.64, 1); position: relative; display: flex; align-items: center; justify-content: flex-end; padding-right: 8px; color: white; font-size: 11px; font-weight: bold; text-shadow: 0 1px 2px rgba(0,0,0,0.5); white-space: nowrap; }
+        .perf-bar-fill::after { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent); animation: shimmer 2s infinite; }
+        @keyframes shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+        
+        .badge { padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;}
         .badge-working { background: rgba(212, 175, 55, 0.15); color: #B48B1A; }
         .badge-completed { background: rgba(16, 185, 129, 0.15); color: var(--success); }
         .badge-absent { background: rgba(239, 68, 68, 0.15); color: var(--danger); }
@@ -260,45 +146,20 @@
         .dashboard-view { display: none; }
         .dashboard-view.active { display: block; animation: fadeIn 0.4s ease forwards; }
 
-        .centered-container {
-            width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
-            background: linear-gradient(135deg, var(--bg-main) 0%, #E2E8F0 100%); padding: 20px;
-        }
-        .auth-card {
-            width: 100%; max-width: 440px; background: var(--white); border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-lg); padding: 40px; position: relative; overflow: hidden;
-        }
-        .auth-card::before {
-            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 6px;
-            background: linear-gradient(90deg, var(--gold), var(--primary));
-        }
+        .centered-container { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--bg-main) 0%, #E2E8F0 100%); padding: 20px; overflow-y: auto;}
+        .auth-card { width: 100%; max-width: 440px; background: var(--white); border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); padding: 40px; position: relative; overflow: hidden; margin: auto; }
+        .auth-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 6px; background: linear-gradient(90deg, var(--gold), var(--primary)); }
 
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(10, 25, 49, 0.6); backdrop-filter: blur(4px); z-index: 1000;
-            display: none; align-items: center; justify-content: center;
-            opacity: 0; transition: opacity 0.3s ease;
-        }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(10, 25, 49, 0.6); backdrop-filter: blur(4px); z-index: 1000; display: none; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s ease; }
         .modal-overlay.active { display: flex; opacity: 1; }
-        .modal-content {
-            background: var(--white); border-radius: var(--radius-lg); width: 100%; max-width: 500px;
-            padding: 24px 32px; box-shadow: var(--shadow-lg); transform: scale(0.9) translateY(20px);
-            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-            max-height: 90vh; /* Prevents modal from exceeding screen height */
-            overflow-y: auto; /* Adds a scrollbar if the content is too tall */
-        }
+        .modal-content { background: var(--white); border-radius: var(--radius-lg); width: 100%; max-width: 600px; padding: 24px 32px; box-shadow: var(--shadow-lg); transform: scale(0.9) translateY(20px); transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); max-height: 90vh; overflow-y: auto; }
         .modal-overlay.active .modal-content { transform: scale(1) translateY(0); }
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
         .modal-close { font-size: 24px; color: var(--text-muted); cursor: pointer; transition: color 0.2s; }
         .modal-close:hover { color: var(--danger); }
 
         .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 2000; display: flex; flex-direction: column; gap: 12px; }
-        .toast {
-            min-width: 300px; padding: 16px 20px; border-radius: var(--radius-md); background: var(--white);
-            box-shadow: var(--shadow-lg); display: flex; align-items: center; gap: 12px;
-            transform: translateX(120%); transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-            border-left: 4px solid var(--primary);
-        }
+        .toast { min-width: 300px; padding: 16px 20px; border-radius: var(--radius-md); background: var(--white); box-shadow: var(--shadow-lg); display: flex; align-items: center; gap: 12px; transform: translateX(120%); transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); border-left: 4px solid var(--primary); }
         .toast.show { transform: translateX(0); }
         .toast.success { border-color: var(--success); }
         .toast.error { border-color: var(--danger); }
@@ -317,7 +178,7 @@
         @media (max-width: 992px) {
             .sidebar { position: fixed; left: -280px; }
             .sidebar.active { left: 0; box-shadow: var(--shadow-lg); }
-            .mobile-menu-btn { display: block; cursor: pointer; }
+            .mobile-menu-btn { display: block; }
             .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 90; }
             .sidebar.active + .sidebar-overlay { display: block; }
         }
@@ -349,8 +210,16 @@
                 
                 <form id="formMemberLeave" onsubmit="PublicApp.submitLeave(event)">
                     <div class="form-group">
-                        <label class="form-label">Member Name</label>
-                        <input type="text" id="mlName" class="form-control" required placeholder="Enter your full name">
+                        <label class="form-label">Select Member</label>
+                        <select id="mlArtist" class="form-control" required onchange="PublicApp.onArtistChange()">
+                            <option value="">Loading members...</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Department <small style="color:var(--text-muted);">(Hold Ctrl/Cmd to select multiple)</small></label>
+                        <select id="mlDepartment" class="form-control" multiple required style="height: 100px; padding: 8px;">
+                            <!-- Filled Dynamically -->
+                        </select>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Mobile Number</label>
@@ -376,7 +245,7 @@
                     <button type="submit" class="btn btn-primary" style="width: 100%;">Submit Leave Request <i class="ph-bold ph-paper-plane-right"></i></button>
                     
                     <div style="text-align: center; margin-top: 24px;">
-                        <a href="#" onclick="App.route('page-login')" style="color: var(--text-muted); font-size: 13px;">Return to Staff Login</a>
+                        <a href="javascript:void(0)" onclick="App.route('page-login')" style="color: var(--text-muted); font-size: 13px;">Return to Staff Login</a>
                     </div>
                 </form>
             </div>
@@ -416,12 +285,12 @@
                         </div>
                     </div>
                     
-                    <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px;">
+                    <button type="submit" class="btn btn-primary ripple-btn" style="width: 100%; margin-top: 10px;">
                         Secure Login <i class="ph-bold ph-arrow-right"></i>
                     </button>
                     
                     <div style="text-align: center; margin-top: 24px; padding-top: 16px; border-top: 1px solid rgba(0,0,0,0.05);">
-                        <a href="#" onclick="App.route('page-public-member-leave')" style="color: var(--primary); font-size: 13px; font-weight: 500;">
+                        <a href="javascript:void(0)" onclick="App.route('page-public-member-leave')" style="color: var(--primary); font-size: 13px; font-weight: 500;">
                             <i class="ph ph-users"></i> Member Leave Portal
                         </a>
                     </div>
@@ -440,7 +309,12 @@
             <nav class="nav-menu">
                 <div class="nav-item active" onclick="AdminApp.switchTab('admin-dashboard')"><i class="ph ph-squares-four"></i> Dashboard</div>
                 <div class="nav-item" onclick="AdminApp.switchTab('admin-pr')"><i class="ph ph-users-three"></i> PR Management</div>
+                <div class="nav-item" onclick="AdminApp.switchTab('admin-members')"><i class="ph ph-address-book"></i> Member Directory</div>
                 <div class="nav-item" onclick="AdminApp.switchTab('admin-attendance')"><i class="ph ph-clock-user"></i> Attendance</div>
+                
+                <div class="nav-item" onclick="AdminApp.switchTab('admin-pr-activity')"><i class="ph ph-share-network"></i> PR Group Mgmt</div>
+                <div class="nav-item" onclick="AdminApp.switchTab('admin-artists')"><i class="ph ph-palette"></i> Artist Tracking</div>
+                
                 <div class="nav-item" onclick="AdminApp.switchTab('admin-reports')"><i class="ph ph-file-text"></i> Reports</div>
                 <div class="nav-item" onclick="AdminApp.switchTab('admin-holidays')"><i class="ph ph-calendar-star"></i> Holiday Management</div>
                 <div class="nav-item" onclick="AdminApp.switchTab('admin-pr-leave')"><i class="ph ph-calendar-minus"></i> PR Leave Requests</div>
@@ -462,8 +336,6 @@
                     <i class="ph ph-list mobile-menu-btn" onclick="UI.toggleSidebar()"></i>
                     <h3 class="font-heading" id="adminHeaderTitle">Overview Dashboard</h3>
                 </div>
-                
-                <!-- Center Clock -->
                 <div class="clock-container" style="display: flex; justify-content: center; flex: 1;">
                     <div class="realtime-clock">
                         <i class="ph-fill ph-clock text-gold" style="font-size: 20px;"></i>
@@ -471,7 +343,6 @@
                         <div class="clock-date" id="adminDate">---</div>
                     </div>
                 </div>
-
                 <div style="display: flex; gap: 16px; align-items: center; flex: 1; justify-content: flex-end;">
                     <div style="text-align: right; line-height: 1.2;">
                         <div style="font-size: 14px; font-weight: 600;">System Admin</div>
@@ -518,6 +389,43 @@
                     </div>
                 </div>
 
+                <!-- Admin Member Directory -->
+                <div id="admin-members" class="dashboard-view">
+                    <div class="card-header" style="border-bottom: none; padding-bottom: 0;">
+                        <h2 class="card-title" style="font-size: 24px;">Member Directory</h2>
+                        <button class="btn btn-primary ripple-btn" onclick="AdminApp.openAddMemberModal()"><i class="ph ph-user-plus"></i> Add Member</button>
+                    </div>
+                    <div class="filter-bar" style="margin-top: 16px;">
+                        <div class="search-box" style="flex: 2; min-width: 250px;">
+                            <i class="ph ph-magnifying-glass"></i>
+                            <input type="text" class="form-control" id="searchMember" placeholder="Search by Name, 6-Digit ID, or Mobile..." oninput="AdminApp.renderMembers()">
+                        </div>
+                        <div class="form-group" style="margin: 0; flex: 1; min-width: 200px;">
+                            <select id="filterMemberDept" class="form-control" onchange="AdminApp.renderMembers()">
+                                <option value="">All Departments</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="content-card" style="padding: 0;">
+                        <div class="table-responsive">
+                            <table class="premium-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Artist Info</th>
+                                        <th>Department</th>
+                                        <th>DOB</th>
+                                        <th>Contact & Socials</th>
+                                        <th>Leave Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tableMembers"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Admin Attendance -->
                 <div id="admin-attendance" class="dashboard-view">
                     <div class="card-header" style="border-bottom: none; padding-bottom: 0;"><h2 class="card-title" style="font-size: 24px;">Daily Attendance</h2></div>
@@ -529,12 +437,94 @@
                             <table class="premium-table">
                                 <thead><tr><th>PR Info</th><th>Date</th><th>Session</th><th>Hours</th><th>Status / Summary</th><th>Action</th></tr></thead>
                                 <tbody id="tableAdminAttendance"></tbody>
-                                <td><button
-    class="btn btn-success"
-    onclick="AdminApp.sendReminderAll()">
-    <i class="ph ph-whatsapp-logo"></i>
-    Reminder All
-</button></td>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Admin PR Group Activity -->
+                <div id="admin-pr-activity" class="dashboard-view">
+                    <div class="card-header" style="border-bottom: none; padding-bottom: 0;">
+                        <h2 class="card-title" style="font-size: 24px;">PR Group Activity & Management</h2>
+                        <div style="display:flex; gap:12px;">
+                            <button class="btn btn-outline ripple-btn" onclick="AdminApp.openManagePRGroupModal()">
+                                <i class="ph ph-users"></i> Manage Members
+                            </button>
+                            <button class="btn btn-secondary ripple-btn" onclick="AdminApp.openPRWeeklyReportModal()">
+                                <i class="ph ph-clipboard-text"></i> Weekly PR Status
+                            </button>
+                            <button class="btn btn-primary ripple-btn" onclick="AdminApp.saveAllPRActivities()">
+                                <i class="ph ph-floppy-disk"></i> Save Daily Tasks
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="filter-bar" style="margin-top: 16px; background: rgba(16, 185, 129, 0.05); padding: 16px; border-radius: var(--radius-md); border-left: 4px solid var(--success);">
+                        <div class="form-group" style="margin: 0; flex: 1;">
+                            <label class="form-label" style="color: var(--primary); font-weight: 600;">Select PR Group</label>
+                            <select id="filterPRGroup" class="form-control" onchange="AdminApp.loadPRGroupMembers()" style="border-color: var(--success); box-shadow: var(--shadow-sm);">
+                                <!-- Filled by JS -->
+                            </select>
+                        </div>
+                        <div class="form-group" style="margin: 0; flex: 1;">
+                            <label class="form-label" style="color: var(--primary); font-weight: 600;">Activity Date</label>
+                            <input type="date" id="prActivityDate" class="form-control" onchange="AdminApp.loadPRGroupMembers()">
+                        </div>
+                    </div>
+                    
+                    <div class="content-card" style="padding: 0;">
+                        <div class="table-responsive">
+                            <table class="premium-table">
+                                <thead>
+                                    <tr>
+                                        <th>Artist Info</th>
+                                        <th>PR Group</th>
+                                        <th>Social Tasks (Daily)</th>
+                                        <th>Activeness Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tablePRGroupActivity"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Admin Artist Tracking -->
+                <div id="admin-artists" class="dashboard-view">
+                    <div class="card-header" style="border-bottom: none; padding-bottom: 0;">
+                        <h2 class="card-title" style="font-size: 24px;">Department-Wise Performance</h2>
+                        <div style="display: flex; gap: 12px;">
+                            <button class="btn btn-secondary ripple-btn" onclick="AdminApp.openDeptReportModal()">
+                                <i class="ph ph-clipboard-text"></i> Weekly Status Report
+                            </button>
+                            <button class="btn btn-primary ripple-btn" onclick="AdminApp.exportPerformanceCSV()">
+                                <i class="ph ph-file-csv"></i> Monthly Export
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="filter-bar" style="margin-top: 16px; background: rgba(212, 175, 55, 0.05); padding: 16px; border-radius: var(--radius-md); border-left: 4px solid var(--gold);">
+                        <div class="form-group" style="margin: 0; flex: 1;">
+                            <label class="form-label" style="color: var(--primary); font-weight: 600;">Select Department to Load Members</label>
+                            <select id="filterArtistDept" class="form-control" onchange="AdminApp.filterArtists()" style="border-color: var(--gold); box-shadow: var(--shadow-sm);">
+                                <option value="">-- Click to choose a department --</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="content-card" style="padding: 0;">
+                        <div class="table-responsive">
+                            <table class="premium-table">
+                                <thead>
+                                    <tr>
+                                        <th>Artist Info</th>
+                                        <th>Status in Dept</th>
+                                        <th>Reported By</th>
+                                        <th style="min-width: 220px;">Activeness & Performance</th>
+                                        <th>Evaluation</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tableArtistsTracking"></tbody>
                             </table>
                         </div>
                     </div>
@@ -557,7 +547,7 @@
                             <input type="date" id="reportDate" class="form-control">
                         </div>
                         <div style="display: flex; gap: 12px; align-items: flex-end;">
-                            <button class="btn btn-primary" onclick="AdminApp.generate()"><i class="ph ph-file-"></i> Export </button>
+                            <button class="btn btn-primary" onclick="AdminApp.generate()"><i class="ph ph-file-pdf"></i> Export PDF </button>
                             <button class="btn btn-outline" onclick="AdminApp.generateCSV()"><i class="ph ph-file-xls"></i> Export Excel</button>
                         </div>
                     </div>
@@ -619,31 +609,31 @@
                 </div>
 
                 <!-- Admin Notifications -->
-<div id="admin-notifications" class="dashboard-view">
-    <div class="card-header" style="border-bottom: none; padding-bottom: 0;">
-        <h2 class="card-title" style="font-size: 24px;">System Notifications</h2>
-        <button class="btn btn-primary ripple-btn" onclick="AdminApp.openNotificationModal()">
-            <i class="ph ph-bell-ringing"></i> Send Notification
-        </button>
-    </div>
-    <div class="content-card" style="padding: 0; margin-top: 24px;">
-        <div class="table-responsive">
-            <table class="premium-table">
-                <thead>
-                    <tr>
-                        <th>Time</th>
-                        <th>Title & Urgency</th>
-                        <th>Message & Action</th>
-                        <th>Targets</th>
-                        <th>Attachment</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="tableNotifications"></tbody>
-            </table>
-        </div>
-    </div>
-</div>
+                <div id="admin-notifications" class="dashboard-view">
+                    <div class="card-header" style="border-bottom: none; padding-bottom: 0;">
+                        <h2 class="card-title" style="font-size: 24px;">System Notifications</h2>
+                        <button class="btn btn-primary ripple-btn" onclick="AdminApp.openNotificationModal()">
+                            <i class="ph ph-bell-ringing"></i> Send Notification
+                        </button>
+                    </div>
+                    <div class="content-card" style="padding: 0; margin-top: 24px;">
+                        <div class="table-responsive">
+                            <table class="premium-table">
+                                <thead>
+                                    <tr>
+                                        <th>Time</th>
+                                        <th>Title & Urgency</th>
+                                        <th>Message & Action</th>
+                                        <th>Targets</th>
+                                        <th>Attachment</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tableNotifications"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
 
                 <!-- Admin Settings -->
                 <div id="admin-settings" class="dashboard-view">
@@ -688,8 +678,6 @@
                     <i class="ph ph-list mobile-menu-btn" onclick="UI.toggleSidebar()"></i>
                     <h3 class="font-heading" id="prHeaderTitle">My Attendance</h3>
                 </div>
-
-                <!-- Center Clock -->
                 <div class="clock-container" style="display: flex; justify-content: center; flex: 1;">
                     <div class="realtime-clock">
                         <i class="ph-fill ph-clock text-gold" style="font-size: 20px;"></i>
@@ -697,7 +685,6 @@
                         <div class="clock-date" id="prDate">---</div>
                     </div>
                 </div>
-
                 <div style="display: flex; gap: 16px; align-items: center; flex: 1; justify-content: flex-end;">
                     <div style="text-align: right; line-height: 1.2;">
                         <div style="font-size: 14px; font-weight: 600;" id="prTopName">PR Executive</div>
@@ -715,7 +702,6 @@
                             <div style="position: absolute; top: -50px; right: -50px; width: 150px; height: 150px; background: rgba(212, 175, 55, 0.1); border-radius: 50%;"></div>
                             <h2 style="font-size: 28px; margin-bottom: 8px;" id="prGreeting">Good Morning!</h2>
                             <p class="text-muted" style="margin-bottom: 32px;" id="prCurrentDate">Monday, 1 January 2026</p>
-                            
                             <div id="prActionArea"></div>
                         </div>
 
@@ -773,26 +759,27 @@
                         </div>
                     </div>
                 </div>
+                
                 <!-- PR Notifications -->
-<div id="pr-notifications" class="dashboard-view">
-    <h2 class="card-title" style="font-size: 24px; margin-bottom: 24px;">My Notifications</h2>
-    <div class="content-card" style="padding: 0;">
-        <div class="table-responsive">
-            <table class="premium-table">
-                <thead>
-                    <tr>
-                        <th>Date & Time</th>
-                        <th>Title & Urgency</th>
-                        <th>Details & Required Action</th>
-                        <th>Attachment</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody id="tablePRMyNotifications"></tbody>
-            </table>
-        </div>
-    </div>
-</div>
+                <div id="pr-notifications" class="dashboard-view">
+                    <h2 class="card-title" style="font-size: 24px; margin-bottom: 24px;">My Notifications</h2>
+                    <div class="content-card" style="padding: 0;">
+                        <div class="table-responsive">
+                            <table class="premium-table">
+                                <thead>
+                                    <tr>
+                                        <th>Date & Time</th>
+                                        <th>Title & Urgency</th>
+                                        <th>Details & Required Action</th>
+                                        <th>Attachment</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tablePRMyNotifications"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
 
                 <!-- PR Profile -->
                 <div id="pr-profile" class="dashboard-view">
@@ -806,41 +793,32 @@
     </div>
 
     <script>
-        // Supabase Initialization
+        // --- CONFIGURATION ---
         const SUPABASE_URL = 'https://azdwdqwhwrhmcsxgwzal.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_offnM0Rq9v3WUqIco1Dowg_EIe-9MEV';
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        
         const todayStr = () => {
-    const d = new Date();
-    // Adjust for the local timezone offset before getting the string
-    d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
-    return d.toISOString().split('T')[0];
-};
+            const d = new Date();
+            d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+            return d.toISOString().split('T')[0];
+        };
 
-        // Database Wrapper with Supabase REST API and RLS error mitigation
+        // --- DATABASE WRAPPER ---
         const DB = {
             get: async (table) => {
                 const { data, error } = await supabaseClient.from(table).select('*');
-                if (error) {
-                    console.error(`Error fetching ${table}:`, error);
-                    return [];
-                }
+                if (error) { console.error(`Error fetching ${table}:`, error); return []; }
                 return data || [];
             },
             insert: async (table, row) => {
                 const { data, error } = await supabaseClient.from(table).insert([row]).select();
-                if (error) {
-                    UI.showToast(`DB Error: ${error.message}`, 'error');
-                    return null;
-                }
+                if (error) { UI.showToast(`DB Error: ${error.message}`, 'error'); return null; }
                 return data ? data[0] : null;
             },
             update: async (table, id, updates) => {
                 const { data, error } = await supabaseClient.from(table).update(updates).eq('id', id).select();
-                if (error) {
-                    UI.showToast(`DB Error: ${error.message}`, 'error');
-                    return null;
-                }
+                if (error) { UI.showToast(`DB Error: ${error.message}`, 'error'); return null; }
                 return data ? data[0] : null;
             },
             remove: async (table, id) => {
@@ -849,14 +827,13 @@
             }
         };
 
+        // --- CORE APP SYSTEM ---
         const App = {
             currentUser: null,
             init: function() {
-                // START THE CLOCK HERE
                 LiveClock.init();
+                this.autoCloseMissedSessions();
 
-                // Ripple effect listene
-                // Ripple effect listener
                 document.addEventListener('click', function(e) {
                     if (e.target.closest('.btn') || e.target.closest('.ripple-btn')) {
                         const btn = e.target.closest('.btn') || e.target.closest('.ripple-btn');
@@ -889,15 +866,48 @@
                 document.getElementById('reportDate').value = todayStr();
                 Auth.fillDemoCredentials();
             },
+            autoCloseMissedSessions: async function() {
+                const today = todayStr();
+                const attendance = await DB.get('attendance');
+                
+                for (let record of attendance) {
+                    if (record.date < today && record.sessions && record.sessions.length > 0) {
+                        let lastSession = record.sessions[record.sessions.length - 1];
+                        if (lastSession.check_out === null) {
+                            const autoOutTime = new Date(`${record.date}T23:59:59`).toISOString();
+                            lastSession.check_out = autoOutTime;
+                            
+                            let totalMinutes = 0;
+                            record.sessions.forEach(s => {
+                                if (s.check_in && s.check_out) {
+                                    totalMinutes += Math.floor((new Date(s.check_out) - new Date(s.check_in)) / 60000);
+                                }
+                            });
+                            
+                            const autoNote = `Session ${record.sessions.length}: [System Auto-Checkout]`;
+                            let updatedSummary = record.work_summary || "";
+                            updatedSummary = updatedSummary ? updatedSummary + " | \n" + autoNote : autoNote;
+                            
+                            await DB.update('attendance', record.id, {
+                                sessions: record.sessions,
+                                total_minutes: totalMinutes,
+                                work_summary: updatedSummary
+                            });
+                        }
+                    }
+                }
+            },
             route: function(pageId) {
                 document.querySelectorAll('.page-view').forEach(el => el.classList.remove('active'));
                 document.getElementById(pageId).classList.add('active');
                 
                 if (pageId === 'page-admin') AdminApp.init();
                 if (pageId === 'page-pr') PRApp.init();
+                if (pageId === 'page-public-member-leave') PublicApp.init(); 
             }
         };
 
+        // --- UI & TOASTS ---
         const UI = {
             showToast: (msg, type='success') => {
                 const container = document.getElementById('toastArea');
@@ -931,6 +941,7 @@
             }
         };
         
+        // --- AUTHENTICATION ---
         const Auth = {
             fillDemoCredentials: () => {
                 const role = document.getElementById('loginRole').value;
@@ -954,23 +965,15 @@
                 btn.disabled = true;
 
                 const users = await DB.get('users');
-                
                 btn.innerHTML = origText;
                 btn.disabled = false;
 
-                if (!users || users.length === 0) {
-                    return UI.showToast('Database connection failed or empty table.', 'error');
-                }
+                if (!users || users.length === 0) return UI.showToast('Database connection failed.', 'error');
 
-                const user = users.find(user => 
-                    user.role === r && 
-                    user.password === p && 
-                    (user.username === u || user.pr_id === u)
-                );
+                const user = users.find(user => user.role === r && user.password === p && (user.username === u || user.pr_id === u));
 
                 if (user) {
                     if(user.status === 'Disabled') return UI.showToast('Account disabled by Admin.', 'error');
-                    
                     App.currentUser = user;
                     sessionStorage.setItem('active_user', JSON.stringify(user));
                     UI.showToast(`Welcome back, ${user.full_name || r}!`);
@@ -987,7 +990,106 @@
             }
         };
 
+        // --- PUBLIC APP (Member Leave) ---
+        const PublicApp = {
+            allArtists: [], 
+            init: async () => {
+                try {
+                    const artists = await DB.get('artists');
+                    PublicApp.allArtists = artists || [];
+                    const select = document.getElementById('mlArtist');
+                    if (!select) return; 
+                    
+                    select.innerHTML = '<option value="">Select Member...</option>';
+                    PublicApp.allArtists.forEach(a => {
+                        select.innerHTML += `<option value="${a.id}">${a.name}</option>`;
+                    });
+                    document.getElementById('mlDepartment').innerHTML = '';
+                } catch (err) { console.error("Failed to load artists:", err); }
+            },
+            onArtistChange: () => {
+                const artistId = document.getElementById('mlArtist').value;
+                const deptSelect = document.getElementById('mlDepartment');
+                deptSelect.innerHTML = ''; 
+
+                if (!artistId) return;
+
+                const artist = PublicApp.allArtists.find(a => a.id === artistId);
+                if (artist && artist.department) {
+                    const depts = artist.department.split(',').map(d => d.trim()).filter(d => d !== '');
+                    depts.forEach(d => { deptSelect.innerHTML += `<option value="${d}">${d}</option>`; });
+                } else {
+                    deptSelect.innerHTML = '<option value="" disabled>No departments found</option>';
+                }
+            },
+            calcDays: () => {
+                const f = document.getElementById('mlFrom').value; 
+                const t = document.getElementById('mlTo').value;
+                if (f && t) {
+                    const days = Math.max(0, Math.ceil((new Date(t) - new Date(f)) / (1000 * 60 * 60 * 24)) + 1);
+                    document.getElementById('mlDaysText').innerText = days;
+                } else { document.getElementById('mlDaysText').innerText = '0'; }
+            },
+            submitLeave: async (e) => {
+                e.preventDefault();
+                const days = parseInt(document.getElementById('mlDaysText').innerText);
+                if(isNaN(days) || days <= 0) return UI.showToast('Invalid dates selected.', 'error');
+
+                const artistId = document.getElementById('mlArtist').value;
+                const deptSelect = document.getElementById('mlDepartment');
+                const selectedDepts = Array.from(deptSelect.selectedOptions).map(opt => opt.value).join(', ');
+                
+                if(!artistId || !selectedDepts) return UI.showToast('Please select an artist and at least one department.', 'error');
+
+                const artist = PublicApp.allArtists.find(a => a.id === artistId);
+                const artistName = artist ? artist.name : 'Unknown Artist';
+
+                const btn = e.target.querySelector('button'); 
+                const originalText = btn.innerHTML;
+                btn.disabled = true; 
+                btn.innerHTML = '<i class="ph ph-spinner ph-spin"></i> Submitting...';
+
+                const formattedName = `${artistName} (${selectedDepts})`;
+
+                const result = await DB.insert('member_leave_requests', { 
+                    member_name: formattedName, 
+                    mobile: document.getElementById('mlMobile').value, 
+                    leave_from: document.getElementById('mlFrom').value, 
+                    leave_to: document.getElementById('mlTo').value, 
+                    total_days: days, 
+                    reason: document.getElementById('mlReason').value, 
+                    status: 'Pending' 
+                });
+
+                if (!result) { btn.disabled = false; btn.innerHTML = originalText; return; }
+
+                e.target.reset(); 
+                document.getElementById('mlDaysText').innerText = '0'; 
+                document.getElementById('mlDepartment').innerHTML = '';
+                btn.disabled = false; 
+                btn.innerHTML = originalText;
+                
+                UI.showModal('Request Submitted', `
+                    <div style="text-align:center;">
+                        <div style="font-size: 64px; color: var(--success); margin-bottom: 16px;"><i class="ph-fill ph-check-circle"></i></div>
+                        <h3 style="margin-bottom:8px;">Thank You!</h3>
+                        <p style="color: var(--text-muted); margin-bottom: 24px;">Your leave request has been submitted.</p>
+                        <button class="btn btn-primary" onclick="UI.closeModal(); App.route('page-login')">Return to Login</button>
+                    </div>
+                `);
+            }
+        };
+
+        // --- ADMIN APP ---
         const AdminApp = {
+            prGroups: ['PR GROUP SUBHAJIT', 'PR GROUP SOUMYARUP', 'PR GROUP ANKITA', 'PR GROUP KOYEL'],
+            cachedArtists: [],
+            cachedPRs: [],
+            cachedMemberLeaves: [],
+            cachedActivities: [],
+            dashboardInterval: null,
+            editAttState: null,
+
             init: () => { AdminApp.switchTab('admin-dashboard'); },
             switchTab: (tabId) => {
                 const view = document.getElementById('page-admin');
@@ -997,210 +1099,687 @@
                 document.getElementById(tabId).classList.add('active');
                 if(window.innerWidth < 992) UI.toggleSidebar();
 
-                if(tabId === 'admin-dashboard') AdminApp.loadDashboard();
+                if(tabId === 'admin-dashboard') AdminApp.startRealtimeDashboard();
                 if(tabId === 'admin-pr') AdminApp.renderPRs();
-                
-                // AUTOMATICALLY FETCH TODAY'S DATE FOR ATTENDANCE
-                if(tabId === 'admin-attendance') {
-                    document.getElementById('filterAttDate').value = todayStr();
-                    AdminApp.renderAttendance();
-                }
-                
+                if(tabId === 'admin-members') AdminApp.initMembersTab();
+                if(tabId === 'admin-attendance') { document.getElementById('filterAttDate').value = todayStr(); AdminApp.renderAttendance(); }
                 if(tabId === 'admin-holidays') AdminApp.renderHolidays();
                 if(tabId === 'admin-pr-leave') AdminApp.renderPRLeaves();
                 if(tabId === 'admin-member-leave') AdminApp.renderMemberLeaves();
                 if(tabId === 'admin-approved-member-leave') AdminApp.renderApprovedMemberLeaves();
                 if(tabId === 'admin-notifications') AdminApp.renderNotifications();
-                if (tabId === 'admin-dashboard') AdminApp.startRealtimeDashboard();
+                
+                if(tabId === 'admin-pr-activity') AdminApp.initPRActivityTab();
+                if(tabId === 'admin-artists') AdminApp.renderArtistTracking();
             },
-            sendReminder: async (prId) => {
 
-    const users = await DB.get("users");
+            // --- MEMBER DIRECTORY (ARTISTS) ---
+            initMembersTab: async () => {
+                const artists = await DB.get('artists');
+                AdminApp.cachedArtists = artists;
+                
+                const deptSelect = document.getElementById('filterMemberDept');
+                let allDepts = new Set();
+                artists.forEach(a => { if (a.department) a.department.split(',').forEach(d => allDepts.add(d.trim())); });
+                
+                deptSelect.innerHTML = '<option value="">All Departments</option>';
+                allDepts.forEach(d => { if(d) deptSelect.innerHTML += `<option value="${d}">${d}</option>`; });
+                
+                AdminApp.renderMembers();
+            },
+            
+            renderMembers: async () => {
+                const term = (document.getElementById('searchMember').value || '').toLowerCase();
+                const deptFilter = document.getElementById('filterMemberDept').value;
+                const date = todayStr();
+                
+                const leaves = await DB.get('member_leave_requests');
+                let filtered = AdminApp.cachedArtists || [];
+                
+                if (deptFilter) {
+                    filtered = filtered.filter(a => a.department && a.department.split(',').map(d=>d.trim()).includes(deptFilter));
+                }
+                if (term) {
+                    filtered = filtered.filter(a => {
+                        const shortId = (a.id || '').substring(0,6).toLowerCase();
+                        const name = (a.name || '').toLowerCase();
+                        const mob = (a.mobile_number || '').toLowerCase();
+                        return name.includes(term) || shortId.includes(term) || mob.includes(term);
+                    });
+                }
+                
+                let html = '';
+                filtered.forEach(a => {
+                    const shortId = (a.id || '').substring(0, 6).toUpperCase();
+                    
+                    const onLeave = leaves.find(l => l.status === 'Approved' && l.member_name.startsWith(a.name) && date >= l.leave_from && date <= l.leave_to);
+                    const leaveBadge = onLeave ? `<span class="badge badge-pending">On Leave</span>` : `<span class="badge badge-completed">Working</span>`;
+                    
+                    // Check if they accidentally pasted a full link, otherwise prepend the website URL to the username
+                    const fbUrl = a.facebook ? (a.facebook.startsWith('http') ? a.facebook : `https://www.facebook.com/${a.facebook.replace('@', '')}`) : '#';
+                    const igUrl = a.instagram ? (a.instagram.startsWith('http') ? a.instagram : `https://www.instagram.com/${a.instagram.replace('@', '')}`) : '#';
+                    
+                    const fb = a.facebook ? `<a href="${fbUrl}" target="_blank" style="color:#1877F2; font-size:20px;"><i class="ph-fill ph-facebook-logo"></i></a>` : `<i class="ph ph-facebook-logo text-muted" style="font-size:20px; opacity:0.3;"></i>`;
+                    const ig = a.instagram ? `<a href="${igUrl}" target="_blank" style="color:#E4405F; font-size:20px;"><i class="ph-fill ph-instagram-logo"></i></a>` : `<i class="ph ph-instagram-logo text-muted" style="font-size:20px; opacity:0.3;"></i>`;
+                    
+                    html += `<tr>
+                        <td><strong style="color:var(--gold);">${shortId}</strong></td>
+                        <td><strong>${a.name}</strong><br><small style="color:var(--text-muted);">${a.nickname || ''}</small></td>
+                        <td style="white-space: pre-wrap; max-width: 150px;">${a.department || '-'}</td>
+                        <td>${a.dob || '-'}</td>
+                        <td>${a.mobile_number || '-'}<br><div style="display:flex; gap:8px; margin-top:4px;">${fb}${ig}</div></td>
+                        <td>${leaveBadge}</td>
+                        <td>
+                            <div style="display:flex; gap:8px;">
+                                <button class="btn btn-outline" style="padding: 6px 12px;" onclick="AdminApp.openEditMemberModal('${a.id}')"><i class="ph ph-pencil"></i></button>
+                                <button class="btn btn-danger" style="padding: 6px 12px;" onclick="AdminApp.deleteMember('${a.id}')"><i class="ph ph-trash"></i></button>
+                            </div>
+                        </td>
+                    </tr>`;
+                });
+                document.getElementById('tableMembers').innerHTML = html || '<tr><td colspan="7" class="text-center text-muted">No members found.</td></tr>';
+            },
 
-    const user = users.find(u => u.pr_id === prId);
+            openAddMemberModal: () => {
+                let prOptions = `<option value="">-- None --</option>`;
+                AdminApp.prGroups.forEach(g => prOptions += `<option value="${g}">${g}</option>`);
+                
+                UI.showModal('Add New Member (Artist)', `
+                    <form onsubmit="AdminApp.saveMember(event, null)">
+                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
+                            <div class="form-group"><label class="form-label">Name</label><input type="text" id="memName" class="form-control" required></div>
+                            <div class="form-group"><label class="form-label">Nickname</label><input type="text" id="memNick" class="form-control"></div>
+                        </div>
+                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
+                            <div class="form-group"><label class="form-label">Department (Comma separated)</label><input type="text" id="memDept" class="form-control" placeholder="e.g. Camera, Editing"></div>
+                            <div class="form-group"><label class="form-label">Date of Birth</label><input type="date" id="memDob" class="form-control"></div>
+                        </div>
+                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
+                            <div class="form-group"><label class="form-label">Mobile Number</label><input type="tel" id="memMobile" class="form-control"></div>
+                            <div class="form-group"><label class="form-label">PR Group</label><select id="memPrGroup" class="form-control">${prOptions}</select></div>
+                        </div>
+                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
+                            <div class="form-group"><label class="form-label">Facebook Username</label><input type="text" id="memFb" class="form-control" placeholder="e.g. markzuckerberg"></div>
+                            <div class="form-group"><label class="form-label">Instagram Username</label><input type="text" id="memIg" class="form-control" placeholder="e.g. cristiano"></div>
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="width:100%; margin-top: 16px;">Save Member</button>
+                    </form>
+                `);
+            },
+            
+            openEditMemberModal: async (id) => {
+                const artists = await DB.get('artists');
+                const a = artists.find(x => x.id === id);
+                if(!a) return;
+                
+                let prOptions = `<option value="">-- None --</option>`;
+                AdminApp.prGroups.forEach(g => {
+                    const sel = a.pr_group === g ? 'selected' : '';
+                    prOptions += `<option value="${g}" ${sel}>${g}</option>`;
+                });
+                
+                UI.showModal('Edit Member', `
+                    <form onsubmit="AdminApp.saveMember(event, '${id}')">
+                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
+                            <div class="form-group"><label class="form-label">Name</label><input type="text" id="memName" class="form-control" value="${a.name || ''}" required></div>
+                            <div class="form-group"><label class="form-label">Nickname</label><input type="text" id="memNick" class="form-control" value="${a.nickname || ''}"></div>
+                        </div>
+                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
+                            <div class="form-group"><label class="form-label">Department (Comma separated)</label><input type="text" id="memDept" class="form-control" value="${a.department || ''}"></div>
+                            <div class="form-group"><label class="form-label">Date of Birth</label><input type="date" id="memDob" class="form-control" value="${a.dob || ''}"></div>
+                        </div>
+                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
+                            <div class="form-group"><label class="form-label">Mobile Number</label><input type="tel" id="memMobile" class="form-control" value="${a.mobile_number || ''}"></div>
+                            <div class="form-group"><label class="form-label">PR Group</label><select id="memPrGroup" class="form-control">${prOptions}</select></div>
+                        </div>
+                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
+                            <div class="form-group"><label class="form-label">Facebook Username</label><input type="text" id="memFb" class="form-control" value="${a.facebook || ''}" placeholder="e.g. markzuckerberg"></div>
+                            <div class="form-group"><label class="form-label">Instagram Username</label><input type="text" id="memIg" class="form-control" value="${a.instagram || ''}" placeholder="e.g. cristiano"></div>
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="width:100%; margin-top: 16px;">Update Member</button>
+                    </form>
+                `);
+            },
+            
+            saveMember: async (e, id) => {
+                e.preventDefault();
+                const btn = e.target.querySelector('button');
+                const origHtml = btn.innerHTML;
+                btn.innerHTML = '<i class="ph ph-spinner ph-spin"></i> Saving...';
+                btn.disabled = true;
 
-    if (!user || !user.mobile) {
-        return UI.showToast("Mobile number not found", "error");
-    }
+                const payload = {
+                    name: document.getElementById('memName').value,
+                    nickname: document.getElementById('memNick').value,
+                    department: document.getElementById('memDept').value,
+                    dob: document.getElementById('memDob').value || null,
+                    mobile_number: document.getElementById('memMobile').value,
+                    pr_group: document.getElementById('memPrGroup').value || null,
+                    facebook: document.getElementById('memFb').value,
+                    instagram: document.getElementById('memIg').value
+                };
+                
+                try {
+                    if (id) {
+                        await DB.update('artists', id, payload);
+                        UI.showToast('Member updated.', 'success');
+                    } else {
+                        // Generate UUID manually just in case DB defaults are missing
+                        payload.id = crypto.randomUUID(); 
+                        await DB.insert('artists', payload);
+                        UI.showToast('Member added.', 'success');
+                    }
+                    UI.closeModal();
+                    AdminApp.initMembersTab(); 
+                } catch(err) {
+                    UI.showToast(`Error saving member: ${err.message}`, 'error');
+                    btn.innerHTML = origHtml;
+                    btn.disabled = false;
+                }
+            },
+            
+            deleteMember: (id) => {
+                UI.confirm('Delete Member', 'Are you sure you want to delete this member? All their data will be lost.', async () => {
+                    await DB.remove('artists', id);
+                    UI.showToast('Member deleted.', 'success');
+                    AdminApp.initMembersTab();
+                });
+            },
+            
+            // --- PR GROUP ACTIVITY TRACKING ---
+            prActivityState: {},
+            
+            initPRActivityTab: async () => {
+                const artists = await DB.get('artists');
+                AdminApp.cachedArtists = artists;
 
-    const message =
-`🌿 নমস্কার, ${user.full_name},
+                let prOptions = `<option value="">-- Select PR Group --</option>`;
+                AdminApp.prGroups.forEach(grp => { prOptions += `<option value="${grp}">${grp}</option>`; });
+                document.getElementById('filterPRGroup').innerHTML = prOptions;
+                
+                const dateInput = document.getElementById('prActivityDate');
+                if(!dateInput.value) dateInput.value = todayStr();
+                
+                AdminApp.loadPRGroupMembers();
+            },
 
-🙏 ছিন্নপত্র পরিবারের পক্ষ থেকে শুভেচ্ছা।
+            loadPRGroupMembers: async () => {
+                const prGroupName = document.getElementById('filterPRGroup').value;
+                const date = document.getElementById('prActivityDate').value;
+                const tbody = document.getElementById('tablePRGroupActivity');
 
-📌 আমাদের রেকর্ড অনুযায়ী আজকের আপনার উপস্থিতি (Attendance) এখনও নথিভুক্ত হয়নি।
+                if (!prGroupName || !date) {
+                    tbody.innerHTML = '<tr><td colspan="4" class="text-center"><i class="ph-fill ph-users text-success" style="font-size:32px;"></i><br><strong style="color:var(--primary); font-size:16px;">Please select a PR Group & Date</strong></td></tr>';
+                    return;
+                }
 
-✅ অনুগ্রহ করে যত দ্রুত সম্ভব আপনার Check-In সম্পন্ন করুন।
+                tbody.innerHTML = '<tr><td colspan="4" class="text-center"><i class="ph ph-spinner ph-spin"></i> Loading members...</td></tr>';
 
-🌐 PR Desk ভিজিট করুন: 
-https://chinnapatraprdesk.netlify.app
+                const activities = await DB.get('pr_group_activities');
+                const todaysAct = activities.filter(a => a.pr_id === prGroupName && a.activity_date === date);
+                const groupArtists = AdminApp.cachedArtists.filter(a => a.pr_group === prGroupName);
 
-📝 যদি আপনি ইতোমধ্যে Check-In করে থাকেন অথবা অনুমোদিত ছুটিতে (Approved Leave) থাকেন, তাহলে এই বার্তাটি উপেক্ষা করুন।
+                AdminApp.prActivityState = {};
 
-🤝 আপনার সহযোগিতার জন্য আন্তরিক ধন্যবাদ।
+                if(groupArtists.length === 0) {
+                     tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted">No artists assigned to this PR Group.</td></tr>';
+                     return;
+                }
 
-🌱 শুভেচ্ছান্তে,
-✨ Team Chinnapatra`;
+                groupArtists.forEach(a => {
+                    const existing = todaysAct.find(act => act.artist_id === a.id);
+                    AdminApp.prActivityState[a.id] = {
+                        artist: a,
+                        id: existing ? existing.id : null,
+                        liked: existing ? existing.liked : false,
+                        commented: existing ? existing.commented : false,
+                        shared: existing ? existing.shared : false,
+                        activeness: existing ? existing.activeness_status : 'Active'
+                    };
+                });
 
-    const url =
-`https://wa.me/91${user.mobile}?text=${encodeURIComponent(message)}`;
+                AdminApp.renderPRTableFromState();
+            },
 
-    window.open(url, "_blank");
+            renderPRTableFromState: () => {
+                const tbody = document.getElementById('tablePRGroupActivity');
+                let html = '';
 
-},
-            sendReminderAll: async () => {
+                Object.values(AdminApp.prActivityState).forEach(s => {
+                    const a = s.artist;
+                    
+                    const likeBtn = s.liked ? 'btn-success' : 'btn-outline';
+                    const commBtn = s.commented ? 'btn-success' : 'btn-outline';
+                    const shareBtn = s.shared ? 'btn-success' : 'btn-outline';
+                    
+                    const likeIcon = s.liked ? 'ph-fill' : 'ph-bold';
+                    const commIcon = s.commented ? 'ph-fill' : 'ph-bold';
+                    const shareIcon = s.shared ? 'ph-fill' : 'ph-bold';
 
-    const date = todayStr();
+                    const activeBtn = s.activeness === 'Active' 
+                        ? 'background: rgba(16, 185, 129, 0.1); color: var(--success); border: 1px solid var(--success);'
+                        : 'background: rgba(239, 68, 68, 0.1); color: var(--danger); border: 1px solid var(--danger);';
+                    const activeIcon = s.activeness === 'Active' ? 'ph-check-circle' : 'ph-x-circle';
 
-    const attendance = await DB.get("attendance");
-    const users = await DB.get("users");
-    const leaves = await DB.get("pr_leave_requests");
+                    html += `<tr>
+                        <td><strong>${a.name}</strong><br><small style="color:var(--text-muted);">${a.nickname || ''}</small></td>
+                        <td><span style="font-size:12px; font-weight:600; color:var(--gold);">${a.department || '-'}</span></td>
+                        <td>
+                            <div style="display:flex; gap:8px;">
+                                <button class="btn ${likeBtn} btn-sm" style="padding: 4px 10px; font-size: 12px; transition: none;" onclick="AdminApp.togglePRTask('${a.id}', 'liked')"><i class="${likeIcon} ph-thumbs-up"></i> Like</button>
+                                <button class="btn ${commBtn} btn-sm" style="padding: 4px 10px; font-size: 12px; transition: none;" onclick="AdminApp.togglePRTask('${a.id}', 'commented')"><i class="${commIcon} ph-chat-circle"></i> Comment</button>
+                                <button class="btn ${shareBtn} btn-sm" style="padding: 4px 10px; font-size: 12px; transition: none;" onclick="AdminApp.togglePRTask('${a.id}', 'shared')"><i class="${shareIcon} ph-share-network"></i> Share</button>
+                            </div>
+                        </td>
+                        <td>
+                            <button class="btn ripple-btn" style="padding: 6px 12px; font-size: 12px; min-width: 90px; transition: none; ${activeBtn}" onclick="AdminApp.togglePRActiveness('${a.id}')">
+                                <i class="ph-bold ${activeIcon}"></i> <span>${s.activeness}</span>
+                            </button>
+                        </td>
+                    </tr>`;
+                });
 
-    const todayAttendance = attendance.filter(a => a.date === date);
+                tbody.innerHTML = html;
+            },
 
-    const absents = users.filter(user => {
+            togglePRTask: (artistId, taskType) => {
+                AdminApp.prActivityState[artistId][taskType] = !AdminApp.prActivityState[artistId][taskType];
+                AdminApp.renderPRTableFromState(); 
+            },
 
-        if (user.role !== "PR") return false;
+            togglePRActiveness: (artistId) => {
+                const curr = AdminApp.prActivityState[artistId].activeness;
+                AdminApp.prActivityState[artistId].activeness = curr === 'Active' ? 'Inactive' : 'Active';
+                AdminApp.renderPRTableFromState();
+            },
 
-        // Attendance exists?
-        const record = todayAttendance.find(a => a.pr_id === user.pr_id);
+            saveAllPRActivities: async () => {
+                const prGroupName = document.getElementById('filterPRGroup').value;
+                const date = document.getElementById('prActivityDate').value;
+                if (!prGroupName || !date) return UI.showToast('Please select a PR Group and Date first.', 'error');
 
-        if (record) return false;
+                const btn = document.querySelector('#admin-pr-activity .card-header .btn-primary');
+                const origText = btn.innerHTML;
+                btn.innerHTML = '<i class="ph ph-spinner ph-spin"></i> Saving...';
+                btn.disabled = true;
 
-        // Approved leave?
-        const onLeave = leaves.find(l =>
-            l.pr_id === user.pr_id &&
-            l.status === "Approved" &&
-            date >= l.leave_from &&
-            date <= l.leave_to
-        );
+                const states = Object.values(AdminApp.prActivityState);
+                
+                await Promise.all(states.map(async (s) => {
+                    const payload = {
+                        pr_id: prGroupName,
+                        artist_id: s.artist.id,
+                        activity_date: date,
+                        liked: s.liked,
+                        commented: s.commented,
+                        shared: s.shared,
+                        activeness_status: s.activeness
+                    };
+                    
+                    if (s.id) {
+                        await DB.update('pr_group_activities', s.id, payload);
+                    } else {
+                        const res = await DB.insert('pr_group_activities', payload);
+                        if (res) s.id = res.id; 
+                    }
+                }));
 
-        if (onLeave) return false;
+                UI.showToast('All PR Group Activities Saved!', 'success');
+                btn.innerHTML = origText;
+                btn.disabled = false;
+            },
 
-        // Mobile number exists?
-        if (!user.mobile || user.mobile.trim() === "") return false;
+            // --- MANAGE PR GROUP MEMBERS ---
+            openManagePRGroupModal: () => {
+                let options = `<option value="">-- Select PR Group --</option>`;
+                AdminApp.prGroups.forEach(g => { options += `<option value="${g}">${g}</option>`; });
+                
+                UI.showModal('Manage PR Group Members', `
+                    <div class="form-group">
+                        <label class="form-label">Select PR Group</label>
+                        <select id="managePRGroupSelect" class="form-control" onchange="AdminApp.loadManagePRGroupArtists()">${options}</select>
+                    </div>
+                    <div id="managePRGroupList" style="max-height: 300px; overflow-y: auto; border: 1.5px solid rgba(10, 25, 49, 0.1); border-radius: var(--radius-md); padding: 12px; margin-bottom: 16px; background: #f9f9f9; display:none;">
+                        <!-- Artists loaded here -->
+                    </div>
+                    <button class="btn btn-primary" style="width: 100%;" onclick="AdminApp.savePRGroupMembers()">Save Assignments</button>
+                `);
+            },
 
-        return true;
+            loadManagePRGroupArtists: () => {
+                const group = document.getElementById('managePRGroupSelect').value;
+                const container = document.getElementById('managePRGroupList');
+                if (!group) { container.style.display = 'none'; return; }
+                
+                container.style.display = 'block';
+                let html = `<div style="margin-bottom: 8px; font-weight: bold; color: var(--primary);">Assign Artists to ${group}</div>`;
+                
+                AdminApp.cachedArtists.forEach(a => {
+                    const checked = (a.pr_group === group) ? 'checked' : '';
+                    html += `
+                        <label style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px; cursor: pointer; padding: 4px; border-radius: 4px;" onmouseover="this.style.background='#eee'" onmouseout="this.style.background='transparent'">
+                            <input type="checkbox" class="manage-pr-artist-cb" value="${a.id}" ${checked} style="width: 16px; height: 16px;"> 
+                            <span style="font-size: 14px;">${a.name} <small style="color:var(--text-muted);">(${a.department || 'No Dept'})</small></span>
+                        </label>
+                    `;
+                });
+                container.innerHTML = html;
+            },
 
-    });
+            savePRGroupMembers: async () => {
+                const group = document.getElementById('managePRGroupSelect').value;
+                if (!group) return UI.showToast('Please select a PR Group first', 'error');
 
-    if (absents.length === 0) {
+                const checkboxes = document.querySelectorAll('.manage-pr-artist-cb');
+                const selectedIds = Array.from(checkboxes).filter(cb => cb.checked).map(cb => cb.value);
 
-        UI.showToast(
-            "No absent employees found. Everyone is present or on leave.",
-            "success"
-        );
+                for (let a of AdminApp.cachedArtists) {
+                    if (selectedIds.includes(a.id)) {
+                        if (a.pr_group !== group) {
+                            await DB.update('artists', a.id, { pr_group: group });
+                            a.pr_group = group;
+                        }
+                    } else {
+                        if (a.pr_group === group) {
+                            await DB.update('artists', a.id, { pr_group: null });
+                            a.pr_group = null;
+                        }
+                    }
+                }
+                
+                UI.showToast(`${group} members updated!`, 'success');
+                UI.closeModal();
+                if(document.getElementById('admin-pr-activity').classList.contains('active')) AdminApp.loadPRGroupMembers();
+            },
 
-        return;
+            // --- WEEKLY PR STATUS REPORT ---
+            prReportState: { active: [], inactive: [], onLeave: [] },
 
-    }
+            openPRWeeklyReportModal: () => {
+                let options = `<option value="">-- Select PR Group --</option>`;
+                AdminApp.prGroups.forEach(g => { options += `<option value="${g}">${g}</option>`; });
 
-    absents.forEach((user, index) => {
+                UI.showModal(`Weekly PR Group Status`, `
+                    <div style="background: #F8FAFC; border: 1.5px solid rgba(10, 25, 49, 0.1); border-radius: 12px; padding: 24px; font-family: var(--font-main);">
+                        <div style="text-align: center; margin-bottom: 20px;">
+                            <h3 style="font-family: var(--font-heading); color: var(--primary); font-size: 20px; letter-spacing: 1px;">📋 PR GROUP ARTIST STATUS</h3>
+                            <div style="height: 2px; width: 100px; background: var(--gold); margin: 8px auto;"></div>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 140px 1fr; gap: 12px; align-items: center; background: var(--white); padding: 16px; border-radius: 8px; box-shadow: var(--shadow-sm); margin-bottom: 20px;">
+                            <strong style="font-size: 13px; color: var(--text-muted);">*PR GROUP:*</strong> 
+                            <select id="repPRGrp" class="form-control" onchange="AdminApp.loadPRWeeklyReportData()" style="padding: 6px; font-weight: bold; color: var(--primary);">${options}</select>
+                            <strong style="font-size: 13px; color: var(--text-muted);">*REPORTED BY:*</strong> 
+                            <div style="font-weight: bold; color: var(--primary); font-size: 14px;">${App.currentUser.full_name}</div>
+                            <strong style="font-size: 13px; color: var(--text-muted);">*REPORT DATE:*</strong> 
+                            <input type="date" id="repPRDate" class="form-control" value="${todayStr()}" onchange="AdminApp.loadPRWeeklyReportData()" style="padding: 6px; font-weight: bold; color: var(--primary);">
+                        </div>
+                        <div id="prReportDataArea" style="display: none; animation: fadeIn 0.4s ease;">
+                            <div style="background: rgba(16, 185, 129, 0.05); border-left: 4px solid var(--success); padding: 16px; border-radius: 8px; margin-bottom: 16px;">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+                                    <strong style="color: var(--success); font-size: 15px;">🟢 Active Members:</strong>
+                                    <small style="color: var(--text-muted);">Click to mark Inactive 👇</small>
+                                </div>
+                                <div id="repPRActiveContainer" style="display: flex; flex-wrap: wrap; gap: 8px;"></div>
+                            </div>
+                            <div style="background: rgba(245, 158, 11, 0.05); border-left: 4px solid var(--warning); padding: 16px; border-radius: 8px; margin-bottom: 16px;">
+                                <strong style="color: var(--warning); font-size: 15px; display: block; margin-bottom: 12px;">🟡 On Leave (ছুটিতে): <small style="font-weight: normal; color: var(--text-muted);">(Auto-fetched)</small></strong>
+                                <div id="repPRLeaveContainer" style="display: flex; flex-wrap: wrap; gap: 8px;"></div>
+                            </div>
+                            <div style="background: rgba(239, 68, 68, 0.05); border-left: 4px solid var(--danger); padding: 16px; border-radius: 8px; margin-bottom: 24px;">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+                                    <strong style="color: var(--danger); font-size: 15px;">🔴 Inactive Members:</strong>
+                                    <small style="color: var(--text-muted);">Click to mark Active 👆</small>
+                                </div>
+                                <div id="repPRInactiveContainer" style="display: flex; flex-wrap: wrap; gap: 8px;"></div>
+                            </div>
+                            <div style="background: var(--primary); color: var(--white); padding: 16px; border-radius: 8px; font-size: 14px; margin-bottom: 20px; box-shadow: var(--shadow-md);">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                    <span>○ No. Of Active Member:</span> <strong id="cntPRActive" style="color: var(--success); font-size: 16px;">0</strong>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                    <span>○ No. Of On Leave Member:</span> <strong id="cntPRLeave" style="color: var(--warning); font-size: 16px;">0</strong>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 16px;">
+                                    <span>○ No. Of Inactive Member:</span> <strong id="cntPRInactive" style="color: var(--danger); font-size: 16px;">0</strong>
+                                </div>
+                            </div>
+                            <button id="btnSubmitPRReport" class="btn btn-primary ripple-btn" style="width: 100%; font-size: 16px; padding: 14px;" onclick="AdminApp.submitPRWeeklyReport()">
+                                <i class="ph-bold ph-floppy-disk"></i> Submit Status & Apply +5 Pts
+                            </button>
+                        </div>
+                    </div>
+                `);
+            },
 
-        setTimeout(() => {
+            loadPRWeeklyReportData: async () => {
+                const grp = document.getElementById('repPRGrp').value;
+                const date = document.getElementById('repPRDate').value;
+                const dataArea = document.getElementById('prReportDataArea');
 
-            const msg =
-`Hello ${user.full_name},
+                if (!grp) { dataArea.style.display = 'none'; return; }
+                dataArea.style.display = 'block';
 
-This is a friendly reminder to mark your attendance for today.
+                AdminApp.prReportState = { active: [], inactive: [], onLeave: [] };
+                const activities = await DB.get('pr_group_activities');
+                const groupArtists = AdminApp.cachedArtists.filter(a => a.pr_group === grp);
 
-Please check in as soon as possible.
+                groupArtists.forEach(a => {
+                    const isOnLeave = AdminApp.cachedMemberLeaves.find(l => l.status === 'Approved' && l.member_name.startsWith(a.name) && date >= l.leave_from && date <= l.leave_to);
+                    const myActs = activities.filter(act => act.artist_id === a.id && act.pr_id === grp);
+                    myActs.sort((x,y) => new Date(y.created_at) - new Date(x.created_at));
+                    const currentStatus = myActs.length > 0 ? myActs[0].activeness_status : 'Active';
 
-Thank you.`;
+                    if (isOnLeave) AdminApp.prReportState.onLeave.push(a);
+                    else if (currentStatus === 'Inactive') AdminApp.prReportState.inactive.push(a);
+                    else AdminApp.prReportState.active.push(a);
+                });
 
-            const phone = user.mobile.replace(/\D/g, "");
+                AdminApp.renderPRReportUI();
+            },
 
-            window.open(
-                `https://wa.me/91${phone}?text=${encodeURIComponent(msg)}`,
-                "_blank"
-            );
+            movePRReportArtist: (artistId, targetList) => {
+                const artist = AdminApp.cachedArtists.find(a => a.id === artistId);
+                AdminApp.prReportState.active = AdminApp.prReportState.active.filter(a => a.id !== artistId);
+                AdminApp.prReportState.inactive = AdminApp.prReportState.inactive.filter(a => a.id !== artistId);
+                AdminApp.prReportState[targetList].push(artist);
+                AdminApp.renderPRReportUI();
+            },
 
-        }, index * 1500);
+            renderPRReportUI: () => {
+                const activeHtml = AdminApp.prReportState.active.map(a => `
+                    <div onclick="AdminApp.movePRReportArtist('${a.id}', 'inactive')" style="background: var(--white); color: var(--success); border: 1px solid var(--success); padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 4px rgba(16, 185, 129, 0.1); display: flex; align-items: center; gap: 6px;" onmouseover="this.style.background='var(--danger)'; this.style.color='white'" onmouseout="this.style.background='var(--white)'; this.style.color='var(--success)'">
+                        <i class="ph-fill ph-check-circle"></i> ${a.name}
+                    </div>
+                `).join('');
 
-    });
+                const inactiveHtml = AdminApp.prReportState.inactive.map(a => `
+                    <div onclick="AdminApp.movePRReportArtist('${a.id}', 'active')" style="background: var(--white); color: var(--danger); border: 1px solid var(--danger); padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 4px rgba(239, 68, 68, 0.1); display: flex; align-items: center; gap: 6px;" onmouseover="this.style.background='var(--success)'; this.style.color='white'" onmouseout="this.style.background='var(--white)'; this.style.color='var(--danger)'">
+                        <i class="ph-fill ph-x-circle"></i> ${a.name}
+                    </div>
+                `).join('');
 
-    UI.showToast(
-        `${absents.length} reminder(s) are being opened in WhatsApp.`,
-        "success"
-    );
+                const leaveHtml = AdminApp.prReportState.onLeave.map(a => `
+                    <div style="background: var(--warning); color: var(--white); padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; opacity: 0.8; cursor: not-allowed;">
+                        ${a.name} (On Leave)
+                    </div>
+                `).join('');
 
-},
-            dashboardInterval: null,
+                document.getElementById('repPRActiveContainer').innerHTML = activeHtml || '<em style="color:var(--text-muted); font-size:13px;">No active members.</em>';
+                document.getElementById('repPRInactiveContainer').innerHTML = inactiveHtml || '<em style="color:var(--text-muted); font-size:13px;">No inactive members.</em>';
+                document.getElementById('repPRLeaveContainer').innerHTML = leaveHtml || '<em style="color:var(--text-muted); font-size:13px;">No members on leave today.</em>';
 
+                document.getElementById('cntPRActive').innerText = AdminApp.prReportState.active.length;
+                document.getElementById('cntPRInactive').innerText = AdminApp.prReportState.inactive.length;
+                document.getElementById('cntPRLeave').innerText = AdminApp.prReportState.onLeave.length;
+            },
+
+            submitPRWeeklyReport: async () => {
+                const grp = document.getElementById('repPRGrp').value;
+                const date = document.getElementById('repPRDate').value;
+                const btn = document.getElementById('btnSubmitPRReport');
+                btn.innerHTML = '<i class="ph ph-spinner ph-spin"></i> Submitting...';
+                btn.disabled = true;
+
+                const insertActivity = async (artist, status, score) => {
+                    await DB.insert('pr_group_activities', { pr_id: grp, artist_id: artist.id, activity_date: date, activeness_status: status });
+                    if (score > 0 || status === 'Inactive') {
+                        await DB.insert('artist_activities', {
+                            artist_id: artist.id, department: artist.department || 'PR Task', activity_name: 'PR Group Activeness',
+                            uploading_date: date, status: status, auto_score: score, logged_by: App.currentUser.full_name,
+                            notes: `Weekly PR status update marked as ${status}`
+                        });
+                    }
+                };
+
+                for (let a of AdminApp.prReportState.active) { await insertActivity(a, 'Active', 5); }
+                for (let a of AdminApp.prReportState.inactive) { await insertActivity(a, 'Inactive', 0); }
+
+                UI.showToast('PR Group Status Submitted! +5 Pts awarded to Active members.', 'success');
+                UI.closeModal();
+                if(document.getElementById('admin-pr-activity').classList.contains('active')) AdminApp.loadPRGroupMembers();
+            },
+
+            // --- ADMIN ATTENDANCE EDITING ---
+            toLocalISOStr: (iso) => {
+                if (!iso) return '';
+                let d = new Date(iso);
+                d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+                return d.toISOString().slice(0, 16);
+            },
+            renderAttSessionRows: () => {
+                const container = document.getElementById('editAttSessionsArea');
+                if (!container) return;
+                let html = '';
+                AdminApp.editAttState.sessions.forEach((s, idx) => {
+                    const inVal = AdminApp.toLocalISOStr(s.check_in);
+                    const outVal = AdminApp.toLocalISOStr(s.check_out);
+                    html += `
+                        <div style="background: rgba(10, 25, 49, 0.03); padding: 12px; border-radius: 8px; margin-bottom: 12px; border-left: 3px solid var(--gold);">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                <strong style="font-size: 13px;">Session #${idx + 1}</strong>
+                                <i class="ph-bold ph-trash" style="color: var(--danger); cursor: pointer;" onclick="AdminApp.removeAttSessionRow(${idx})"></i>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                                <div><label style="font-size: 11px; color: var(--text-muted);">Check In</label><input type="datetime-local" class="form-control" value="${inVal}" style="padding: 6px 10px; font-size: 13px;" onchange="AdminApp.updateTempSession(${idx}, 'in', this.value)"></div>
+                                <div><label style="font-size: 11px; color: var(--text-muted);">Check Out</label><input type="datetime-local" class="form-control" value="${outVal}" style="padding: 6px 10px; font-size: 13px;" onchange="AdminApp.updateTempSession(${idx}, 'out', this.value)"></div>
+                            </div>
+                        </div>
+                    `;
+                });
+                container.innerHTML = html;
+            },
+            updateTempSession: (idx, type, val) => {
+                const isoVal = val ? new Date(val).toISOString() : null;
+                if (type === 'in') AdminApp.editAttState.sessions[idx].check_in = isoVal;
+                if (type === 'out') AdminApp.editAttState.sessions[idx].check_out = isoVal;
+            },
+            addAttSessionRow: () => { AdminApp.editAttState.sessions.push({ check_in: null, check_out: null }); AdminApp.renderAttSessionRows(); },
+            removeAttSessionRow: (idx) => { AdminApp.editAttState.sessions.splice(idx, 1); AdminApp.renderAttSessionRows(); },
+            
+            openEditAttendanceModal: async (prId, date) => {
+                const attendance = await DB.get("attendance");
+                const record = attendance.find(a => a.pr_id === prId && a.date === date);
+                const users = await DB.get("users");
+                const pr = users.find(u => u.pr_id === prId) || {full_name: prId};
+
+                AdminApp.editAttState = {
+                    pr_id: prId, date: date, recordId: record ? record.id : null,
+                    sessions: record ? JSON.parse(JSON.stringify(record.sessions || [])) : [],
+                    work_summary: record ? (record.work_summary || '') : ''
+                };
+
+                UI.showModal(`Edit Attendance: ${pr.full_name}`, `
+                    <div style="margin-bottom: 12px; color: var(--primary); font-weight: 600;">Date: ${date}</div>
+                    <div id="editAttSessionsArea"></div>
+                    <button class="btn btn-outline btn-sm" style="margin-bottom: 20px; width: 100%; border-style: dashed;" onclick="AdminApp.addAttSessionRow()"><i class="ph-bold ph-plus"></i> Add Session</button>
+                    <div class="form-group"><label class="form-label">Work Summary</label><textarea id="editAttSummary" class="form-control" style="min-height: 80px;">${AdminApp.editAttState.work_summary}</textarea></div>
+                    <button class="btn btn-primary" style="width:100%;" onclick="AdminApp.saveEditedAttendance(event)"><i class="ph-bold ph-floppy-disk"></i> Save Attendance</button>
+                `);
+                AdminApp.renderAttSessionRows();
+            },
+            saveEditedAttendance: async (e) => {
+                e.preventDefault();
+                const btn = e.target.closest('button');
+                const origHtml = btn.innerHTML;
+                btn.innerHTML = '<i class="ph ph-spinner ph-spin"></i> Saving...';
+                btn.disabled = true;
+
+                const summary = document.getElementById('editAttSummary').value;
+                const sessions = AdminApp.editAttState.sessions;
+                let totalMinutes = 0;
+                sessions.forEach(s => { if (s.check_in && s.check_out) { totalMinutes += Math.max(0, Math.floor((new Date(s.check_out) - new Date(s.check_in)) / 60000)); } });
+
+                if (AdminApp.editAttState.recordId) {
+                    await DB.update('attendance', AdminApp.editAttState.recordId, { sessions: sessions, total_minutes: totalMinutes, work_summary: summary });
+                } else if(sessions.length > 0 || summary) {
+                    await DB.insert('attendance', { pr_id: AdminApp.editAttState.pr_id, date: AdminApp.editAttState.date, sessions: sessions, total_minutes: totalMinutes, work_summary: summary });
+                }
+
+                UI.showToast('Attendance updated successfully.', 'success');
+                UI.closeModal();
+                AdminApp.renderAttendance(); 
+            },
+
+            // --- DASHBOARD CORE FUNCTIONS ---
             startRealtimeDashboard: () => {
                 if (AdminApp.dashboardInterval) clearInterval(AdminApp.dashboardInterval);
                 AdminApp.loadDashboard();
-                // Refresh dashboard stats every 5 seconds automatically
                 AdminApp.dashboardInterval = setInterval(() => {
                     const dashView = document.getElementById('admin-dashboard');
-                    if (dashView && dashView.classList.contains('active')) {
-                        AdminApp.loadDashboard();
-                    }
+                    if (dashView && dashView.classList.contains('active')) AdminApp.loadDashboard();
                 }, 5000);
             },
 
             loadDashboard: async () => {
                 const prs = (await DB.get('users')).filter(u => u.role === 'PR');
+                const artists = await DB.get('artists');
                 const atts = (await DB.get('attendance')).filter(a => a.date === todayStr());
-                const prLeaves = (await DB.get('pr_leave_requests')).filter(l => l.status === 'Pending').length;
-                const memberLeaves = (await DB.get('member_leave_requests')).filter(l => l.status === 'Pending').length;
+                const prLeaves = await DB.get('pr_leave_requests');
+                const memberLeaves = await DB.get('member_leave_requests');
                 
-                let working = 0;
-                let completed = 0;
-                let checkedInCount = 0;
+                const disabledPRs = prs.filter(pr => pr.status === 'Disabled').length;
+                const pendingPrLeaves = prLeaves.filter(l => l.status === 'Pending').length;
+                
+                // Active PR leaves + Disabled accounts acts as total leaves
+                const prOnLeaveToday = prLeaves.filter(l => l.status === 'Approved' && todayStr() >= l.leave_from && todayStr() <= l.leave_to).length;
+                const totalPrsOnLeave = prOnLeaveToday + disabledPRs;
 
-                // Correctly inspect the sessions array for each PR
+                const pendingMemberLeaves = memberLeaves.filter(l => l.status === 'Pending').length;
+                
+                let working = 0, completed = 0, checkedInCount = 0;
+
                 atts.forEach(a => {
                     const sessions = a.sessions || [];
                     if (sessions.length > 0) {
                         checkedInCount++;
                         const lastSession = sessions[sessions.length - 1];
-                        if (lastSession.check_out === null) {
-                            working++;
-                        } else {
-                            completed++;
-                        }
+                        if (lastSession.check_out === null) working++;
+                        else completed++;
                     }
                 });
 
-                const absent = Math.max(0, prs.length - checkedInCount);
+                const absent = Math.max(0, prs.length - checkedInCount - totalPrsOnLeave);
 
                 document.getElementById('adminStatsGrid').innerHTML = `
+                    <div class="stat-card"><div class="stat-icon primary"><i class="ph-fill ph-palette"></i></div><div class="stat-info"><h4>Total Members (Artists)</h4><p>${artists.length}</p></div></div>
                     <div class="stat-card"><div class="stat-icon primary"><i class="ph-fill ph-users-three"></i></div><div class="stat-info"><h4>Total PR Staff</h4><p>${prs.length}</p></div></div>
                     <div class="stat-card"><div class="stat-icon gold"><i class="ph-fill ph-clock-user"></i></div><div class="stat-info"><h4>Currently Working</h4><p>${working}</p></div></div>
                     <div class="stat-card"><div class="stat-icon success"><i class="ph-fill ph-check-circle"></i></div><div class="stat-info"><h4>Completed Today</h4><p>${completed}</p></div></div>
                     <div class="stat-card"><div class="stat-icon" style="background:rgba(239, 68, 68, 0.1); color:var(--danger);"><i class="ph-fill ph-x-circle"></i></div><div class="stat-info"><h4>Absent Today</h4><p>${absent}</p></div></div>
-                    <div class="stat-card"><div class="stat-icon gold"><i class="ph-fill ph-calendar-minus"></i></div><div class="stat-info"><h4>Pending PR Leave</h4><p>${prLeaves}</p></div></div>
-                    <div class="stat-card"><div class="stat-icon primary"><i class="ph-fill ph-users"></i></div><div class="stat-info"><h4>Pending Member Leave</h4><p>${memberLeaves}</p></div></div>
+                    <div class="stat-card"><div class="stat-icon gold"><i class="ph-fill ph-calendar-blank"></i></div><div class="stat-info"><h4>PR Staff On Leave</h4><p>${totalPrsOnLeave}</p></div></div>
+                    <div class="stat-card"><div class="stat-icon gold"><i class="ph-fill ph-calendar-minus"></i></div><div class="stat-info"><h4>Pending PR Leave Reqs</h4><p>${pendingPrLeaves}</p></div></div>
+                    <div class="stat-card"><div class="stat-icon primary"><i class="ph-fill ph-users"></i></div><div class="stat-info"><h4>Pending Member Leave Reqs</h4><p>${pendingMemberLeaves}</p></div></div>
                 `;
 
-                // Render Recent Activity dynamically from sessions
                 let activityItems = [];
                 atts.forEach(a => {
                     const pr = prs.find(p => p.pr_id === a.pr_id) || { full_name: 'Unknown' };
                     (a.sessions || []).forEach(s => {
-                        if (s.check_in) {
-                            activityItems.push({
-                                time: new Date(s.check_in),
-                                pr_name: pr.full_name,
-                                pr_id: a.pr_id,
-                                action: 'Checked In',
-                                badge: '<span class="badge badge-working">Working</span>'
-                            });
-                        }
-                        if (s.check_out) {
-                            activityItems.push({
-                                time: new Date(s.check_out),
-                                pr_name: pr.full_name,
-                                pr_id: a.pr_id,
-                                action: 'Checked Out',
-                                badge: '<span class="badge badge-completed">Completed</span>'
-                            });
-                        }
+                        if (s.check_in) activityItems.push({ time: new Date(s.check_in), pr_name: pr.full_name, pr_id: a.pr_id, action: 'Checked In', badge: '<span class="badge badge-working">Working</span>' });
+                        if (s.check_out) activityItems.push({ time: new Date(s.check_out), pr_name: pr.full_name, pr_id: a.pr_id, action: 'Checked Out', badge: '<span class="badge badge-completed">Completed</span>' });
                     });
                 });
 
-                // Sort activity list so newest shows on top
                 activityItems.sort((a, b) => b.time - a.time);
 
                 let html = '';
@@ -1208,10 +1787,10 @@ Thank you.`;
                     const timeStr = act.time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
                     html += `<tr><td>${timeStr}</td><td><strong>${act.pr_name}</strong><br><small>${act.pr_id}</small></td><td>${act.action}</td><td>${act.badge}</td></tr>`;
                 });
-
                 document.getElementById('adminRecentActivityTable').querySelector('tbody').innerHTML = html || '<tr><td colspan="4" class="text-center text-muted">No activity today</td></tr>';
             },
 
+            // --- OTHER ADMIN VIEWS (PRs, Attendance, etc.) ---
             renderPRs: async () => {
                 const term = (document.getElementById('searchPR').value || '').toLowerCase();
                 const users = await DB.get('users');
@@ -1279,182 +1858,80 @@ Thank you.`;
                 }
                 UI.closeModal(); AdminApp.renderPRs();
             },
-            deletePR: (id) => {
-                UI.confirm('Delete PR', 'Permanently delete this PR account?', async () => { await DB.remove('users', id); UI.showToast('PR deleted.', 'success'); AdminApp.renderPRs(); });
-            },
+            deletePR: (id) => { UI.confirm('Delete PR', 'Permanently delete this PR account?', async () => { await DB.remove('users', id); UI.showToast('PR deleted.', 'success'); AdminApp.renderPRs(); }); },
 
             renderAttendance: async () => {
-
-                // Get date from picker, if empty fallback to today automatically
                 let date = document.getElementById("filterAttDate").value;
-                if (!date) {
-                    date = todayStr();
-                    document.getElementById("filterAttDate").value = date;
-                }
+                if (!date) { date = todayStr(); document.getElementById("filterAttDate").value = date; }
 
                 const attendance = await DB.get("attendance");
                 const users = await DB.get("users");
                 const leaves = await DB.get("pr_leave_requests");
-
                 const atts = attendance.filter(a => a.date === date);
                 const prs = users.filter(u => u.role === "PR");
 
                 let html = "";
+                prs.forEach(p => {
+                    const record = atts.find(a => a.pr_id === p.pr_id);
+                    const onLeave = leaves.find(l => l.pr_id === p.pr_id && l.status === "Approved" && date >= l.leave_from && date <= l.leave_to) || p.status === 'Disabled';
 
-    prs.forEach(p => {
+                    if (!record) {
+                        if (onLeave) {
+                            html += `<tr><td><strong>${p.full_name}</strong><br><small>${p.pr_id}</small></td><td>${date}</td><td>-</td><td>-</td><td><span class="badge badge-pending">On Leave</span></td><td><button class="btn btn-outline btn-sm" style="padding: 4px 10px;" onclick="AdminApp.openEditAttendanceModal('${p.pr_id}', '${date}')"><i class="ph-bold ph-pencil"></i> Edit</button></td></tr>`;
+                        } else {
+                            html += `<tr><td><strong>${p.full_name}</strong><br><small>${p.pr_id}</small></td><td>${date}</td><td>-</td><td>-</td><td><span class="badge badge-absent">Absent</span></td><td><div style="display:flex;gap:8px;"><button class="btn btn-warning btn-sm" onclick="AdminApp.sendReminder('${p.pr_id}')"><i class="ph ph-whatsapp-logo"></i></button> <button class="btn btn-outline btn-sm" style="padding: 4px 10px;" onclick="AdminApp.openEditAttendanceModal('${p.pr_id}', '${date}')"><i class="ph-bold ph-plus"></i> Add</button></div></td></tr>`;
+                        }
+                        return;
+                    }
 
-        const record = atts.find(a => a.pr_id === p.pr_id);
+                    const sessions = record.sessions || [];
+                    let sessionText = "-";
+                    if (sessions.length) {
+                        sessionText = sessions.map((s, i) => {
+                            const inTime = s.check_in ? new Date(s.check_in).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "--";
+                            const outTime = s.check_out ? new Date(s.check_out).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "--";
+                            return `#${i + 1}: ${inTime} → ${outTime}`;
+                        }).join("<br>");
+                    }
+                    const totalHours = ((record.total_minutes || 0) / 60).toFixed(2);
+                    const status = sessions.length && sessions[sessions.length - 1].check_out === null ? "Working" : "Completed";
 
-        // Check approved leave
-        const onLeave = leaves.find(l =>
-            l.pr_id === p.pr_id &&
-            l.status === "Approved" &&
-            date >= l.leave_from &&
-            date <= l.leave_to
-        );
+                    html += `<tr><td><strong>${p.full_name}</strong><br><small>${p.pr_id}</small></td><td>${date}</td><td>${sessionText}</td><td><strong>${totalHours} hrs</strong></td><td><span class="badge ${status === "Working" ? "badge-working" : "badge-completed"}">${status}</span></td><td><button class="btn btn-outline btn-sm" style="padding: 4px 10px;" onclick="AdminApp.openEditAttendanceModal('${p.pr_id}', '${date}')"><i class="ph-bold ph-pencil"></i> Edit</button></td></tr>`;
+                });
+                document.getElementById("tableAdminAttendance").innerHTML = html;
+            },
+            sendReminder: async (prId) => {
+                const users = await DB.get("users");
+                const user = users.find(u => u.pr_id === prId);
+                if (!user || !user.mobile) return UI.showToast("Mobile number not found", "error");
+                const message = `🌿 নমস্কার, ${user.full_name},\n\n📌 আমাদের রেকর্ড অনুযায়ী আজকের আপনার উপস্থিতি (Attendance) এখনও নথিভুক্ত হয়নি।\n✅ অনুগ্রহ করে যত দ্রুত সম্ভব আপনার Check-In সম্পন্ন করুন।`;
+                window.open(`https://wa.me/91${user.mobile.replace(/\D/g, "")}?text=${encodeURIComponent(message)}`, "_blank");
+            },
+            sendReminderAll: async () => {
+                const date = todayStr();
+                const attendance = await DB.get("attendance");
+                const users = await DB.get("users");
+                const leaves = await DB.get("pr_leave_requests");
+                const todayAttendance = attendance.filter(a => a.date === date);
 
-        // No attendance
-        if (!record) {
+                const absents = users.filter(user => {
+                    if (user.role !== "PR") return false;
+                    if (user.status === 'Disabled') return false; 
+                    if (todayAttendance.find(a => a.pr_id === user.pr_id)) return false;
+                    if (leaves.find(l => l.pr_id === user.pr_id && l.status === "Approved" && date >= l.leave_from && date <= l.leave_to)) return false;
+                    if (!user.mobile || user.mobile.trim() === "") return false;
+                    return true;
+                });
 
-            // Employee is on leave
-            if (onLeave) {
-
-                html += `
-                <tr>
-                    <td>
-                        <strong>${p.full_name}</strong><br>
-                        <small>${p.pr_id}</small>
-                    </td>
-
-                    <td>${date}</td>
-
-                    <td>-</td>
-
-                    <td>-</td>
-
-                    <td>
-                        <span class="badge badge-pending">
-                            On Leave
-                        </span>
-                    </td>
-
-                    <td>
-                        <span style="color:#888;">-</span>
-                    </td>
-                </tr>`;
-
-            } else {
-
-                // Truly absent
-                html += `
-                <tr>
-                    <td>
-                        <strong>${p.full_name}</strong><br>
-                        <small>${p.pr_id}</small>
-                    </td>
-
-                    <td>${date}</td>
-
-                    <td>-</td>
-
-                    <td>-</td>
-
-                    <td>
-                        <span class="badge badge-absent">
-                            Absent
-                        </span>
-                    </td>
-
-                    <td>
-                        <button
-                            class="btn btn-warning btn-sm"
-                            onclick="AdminApp.sendReminder('${p.pr_id}')">
-                            <i class="ph ph-whatsapp-logo"></i>
-                            Reminder
-                        </button>
-                    </td>
-                </tr>`;
-
-            }
-
-            return;
-        }
-
-        // Attendance found
-        const sessions = record.sessions || [];
-
-        let sessionText = "-";
-
-        if (sessions.length) {
-
-            sessionText = sessions.map((s, i) => {
-
-                const inTime = s.check_in
-                    ? new Date(s.check_in).toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit"
-                    })
-                    : "--";
-
-                const outTime = s.check_out
-                    ? new Date(s.check_out).toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit"
-                    })
-                    : "--";
-
-                return `#${i + 1}: ${inTime} → ${outTime}`;
-
-            }).join("<br>");
-
-        }
-
-        const totalHours =
-            ((record.total_minutes || 0) / 60).toFixed(2);
-
-        const status =
-            sessions.length &&
-            sessions[sessions.length - 1].check_out === null
-                ? "Working"
-                : "Completed";
-
-        html += `
-        <tr>
-
-            <td>
-                <strong>${p.full_name}</strong><br>
-                <small>${p.pr_id}</small>
-            </td>
-
-            <td>${date}</td>
-
-            <td>${sessionText}</td>
-
-            <td>
-                <strong>${totalHours} hrs</strong>
-            </td>
-
-            <td>
-                <span class="badge ${status === "Working"
-                    ? "badge-working"
-                    : "badge-completed"}">
-                    ${status}
-                </span>
-            </td>
-
-            <td>
-                <span style="color:green;">
-                    <i class="ph-fill ph-check-circle"></i>
-                </span>
-            </td>
-
-        </tr>`;
-
-    });
-
-    document.getElementById("tableAdminAttendance").innerHTML = html;
-
-},
+                if (absents.length === 0) return UI.showToast("No absent employees found.", "success");
+                absents.forEach((user, index) => {
+                    setTimeout(() => {
+                        const msg = `Hello ${user.full_name},\nThis is a friendly reminder to mark your attendance for today.\nPlease check in as soon as possible.`;
+                        window.open(`https://wa.me/91${user.mobile.replace(/\D/g, "")}?text=${encodeURIComponent(msg)}`, "_blank");
+                    }, index * 1500);
+                });
+                UI.showToast(`${absents.length} reminder(s) opening in WhatsApp.`, "success");
+            },
 
             renderHolidays: async () => {
                 const holidays = await DB.get('holidays');
@@ -1494,8 +1971,7 @@ Thank you.`;
             updatePRLeave: async (id, status) => {
                 UI.confirm(`${status} Request`, `Are you sure you want to ${status.toLowerCase()} this leave request?`, async () => {
                     await DB.update('pr_leave_requests', id, { status, approved_by: App.currentUser.full_name });
-                    UI.showToast(`Request ${status}`, 'success');
-                    AdminApp.renderPRLeaves();
+                    UI.showToast(`Request ${status}`, 'success'); AdminApp.renderPRLeaves();
                 });
             },
 
@@ -1512,11 +1988,9 @@ Thank you.`;
             updateMemberLeave: async (id, status) => {
                 UI.confirm(`${status} Request`, `Are you sure you want to ${status.toLowerCase()} this member leave request?`, async () => {
                     await DB.update('member_leave_requests', id, { status, approved_by: App.currentUser.full_name });
-                    UI.showToast(`Request ${status}`, 'success');
-                    AdminApp.renderMemberLeaves();
+                    UI.showToast(`Request ${status}`, 'success'); AdminApp.renderMemberLeaves();
                 });
             },
-
             renderApprovedMemberLeaves: async () => {
                 const leaves = (await DB.get('member_leave_requests')).filter(l => l.status === 'Approved');
                 let html = '';
@@ -1527,63 +2001,37 @@ Thank you.`;
             },
 
             renderNotifications: async () => {
-                // Fetch notifications and their targets
-                const { data: notifs, error } = await supabaseClient
-                    .from('pr_notifications')
-                    .select('*, pr_notification_targets(pr_id)')
-                    .order('created_at', { ascending: false });
-
-                if (error) {
-                    console.error("Error fetching notifications:", error);
-                    return;
-                }
+                const { data: notifs, error } = await supabaseClient.from('pr_notifications').select('*, pr_notification_targets(pr_id)').order('created_at', { ascending: false });
+                if (error) return console.error("Error fetching notifications:", error);
 
                 let html = '';
                 (notifs || []).forEach(n => {
-                    // Set urgency coloring based on existing CSS classes
                     let uClass = n.urgency === 'urgent' ? 'badge-absent' : (n.urgency === 'important' ? 'badge-pending' : 'badge-working');
-                    
-                    // Attachment link
                     let attachHtml = n.attachment ? `<a href="${n.attachment}" target="_blank" style="color:var(--primary); font-weight:600;"><i class="ph-bold ph-paperclip"></i> View File</a>` : '-';
-                    
-                    // Format targets gracefully
                     let targetsCount = n.pr_notification_targets ? n.pr_notification_targets.length : 0;
                     let targetsHtml = targetsCount > 3 ? `${targetsCount} PRs Selected` : (n.pr_notification_targets || []).map(t => t.pr_id).join(', ');
 
                     html += `<tr>
                         <td>${new Date(n.created_at + 'Z').toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })}</td>
-                        <td>
-                            <strong>${n.title}</strong><br>
-                            <span class="badge ${uClass}" style="margin-top:6px; display:inline-block; font-size:11px;">${n.urgency.toUpperCase()}</span>
-                        </td>
+                        <td><strong>${n.title}</strong><br><span class="badge ${uClass}" style="margin-top:6px; display:inline-block; font-size:11px;">${n.urgency.toUpperCase()}</span></td>
                         <td style="white-space: pre-wrap; max-width: 300px;">${n.message}</td>
                         <td><small>${targetsHtml}</small></td>
                         <td>${attachHtml}</td>
-                        <td>
-                            <button class="btn btn-danger" style="padding: 6px 12px;" onclick="AdminApp.deleteNotification('${n.id}')" title="Delete">
-                                <i class="ph ph-trash"></i>
-                            </button>
-                        </td>
+                        <td><button class="btn btn-danger" style="padding: 6px 12px;" onclick="AdminApp.deleteNotification('${n.id}')" title="Delete"><i class="ph ph-trash"></i></button></td>
                     </tr>`;
                 });
                 document.getElementById('tableNotifications').innerHTML = html || '<tr><td colspan="6" class="text-center">No notifications found.</td></tr>';
             },
-
             openNotificationModal: async () => {
                 const users = await DB.get('users');
                 const prs = users.filter(u => u.role === 'PR');
-
                 let prOptions = `<div style="max-height: 160px; overflow-y: auto; border: 1.5px solid rgba(10, 25, 49, 0.1); border-radius: var(--radius-md); padding: 12px; margin-top: 8px; background: #fff;">
                     <label style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px; cursor: pointer;">
-                        <input type="checkbox" id="notifSelectAll" onchange="AdminApp.toggleAllPRs(this)" style="width: 16px; height: 16px;"> 
-                        <strong style="color: var(--primary);">Select All PRs</strong>
-                    </label>
-                    <hr style="margin: 8px 0; border-color: rgba(10, 25, 49, 0.05);">`;
-
+                        <input type="checkbox" id="notifSelectAll" onchange="AdminApp.toggleAllPRs(this)" style="width: 16px; height: 16px;"> <strong style="color: var(--primary);">Select All PRs</strong>
+                    </label><hr style="margin: 8px 0; border-color: rgba(10, 25, 49, 0.05);">`;
                 prs.forEach(pr => {
                     prOptions += `<label style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px; cursor: pointer;">
-                        <input type="checkbox" class="pr-target-cb" value="${pr.pr_id}" style="width: 16px; height: 16px;"> 
-                        <span style="font-size: 14px;">${pr.full_name} <small style="color: var(--text-muted);">(${pr.pr_id})</small></span>
+                        <input type="checkbox" class="pr-target-cb" value="${pr.pr_id}" style="width: 16px; height: 16px;"> <span style="font-size: 14px;">${pr.full_name} <small style="color: var(--text-muted);">(${pr.pr_id})</small></span>
                     </label>`;
                 });
                 prOptions += `</div>`;
@@ -1591,409 +2039,80 @@ Thank you.`;
                 UI.showModal('Broadcast Notification', `
                     <form onsubmit="AdminApp.sendNotification(event)">
                         <div class="form-group"><label class="form-label">Title</label><input type="text" id="notifTitle" class="form-control" required placeholder="Main subject"></div>
-                        
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-                            <div class="form-group">
-                                <label class="form-label">Urgency Level</label>
-                                <select id="notifUrgency" class="form-control">
-                                    <option value="normal">🔵 Normal</option>
-                                    <option value="important">🟠 Important</option>
-                                    <option value="urgent">🔴 Urgent</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Attachment (.jpg, .png, .pdf)</label>
-                                <input type="file" id="notifFile" class="form-control" accept=".jpg,.jpeg,.png,.pdf">
-                            </div>
+                            <div class="form-group"><label class="form-label">Urgency Level</label><select id="notifUrgency" class="form-control"><option value="normal">🔵 Normal</option><option value="important">🟠 Important</option><option value="urgent">🔴 Urgent</option></select></div>
+                            <div class="form-group"><label class="form-label">Attachment (.jpg, .pdf)</label><input type="file" id="notifFile" class="form-control" accept=".jpg,.jpeg,.png,.pdf"></div>
                         </div>
-
-                        <div class="form-group">
-                            <label class="form-label">Detailed Message</label>
-                            <textarea id="notifMessage" class="form-control" required placeholder="Explain the details..."></textarea>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Needed Action (Optional)</label>
-                            <input type="text" id="notifAction" class="form-control" placeholder="e.g. Reply back by 5 PM, Review the attached PDF...">
-                        </div>
-                        
-                        <div class="form-group">
-                            <label class="form-label">Select Target Audience</label>
-                            ${prOptions}
-                        </div>
+                        <div class="form-group"><label class="form-label">Detailed Message</label><textarea id="notifMessage" class="form-control" required placeholder="Explain the details..."></textarea></div>
+                        <div class="form-group"><label class="form-label">Select Target Audience</label>${prOptions}</div>
                         <button type="submit" id="btnSendNotif" class="btn btn-primary" style="width:100%; margin-top: 16px;">Send Notification <i class="ph-bold ph-paper-plane-right"></i></button>
                     </form>
                 `);
             },
-
-            toggleAllPRs: (cb) => {
-                document.querySelectorAll('.pr-target-cb').forEach(c => c.checked = cb.checked);
-            },
-
+            toggleAllPRs: (cb) => { document.querySelectorAll('.pr-target-cb').forEach(c => c.checked = cb.checked); },
             sendNotification: async (e) => {
                 e.preventDefault();
                 const btn = document.getElementById('btnSendNotif');
                 const origText = btn.innerHTML;
-                
-                // Get selected targets
                 const selectedPRs = Array.from(document.querySelectorAll('.pr-target-cb:checked')).map(cb => cb.value);
-                if(selectedPRs.length === 0) {
-                    return UI.showToast('Please select at least one PR to notify.', 'error');
-                }
+                if(selectedPRs.length === 0) return UI.showToast('Please select at least one PR.', 'error');
 
-                btn.disabled = true; 
-                btn.innerHTML = '<i class="ph ph-spinner ph-spin"></i> Processing...';
-
+                btn.disabled = true; btn.innerHTML = '<i class="ph ph-spinner ph-spin"></i> Processing...';
                 const title = document.getElementById('notifTitle').value;
-                let message = document.getElementById('notifMessage').value;
-                const action = document.getElementById('notifAction').value;
+                const message = document.getElementById('notifMessage').value;
                 const urgency = document.getElementById('notifUrgency').value;
                 const fileInput = document.getElementById('notifFile');
                 let attachmentUrl = null;
 
-                // Format the needed action prominently in the message body
-                if(action.trim() !== '') {
-                    message += `\n\n📌 **NEEDED ACTION:**\n${action}`;
-                }
-
                 try {
-                    // 1. Upload Attachment if provided
                     if (fileInput.files.length > 0) {
                         const file = fileInput.files[0];
-                        const fileExt = file.name.split('.').pop();
-                        const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
-                        
+                        const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${file.name.split('.').pop()}`;
                         const { data, error } = await supabaseClient.storage.from('notifications').upload(fileName, file);
                         if (error) throw new Error("File upload failed: " + error.message);
-                        
-                        const { data: publicUrlData } = supabaseClient.storage.from('notifications').getPublicUrl(fileName);
-                        attachmentUrl = publicUrlData.publicUrl;
+                        attachmentUrl = supabaseClient.storage.from('notifications').getPublicUrl(fileName).data.publicUrl;
                     }
-
-                    // 2. Insert into pr_notifications
-                    const { data: notifData, error: notifError } = await supabaseClient.from('pr_notifications').insert([{
-                        title: title, 
-                        message: message, 
-                        urgency: urgency, 
-                        attachment: attachmentUrl, 
-                        created_by: App.currentUser.full_name
-                    }]).select();
-
+                    const { data: notifData, error: notifError } = await supabaseClient.from('pr_notifications').insert([{ title, message, urgency, attachment: attachmentUrl, created_by: App.currentUser.full_name }]).select();
                     if (notifError) throw notifError;
-                    const notifId = notifData[0].id;
-
-                    // 3. Insert Targets mapping
-                    const targets = selectedPRs.map(pr_id => ({
-                        notification_id: notifId,
-                        pr_id: pr_id,
-                        is_read: false
-                    }));
-
+                    
+                    const targets = selectedPRs.map(pr_id => ({ notification_id: notifData[0].id, pr_id: pr_id, is_read: false }));
                     const { error: targetsError } = await supabaseClient.from('pr_notification_targets').insert(targets);
                     if (targetsError) throw targetsError;
 
                     UI.showToast(`Notification sent to ${selectedPRs.length} PR(s)!`, 'success');
-                    UI.closeModal();
-                    AdminApp.renderNotifications();
+                    UI.closeModal(); AdminApp.renderNotifications();
                 } catch (err) {
                     UI.showToast(`Error: ${err.message}`, 'error');
-                    btn.disabled = false; 
-                    btn.innerHTML = origText;
+                    btn.disabled = false; btn.innerHTML = origText;
                 }
             },
-
             deleteNotification: async (id) => {
-                UI.confirm('Delete Notification', 'Are you sure? This will permanently delete the message and attachments for all recipients.', async () => {
+                UI.confirm('Delete Notification', 'Are you sure?', async () => {
                     const { error } = await supabaseClient.from('pr_notifications').delete().eq('id', id);
-                    if (error) {
-                        UI.showToast(`Error: ${error.message}`, 'error');
-                    } else {
-                        UI.showToast('Notification safely removed.', 'success');
-                        AdminApp.renderNotifications();
-                    }
+                    if (error) UI.showToast(`Error: ${error.message}`, 'error');
+                    else { UI.showToast('Notification safely removed.', 'success'); AdminApp.renderNotifications(); }
                 });
             },
-
-            saveSettings: async (e) => {
-                e.preventDefault();
-                UI.showToast('Settings saved successfully.');
-            },
-
-            generate: async () => {
-
-    if (!window.jspdf)
-        return UI.showToast("PDF Library loading...", "warning");
-
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-
-    const type = document.getElementById("reportType").value;
-    const date = document.getElementById("reportDate").value;
-
-    // Bengali Font
-    doc.addFileToVFS(
-        "NotoSansBengali-Regular.ttf",
-        window.NotoSansBengaliFont
-    );
-    doc.addFont(
-        "NotoSansBengali-Regular.ttf",
-        "NotoSansBengali",
-        "normal"
-    );
-    doc.setFont("NotoSansBengali");
-
-    doc.setFontSize(20);
-    doc.text(`Attendance Report (${type.toUpperCase()})`, 14, 22);
-
-    doc.setFontSize(11);
-    doc.text(`Date Filter: ${date}`, 14, 30);
-
-    const attendance = await DB.get("attendance");
-    const users = await DB.get("users");
-
-    const atts = attendance.filter(a => a.date === date);
-
-    let body = [];
-
-    users
-        .filter(u => u.role === "PR")
-        .forEach(user => {
-
-            const record = atts.find(a => a.pr_id === user.pr_id);
-
-            if (!record) {
-
-                body.push([
-                    user.pr_id,
-                    user.full_name,
-                    "Absent",
-                    "",
-                    ""
-                ]);
-
-                return;
-            }
-
-            const sessions = record.sessions || [];
-
-            const sessionText = sessions.map((s, index) => {
-
-                const inTime = s.check_in
-                    ? new Date(s.check_in).toLocaleTimeString([], {
-                          hour: "2-digit",
-                          minute: "2-digit"
-                      })
-                    : "--";
-
-                const outTime = s.check_out
-                    ? new Date(s.check_out).toLocaleTimeString([], {
-                          hour: "2-digit",
-                          minute: "2-digit"
-                      })
-                    : "--";
-
-                return `#${index + 1}: ${inTime}-${outTime}`;
-
-            }).join("\n");
-
-            const hours =
-                ((record.total_minutes || 0) / 60).toFixed(2) + " hrs";
-
-            body.push([
-                user.pr_id,
-                user.full_name,
-                sessionText,
-                hours,
-                record.work_summary || ""
-            ]);
-
-        });
-
-    doc.autoTable({
-
-        startY: 40,
-
-        head: [[
-            "PR ID",
-            "Name",
-            "Sessions",
-            "Hours",
-            "Summary"
-        ]],
-
-        body: body,
-
-        styles: {
-            font: "NotoSansBengali",
-            fontSize: 9,
-            cellPadding: 3,
-            overflow: "linebreak"
-        },
-
-        headStyles: {
-            font: "NotoSansBengali",
-            fontStyle: "bold"
-        },
-
-        columnStyles: {
-            2: { cellWidth: 60 }, // Sessions
-            4: { cellWidth: 60 }  // Summary (supports Bengali)
-        }
-
-    });
-
-    doc.save(`Attendance_${type}_${date}.pdf`);
-
-    UI.showToast("PDF generated successfully!");
-
-},
-
-            generateCSV: async () => {
-
-    const type = document.getElementById("reportType").value;
-    const date = document.getElementById("reportDate").value;
-
-    const attendance = await DB.get("attendance");
-    const users = await DB.get("users");
-
-    const todayAttendance = attendance.filter(a => a.date === date);
-
-    const rows = [];
-
-    rows.push([
-        "PR ID",
-        "Name",
-        "Sessions",
-        "Hours",
-        "Summary"
-    ]);
-
-    users.filter(u => u.role === "PR").forEach(user => {
-
-        const record = todayAttendance.find(a => a.pr_id === user.pr_id);
-
-        if (record) {
-
-            const sessions = record.sessions || [];
-
-            const sessionText = sessions.map((s, index) => {
-
-                const inTime = s.check_in
-                    ? new Date(s.check_in).toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit"
-                    })
-                    : "--";
-
-                const outTime = s.check_out
-                    ? new Date(s.check_out).toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit"
-                    })
-                    : "--";
-
-                return `#${index + 1}: ${inTime}-${outTime}`;
-
-            }).join(" | ");
-
-            rows.push([
-                user.pr_id,
-                user.full_name,
-                sessionText,
-                ((record.total_minutes || 0) / 60).toFixed(2) + " hrs",
-                record.work_summary || ""
-            ]);
-
-        } else {
-
-            rows.push([
-                user.pr_id,
-                user.full_name,
-                "Absent",
-                "",
-                ""
-            ]);
-
-        }
-
-    });
-
-    const csvContent = rows
-        .map(row =>
-            row.map(value =>
-                `"${String(value).replace(/"/g, '""')}"`
-            ).join(",")
-        )
-        .join("\n");
-
-    const blob = new Blob(
-        ["\uFEFF" + csvContent],
-        {
-            type: "text/csv;charset=utf-8;"
-        }
-    );
-
-    const link = document.createElement("a");
-
-    link.href = URL.createObjectURL(blob);
-    link.download = `Attendance_${type}_${date}.csv`;
-
-    document.body.appendChild(link);
-
-    link.click();
-
-    document.body.removeChild(link);
-
-    URL.revokeObjectURL(link.href);
-
-    UI.showToast("CSV downloaded successfully!", "success");
-},
+            saveSettings: async (e) => { e.preventDefault(); UI.showToast('Settings saved successfully.'); }
         };
 
+        // --- PR APP ---
         const PRApp = {
             init: () => {
                 const u = App.currentUser;
                 document.getElementById('prTopName').innerText = u.full_name;
                 document.getElementById('prTopId').innerText = u.pr_id;
                 document.getElementById('prTopAvatar').innerText = u.full_name.charAt(0);
-                const now = new Date();
-const hour = now.getHours();
-
-let greeting = "";
-
-if (hour >= 5 && hour < 12) {
-    greeting = "Good Morning";
-} else if (hour >= 12 && hour < 15) {
-    greeting = "Good Noon";
-} else if (hour >= 15 && hour < 18) {
-    greeting = "Good Afternoon";
-} else if (hour >= 18 && hour < 21) {
-    greeting = "Good Evening";
-} else {
-    greeting = "Good Night";
-}
-
-document.getElementById("prGreeting").innerText =
-    `${greeting}, ${u.full_name.split(" ")[0]}!`;
-
-document.getElementById("prCurrentDate").innerText =
-    now.toLocaleDateString("en-US", {
-        weekday: "long",
-        year: "numeric",
-        month: "long",
-        day: "numeric"
-    });
                 
-                document.getElementById('prProfileDetails').innerHTML = `
-                    <div><strong>Full Name:</strong> ${u.full_name}</div>
-                    <div><strong>PR ID:</strong> ${u.pr_id}</div>
-                    <div><strong>Username:</strong> ${u.username}</div>
-                    <div><strong>Mobile:</strong> ${u.mobile}</div>
-                    <div><strong>Status:</strong> <span class="badge badge-completed">${u.status}</span></div>
-                `;
-
+                const hour = new Date().getHours();
+                let greeting = hour < 12 ? "Good Morning" : (hour < 15 ? "Good Noon" : (hour < 18 ? "Good Afternoon" : "Good Evening"));
+                document.getElementById("prGreeting").innerText = `${greeting}, ${u.full_name.split(" ")[0]}!`;
+                document.getElementById("prCurrentDate").innerText = new Date().toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
+                
+                document.getElementById('prProfileDetails').innerHTML = `<div><strong>Full Name:</strong> ${u.full_name}</div><div><strong>PR ID:</strong> ${u.pr_id}</div><div><strong>Mobile:</strong> ${u.mobile}</div>`;
                 PRApp.switchTab('pr-dashboard');
             },
-           switchTab: (tabId) => {
+            switchTab: (tabId) => {
                 const view = document.getElementById('page-pr');
                 view.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
                 if(event) event.currentTarget.classList.add('active');
@@ -2004,322 +2123,144 @@ document.getElementById("prCurrentDate").innerText =
                 if(tabId === 'pr-dashboard') PRApp.loadDashboard();
                 if(tabId === 'pr-history') PRApp.loadHistory();
                 if(tabId === 'pr-leave-history') PRApp.loadLeaves();
-                if(tabId === 'pr-notifications') PRApp.loadNotifications(); // <-- ADD THIS
+                if(tabId === 'pr-notifications') PRApp.loadNotifications();
             },
             loadDashboard: async () => {
-    const u = App.currentUser;
-
-    const attendance = await DB.get("attendance");
-    const leaves = await DB.get("pr_leave_requests");
-
-    const atts = attendance.filter(a => a.pr_id === u.pr_id);
-
-    document.getElementById("prTotalDays").innerText = atts.length;
-
-    document.getElementById("prTotalLeaves").innerText =
-        leaves.filter(l => l.pr_id === u.pr_id && l.status === "Approved").length;
-
-    const todayRecord = atts.find(a => a.date === todayStr());
-
-    const actionArea = document.getElementById("prActionArea");
-
-    if (!todayRecord) {
-
-        actionArea.innerHTML = `
-            <button class="btn btn-primary ripple-btn"
-                style="padding:16px 48px;font-size:18px;"
-                onclick="PRApp.checkIn()">
-                <i class="ph-bold ph-fingerprint" style="font-size:24px;"></i>
-                Check In Now
-            </button>`;
-
-        return;
-    }
-
-    const sessions = todayRecord.sessions || [];
-
-    if (sessions.length === 0) {
-
-        actionArea.innerHTML = `
-            <button class="btn btn-primary ripple-btn"
-                style="padding:16px 48px;font-size:18px;"
-                onclick="PRApp.checkIn()">
-                <i class="ph-bold ph-fingerprint"></i>
-                Check In Now
-            </button>`;
-
-        return;
-    }
-
-    const lastSession = sessions[sessions.length - 1];
-
-    if (lastSession.check_out === null) {
-
-        actionArea.innerHTML = `
-            <button class="btn btn-secondary"
-                style="padding:16px 48px;font-size:18px;"
-                onclick="PRApp.openCheckOut()">
-                <i class="ph-bold ph-sign-out" style="font-size:24px;"></i>
-                Check Out
-            </button>`;
-
-    } else {
-
-        actionArea.innerHTML = `
-            <button class="btn btn-primary ripple-btn"
-                style="padding:16px 48px;font-size:18px;"
-                onclick="PRApp.checkIn()">
-                <i class="ph-bold ph-fingerprint" style="font-size:24px;"></i>
-                Check In Again
-            </button>
-
-            <div style="margin-top:10px;font-size:14px;color:green;">
-                Today's Sessions : ${sessions.length}
-            </div>`;
-    }
-},
-
-checkIn: async () => {
-    const u = App.currentUser;
-    const now = new Date().toISOString();
-
-    const attendance = await DB.get("attendance");
-
-    let record = attendance.find(a =>
-        a.pr_id === u.pr_id &&
-        a.date === todayStr()
-    );
-
-    if (!record) {
-        await DB.insert("attendance", {
-            pr_id: u.pr_id,
-            date: todayStr(),
-            sessions: [
-                {
-                    check_in: now,
-                    check_out: null
-                }
-            ],
-            total_minutes: 0,
-            work_summary: ""
-        });
-    } else {
-        let sessions = record.sessions || [];
-
-        if (
-            sessions.length &&
-            sessions[sessions.length - 1].check_out === null
-        ) {
-            return UI.showToast("Already Checked In", "warning");
-        }
-
-        sessions.push({
-            check_in: now,
-            check_out: null
-        });
-
-        await DB.update("attendance", record.id, {
-            sessions: sessions
-        });
-    }
-
-    UI.showModal(
-        "Check In Successful",
-        `<div style="text-align:center;">
-            <div style="font-size:64px;color:var(--success);margin-bottom:16px;">
-                <i class="ph-fill ph-check-circle"></i>
-            </div>
-            <h3>Welcome!</h3>
-            <button class="btn btn-primary" onclick="UI.closeModal()">
-                Continue
-            </button>
-        </div>`
-    );
-
-    PRApp.loadDashboard();
-},
-
-openCheckOut: () => {
-
-    UI.showModal("Check Out", `
-        <form onsubmit="PRApp.submitCheckOut(event)">
-
-            <div class="form-group">
-                <label class="form-label">Work Summary</label>
-                <textarea
-                    id="coSummary"
-                    class="form-control"
-                    placeholder="Describe today's work..."></textarea>
-            </div>
-
-            <button
-                type="submit"
-                class="btn btn-primary"
-                style="width:100%;">
-                Check Out
-            </button>
-
-        </form>
-    `);
-
-},
-
-submitCheckOut: async (e) => {
-    e.preventDefault();
-
-    const u = App.currentUser;
-    const attendance = await DB.get("attendance");
-
-    const record = attendance.find(a =>
-        a.pr_id === u.pr_id &&
-        a.date === todayStr()
-    );
-
-    if (!record) {
-        return UI.showToast("Attendance not found", "error");
-    }
-
-    let sessions = record.sessions || [];
-
-    if (
-        !sessions.length ||
-        sessions[sessions.length - 1].check_out !== null
-    ) {
-        return UI.showToast("No active check in", "warning");
-    }
-
-    const now = new Date().toISOString();
-    sessions[sessions.length - 1].check_out = now;
-
-    let totalMinutes = 0;
-
-    sessions.forEach(s => {
-        if (s.check_in && s.check_out) {
-            totalMinutes += Math.floor(
-                (new Date(s.check_out) - new Date(s.check_in)) / 60000
-            );
-        }
-    });
-
-    const newSummary = document.getElementById("coSummary").value.trim();
-    let updatedSummary = record.work_summary || "";
-
-    // Only append if the user actually typed a summary
-    if (newSummary !== "") {
-        const formattedNewSummary = `Session ${sessions.length}: ${newSummary}`;
-        
-        updatedSummary = updatedSummary
-            ? updatedSummary + " | \n" + formattedNewSummary
-            : formattedNewSummary;
-    }
-
-    await DB.update("attendance", record.id, {
-        sessions: sessions,
-        total_minutes: totalMinutes,
-        work_summary: updatedSummary
-    });
-
-    UI.closeModal();
-    UI.showToast("Checked Out Successfully", "success");
-    PRApp.loadDashboard();
-},
-            loadHistory: async () => {
-
-    const u = App.currentUser;
-
-    const attendance = await DB.get("attendance");
-
-    const atts = attendance
-        .filter(a => a.pr_id === u.pr_id)
-        .sort((a, b) => new Date(b.date) - new Date(a.date));
-
-    let html = "";
-
-    atts.forEach(a => {
-
-        const sessions = a.sessions || [];
-
-        let sessionList = "-";
-
-        if (sessions.length > 0) {
-
-            sessionList = sessions.map((s, index) => {
-
-                const inTime = s.check_in
-                    ? new Date(s.check_in).toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit"
-                    })
-                    : "--";
-
-                const outTime = s.check_out
-                    ? new Date(s.check_out).toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit"
-                    })
-                    : "--";
-
-                return `#${index + 1}: ${inTime} → ${outTime}`;
-
-            }).join("<br>");
-
-        }
-
-        const totalHours = ((a.total_minutes || 0) / 60).toFixed(2);
-
-        html += `
-            <tr>
-                <td><strong>${a.date}</strong></td>
-                <td>${sessionList}</td>
-                <td><strong>${totalHours} hrs</strong></td>
-                <td><small>${a.work_summary || "-"}</small></td>
-            </tr>
-        `;
-
-    });
-
-    document.getElementById("tablePRHistory").innerHTML =
-        html ||
-        `<tr>
-            <td colspan="4" class="text-center">
-                No records found.
-            </td>
-        </tr>`;
-},
-loadNotifications: async () => {
                 const u = App.currentUser;
-                
-                // Fetch targets joining with notification details
-                const { data: targets, error } = await supabaseClient
-                    .from('pr_notification_targets')
-                    .select('*, pr_notifications(*)')
-                    .eq('pr_id', u.pr_id);
+                const attendance = await DB.get("attendance");
+                const leaves = await DB.get("pr_leave_requests");
+                const atts = attendance.filter(a => a.pr_id === u.pr_id);
 
-                if (error) {
-                    return console.error("Failed fetching PR notifications", error);
+                document.getElementById("prTotalDays").innerText = atts.length;
+                document.getElementById("prTotalLeaves").innerText = leaves.filter(l => l.pr_id === u.pr_id && l.status === "Approved").length;
+
+                const todayRecord = atts.find(a => a.date === todayStr());
+                const actionArea = document.getElementById("prActionArea");
+
+                if (!todayRecord || (todayRecord.sessions || []).length === 0) {
+                    actionArea.innerHTML = `<button class="btn btn-primary ripple-btn" style="padding:16px 48px;font-size:18px;" onclick="PRApp.checkIn()"><i class="ph-bold ph-fingerprint" style="font-size:24px;"></i> Check In Now</button>`;
+                    return;
                 }
 
-                // Sort newest first
-                targets.sort((a,b) => new Date(b.pr_notifications.created_at) - new Date(a.pr_notifications.created_at));
+                const sessions = todayRecord.sessions || [];
+                if (sessions[sessions.length - 1].check_out === null) {
+                    actionArea.innerHTML = `<button class="btn btn-secondary" style="padding:16px 48px;font-size:18px;" onclick="PRApp.openCheckOut()"><i class="ph-bold ph-sign-out" style="font-size:24px;"></i> Check Out</button>`;
+                } else {
+                    actionArea.innerHTML = `<button class="btn btn-primary ripple-btn" style="padding:16px 48px;font-size:18px;" onclick="PRApp.checkIn()"><i class="ph-bold ph-fingerprint" style="font-size:24px;"></i> Check In Again</button><div style="margin-top:10px;font-size:14px;color:green;">Today's Sessions : ${sessions.length}</div>`;
+                }
+            },
+            checkIn: async () => {
+                const u = App.currentUser;
+                const now = new Date().toISOString();
+                const attendance = await DB.get("attendance");
+                let record = attendance.find(a => a.pr_id === u.pr_id && a.date === todayStr());
 
+                if (!record) {
+                    await DB.insert("attendance", { pr_id: u.pr_id, date: todayStr(), sessions: [{ check_in: now, check_out: null }], total_minutes: 0, work_summary: "" });
+                } else {
+                    let sessions = record.sessions || [];
+                    if (sessions.length && sessions[sessions.length - 1].check_out === null) return UI.showToast("Already Checked In", "warning");
+                    sessions.push({ check_in: now, check_out: null });
+                    await DB.update("attendance", record.id, { sessions: sessions });
+                }
+                UI.showToast("Checked in successfully", "success");
+                PRApp.loadDashboard();
+            },
+            openCheckOut: () => {
+                UI.showModal("Check Out", `
+                    <form onsubmit="PRApp.submitCheckOut(event)">
+                        <div class="form-group"><label class="form-label">Work Summary</label><textarea id="coSummary" class="form-control" placeholder="Describe today's work..."></textarea></div>
+                        <button type="submit" class="btn btn-primary" style="width:100%;">Check Out</button>
+                    </form>
+                `);
+            },
+            submitCheckOut: async (e) => {
+                e.preventDefault();
+                const u = App.currentUser;
+                const attendance = await DB.get("attendance");
+                const record = attendance.find(a => a.pr_id === u.pr_id && a.date === todayStr());
+                
+                if (!record) return UI.showToast("Attendance not found", "error");
+                let sessions = record.sessions || [];
+                if (!sessions.length || sessions[sessions.length - 1].check_out !== null) return UI.showToast("No active check in", "warning");
+
+                sessions[sessions.length - 1].check_out = new Date().toISOString();
+                let totalMinutes = 0;
+                sessions.forEach(s => { if (s.check_in && s.check_out) { totalMinutes += Math.floor((new Date(s.check_out) - new Date(s.check_in)) / 60000); } });
+
+                const newSummary = document.getElementById("coSummary").value.trim();
+                let updatedSummary = record.work_summary || "";
+                if (newSummary !== "") {
+                    const fmt = `Session ${sessions.length}: ${newSummary}`;
+                    updatedSummary = updatedSummary ? updatedSummary + " | \n" + fmt : fmt;
+                }
+
+                await DB.update("attendance", record.id, { sessions: sessions, total_minutes: totalMinutes, work_summary: updatedSummary });
+                UI.closeModal(); UI.showToast("Checked Out Successfully", "success"); PRApp.loadDashboard();
+            },
+            loadHistory: async () => {
+                const u = App.currentUser;
+                const atts = (await DB.get("attendance")).filter(a => a.pr_id === u.pr_id).sort((a, b) => new Date(b.date) - new Date(a.date));
+                let html = "";
+                atts.forEach(a => {
+                    const sessions = a.sessions || [];
+                    let sessionList = "-";
+                    if (sessions.length > 0) {
+                        sessionList = sessions.map((s, index) => {
+                            const inTime = s.check_in ? new Date(s.check_in).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "--";
+                            const outTime = s.check_out ? new Date(s.check_out).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "--";
+                            return `#${index + 1}: ${inTime} → ${outTime}`;
+                        }).join("<br>");
+                    }
+                    const totalHours = ((a.total_minutes || 0) / 60).toFixed(2);
+                    html += `<tr><td><strong>${a.date}</strong></td><td>${sessionList}</td><td><strong>${totalHours} hrs</strong></td><td><small>${a.work_summary || "-"}</small></td></tr>`;
+                });
+                document.getElementById("tablePRHistory").innerHTML = html || `<tr><td colspan="4" class="text-center">No records found.</td></tr>`;
+            },
+            calcDays: () => {
+                const f = document.getElementById('prLFrom').value; const t = document.getElementById('prLTo').value;
+                document.getElementById('prLDays').innerText = (f && t) ? Math.max(0, Math.ceil((new Date(t) - new Date(f)) / 86400000) + 1) : '0';
+            },
+            submitLeave: async (e) => {
+                e.preventDefault();
+                const days = parseInt(document.getElementById('prLDays').innerText);
+                if(isNaN(days) || days <= 0) return UI.showToast('Invalid dates selected.', 'error');
+
+                const btn = e.target.querySelector('button'); const originalText = btn.innerHTML;
+                btn.disabled = true; btn.innerHTML = '<i class="ph ph-spinner ph-spin"></i> Submitting...';
+
+                const result = await DB.insert('pr_leave_requests', { pr_id: App.currentUser.pr_id, leave_from: document.getElementById('prLFrom').value, leave_to: document.getElementById('prLTo').value, total_days: days, reason: document.getElementById('prLReason').value, status: 'Pending' });
+
+                btn.disabled = false; btn.innerHTML = originalText;
+                if (!result) return;
+                e.target.reset(); document.getElementById('prLDays').innerText = '0'; 
+                UI.showToast('Leave request submitted successfully!', 'success'); PRApp.switchTab('pr-leave-history');
+            },
+            loadLeaves: async () => {
+                const myLeaves = (await DB.get("pr_leave_requests")).filter(l => l.pr_id === App.currentUser.pr_id).sort((a, b) => new Date(b.leave_from) - new Date(a.leave_from));
+                let html = "";
+                myLeaves.forEach(l => {
+                    const bc = l.status === 'Approved' ? 'badge-completed' : (l.status === 'Rejected' ? 'badge-absent' : 'badge-pending');
+                    html += `<tr><td><strong>${l.leave_from}</strong> to <strong>${l.leave_to}</strong></td><td>${l.total_days}</td><td style="white-space: pre-wrap; max-width: 300px;">${l.reason}</td><td><span class="badge ${bc}">${l.status}</span></td></tr>`;
+                });
+                document.getElementById("tablePRMyLeaves").innerHTML = html || `<tr><td colspan="4" class="text-center text-muted">No leave requests found.</td></tr>`;
+            },
+            loadNotifications: async () => {
+                const { data: targets, error } = await supabaseClient.from('pr_notification_targets').select('*, pr_notifications(*)').eq('pr_id', App.currentUser.pr_id);
+                if (error) return console.error("Failed fetching PR notifications", error);
+
+                targets.sort((a,b) => new Date(b.pr_notifications.created_at) - new Date(a.pr_notifications.created_at));
                 let html = '';
                 targets.forEach(t => {
                     let n = t.pr_notifications;
                     let uClass = n.urgency === 'urgent' ? 'badge-absent' : (n.urgency === 'important' ? 'badge-pending' : 'badge-working');
                     let attachHtml = n.attachment ? `<a href="${n.attachment}" target="_blank" class="btn btn-outline" style="padding: 4px 12px; font-size:12px;"><i class="ph-bold ph-paperclip"></i> View File</a>` : '-';
-                    let readBtn = t.is_read ? 
-                        `<span class="badge badge-completed"><i class="ph-fill ph-checks"></i> Read</span>` : 
-                        `<button class="btn btn-primary" style="padding: 6px 12px; font-size:12px;" onclick="PRApp.markNotifRead('${t.id}')">Mark Read</button>`;
-
-                    // Highlight unread rows slightly
+                    let readBtn = t.is_read ? `<span class="badge badge-completed"><i class="ph-fill ph-checks"></i> Read</span>` : `<button class="btn btn-primary" style="padding: 6px 12px; font-size:12px;" onclick="PRApp.markNotifRead('${t.id}')">Mark Read</button>`;
                     let rowStyle = t.is_read ? '' : 'background: rgba(212, 175, 55, 0.05); font-weight: 500;';
 
                     html += `<tr style="${rowStyle}">
                         <td>${new Date(n.created_at + 'Z').toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })}</td>
-                        <td>
-                            <strong style="font-size:15px;">${n.title}</strong><br>
-                            <span class="badge ${uClass}" style="margin-top:6px; display:inline-block; font-size:11px;">${n.urgency.toUpperCase()}</span>
-                        </td>
+                        <td><strong style="font-size:15px;">${n.title}</strong><br><span class="badge ${uClass}" style="margin-top:6px; display:inline-block; font-size:11px;">${n.urgency.toUpperCase()}</span></td>
                         <td style="white-space: pre-wrap; max-width:300px; line-height:1.5;">${n.message}</td>
                         <td>${attachHtml}</td>
                         <td>${readBtn}</td>
@@ -2327,196 +2268,29 @@ loadNotifications: async () => {
                 });
                 document.getElementById('tablePRMyNotifications').innerHTML = html || '<tr><td colspan="5" class="text-center">You have no new notifications.</td></tr>';
             },
-
             markNotifRead: async (targetId) => {
                 await supabaseClient.from('pr_notification_targets').update({ is_read: true }).eq('id', targetId);
-                UI.showToast('Notification marked as read.');
-                PRApp.loadNotifications(); // refresh table
-            },
-
-        calcDays: () => {
-                const f = document.getElementById('prLFrom').value;
-                const t = document.getElementById('prLTo').value;
-                if (f && t) {
-                    const days = Math.max(0, Math.ceil((new Date(t) - new Date(f)) / (1000 * 60 * 60 * 24)) + 1);
-                    document.getElementById('prLDays').innerText = days;
-                } else {
-                    document.getElementById('prLDays').innerText = '0';
-                }
-            },
-
-            submitLeave: async (e) => {
-                e.preventDefault();
-                const days = parseInt(document.getElementById('prLDays').innerText);
-                if(isNaN(days) || days <= 0) {
-                    return UI.showToast('Invalid dates selected. Check your From and To dates.', 'error');
-                }
-
-                const btn = e.target.querySelector('button'); 
-                const originalText = btn.innerHTML;
-                btn.disabled = true; 
-                btn.innerHTML = '<i class="ph ph-spinner ph-spin"></i> Submitting...';
-
-                const u = App.currentUser;
-                const result = await DB.insert('pr_leave_requests', { 
-                    pr_id: u.pr_id,
-                    leave_from: document.getElementById('prLFrom').value, 
-                    leave_to: document.getElementById('prLTo').value, 
-                    total_days: days, 
-                    reason: document.getElementById('prLReason').value, 
-                    status: 'Pending' 
-                });
-
-                if (!result) {
-                    btn.disabled = false;
-                    btn.innerHTML = originalText;
-                    return; 
-                }
-
-                e.target.reset(); 
-                document.getElementById('prLDays').innerText = '0'; 
-                btn.disabled = false; 
-                btn.innerHTML = originalText;
-                
-                UI.showToast('Leave request submitted successfully!', 'success');
-                PRApp.switchTab('pr-leave-history');
-            },
-            // Load PR Leave History
-            loadLeaves: async () => {
-                const u = App.currentUser;
-                
-                // Fetch all leaves from DB
-                const allLeaves = await DB.get("pr_leave_requests");
-                
-                // Filter only leaves belonging to the logged-in PR
-                const myLeaves = allLeaves.filter(l => l.pr_id === u.pr_id);
-
-                // Sort so the newest leave requests show up at the top
-                myLeaves.sort((a, b) => new Date(b.leave_from) - new Date(a.leave_from));
-
-                let html = "";
-
-                myLeaves.forEach(l => {
-                    // Set the badge color dynamically based on the status
-                    const bc = l.status === 'Approved' ? 'badge-completed' : (l.status === 'Rejected' ? 'badge-absent' : 'badge-pending');
-                    
-                    html += `
-                        <tr>
-                            <td><strong>${l.leave_from}</strong> <br><small>to</small><br> <strong>${l.leave_to}</strong></td>
-                            <td>${l.total_days}</td>
-                            <td style="white-space: pre-wrap; max-width: 300px;">${l.reason}</td>
-                            <td><span class="badge ${bc}">${l.status}</span></td>
-                        </tr>
-                    `;
-                });
-
-                document.getElementById("tablePRMyLeaves").innerHTML = 
-                    html || 
-                    `<tr><td colspan="4" class="text-center text-muted">No leave requests found.</td></tr>`;
-            }
-
-        };
-
-        const PublicApp = {
-            calcDays: () => {
-                const f = document.getElementById('mlFrom').value; 
-                const t = document.getElementById('mlTo').value;
-                if (f && t) {
-                    const days = Math.max(0, Math.ceil((new Date(t) - new Date(f)) / (1000 * 60 * 60 * 24)) + 1);
-                    document.getElementById('mlDaysText').innerText = days;
-                } else {
-                    document.getElementById('mlDaysText').innerText = '0';
-                }
-            },
-            
-            submitLeave: async (e) => {
-                e.preventDefault();
-                const days = parseInt(document.getElementById('mlDaysText').innerText);
-                if(isNaN(days) || days <= 0) {
-                    return UI.showToast('Invalid dates selected. Check your From and To dates.', 'error');
-                }
-
-                const btn = e.target.querySelector('button'); 
-                const originalText = btn.innerHTML;
-                btn.disabled = true; 
-                btn.innerHTML = '<i class="ph ph-spinner ph-spin"></i> Submitting...';
-
-                const name = document.getElementById('mlName').value;
-                const result = await DB.insert('member_leave_requests', { 
-                    member_name: name, 
-                    mobile: document.getElementById('mlMobile').value, 
-                    leave_from: document.getElementById('mlFrom').value, 
-                    leave_to: document.getElementById('mlTo').value, 
-                    total_days: days, 
-                    reason: document.getElementById('mlReason').value, 
-                    status: 'Pending' 
-                });
-
-                if (!result) {
-                    btn.disabled = false;
-                    btn.innerHTML = originalText;
-                    return;
-                }
-
-                e.target.reset(); 
-                document.getElementById('mlDaysText').innerText = '0'; 
-                btn.disabled = false; 
-                btn.innerHTML = originalText;
-                
-                UI.showModal('Request Submitted', `
-                    <div style="text-align:center;">
-                        <div style="font-size: 64px; color: var(--success); margin-bottom: 16px;">
-                            <i class="ph-fill ph-check-circle"></i>
-                        </div>
-                        <h3 style="margin-bottom:8px;">Thank You!</h3>
-                        <p style="color: var(--text-muted); margin-bottom: 24px;">Your leave request has been submitted to the Admin.</p>
-                        <button class="btn btn-primary" onclick="UI.closeModal(); App.route('page-login')">
-                            Return to Login
-                        </button>
-                    </div>
-                `);
+                UI.showToast('Notification marked as read.'); PRApp.loadNotifications();
             }
         };
+
+        // --- CLOCK ---
         const LiveClock = {
-            init: () => {
-                LiveClock.tick(); // Initial call
-                setInterval(LiveClock.tick, 1000); // Update every second
-            },
+            init: () => { LiveClock.tick(); setInterval(LiveClock.tick, 1000); },
             tick: () => {
                 const now = new Date();
-                
-                // Format Time (12-hour format with AM/PM)
-                let hours = now.getHours();
-                const ampm = hours >= 12 ? 'PM' : 'AM';
-                hours = hours % 12;
-                hours = hours ? hours : 12; 
-                const minutes = now.getMinutes().toString().padStart(2, '0');
-                const seconds = now.getSeconds().toString().padStart(2, '0');
-                const timeHtml = `${hours}:${minutes}:${seconds} <span style="font-size: 12px; color: var(--gold);">${ampm}</span>`;
+                let hours = now.getHours(); const ampm = hours >= 12 ? 'PM' : 'AM'; hours = hours % 12 || 12; 
+                const timeHtml = `${hours}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')} <span style="font-size: 12px; color: var(--gold);">${ampm}</span>`;
+                const dateHtml = `${['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][now.getDay()]}, ${now.getDate().toString().padStart(2, '0')} ${['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][now.getMonth()]} ${now.getFullYear()}`;
 
-                // Format Date (e.g., "Wed, 12 Oct 2026")
-                const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-                const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-                const dateHtml = `${days[now.getDay()]}, ${now.getDate().toString().padStart(2, '0')} ${months[now.getMonth()]} ${now.getFullYear()}`;
-
-                // Update DOM if elements are currently rendered
-                const aTime = document.getElementById('adminTime');
-                const aDate = document.getElementById('adminDate');
-                const pTime = document.getElementById('prTime');
-                const pDate = document.getElementById('prDate');
-
-                if (aTime) aTime.innerHTML = timeHtml;
-                if (aDate) aDate.innerText = dateHtml;
-                if (pTime) pTime.innerHTML = timeHtml;
-                if (pDate) pDate.innerText = dateHtml;
+                if (document.getElementById('adminTime')) document.getElementById('adminTime').innerHTML = timeHtml;
+                if (document.getElementById('adminDate')) document.getElementById('adminDate').innerText = dateHtml;
+                if (document.getElementById('prTime')) document.getElementById('prTime').innerHTML = timeHtml;
+                if (document.getElementById('prDate')) document.getElementById('prDate').innerText = dateHtml;
             }
         };
 
-
-        window.onload = () => {
-            App.init();
-            LiveClock.init();
-        };
+        window.onload = () => { App.init(); };
     </script>
 </body>
 </html>
