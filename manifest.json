@@ -1,6 +1,6 @@
 {
-  "name": "Premium PR Attendance Desk",
-  "short_name": "Chinnapatra PR Desk",
+  "name": "Premium PR Desk - Independence",
+  "short_name": "PR Desk",
   "description": "PR Attendance & Management System",
   "start_url": "./index.html",
   "display": "standalone",
