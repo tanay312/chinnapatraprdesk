@@ -1461,15 +1461,19 @@
                 if (!window.jspdf) return UI.showToast("PDF Library loading...", "warning");
                 const { jsPDF } = window.jspdf;
                 const doc = new jsPDF();
+                
                 const monthInput = document.getElementById('specialDaysMonth');
                 const searchInput = document.getElementById('specialDaysSearch');
                 const monthVal = monthInput ? monthInput.value : '';
                 const searchDate = searchInput ? searchInput.value : '';
 
-                doc.setFontSize(20);
-                doc.text(`Special Days Calendar`, 14, 22);
-                doc.setFontSize(11);
-                doc.text(`Selection: ${searchDate || monthVal}`, 14, 30);
+                // Format the display date nicely (e.g., "2026-08" -> "August 2026")
+                let displaySelection = searchDate || monthVal;
+                if (monthVal && !searchDate) {
+                    const [y, m] = monthVal.split('-');
+                    const dateObj = new Date(y, m - 1);
+                    displaySelection = dateObj.toLocaleString('en-US', { month: 'long', year: 'numeric' });
+                }
 
                 const rows = [];
                 let targetDates = [];
@@ -1491,16 +1495,72 @@
 
                 if(rows.length === 0) return UI.showToast("No special days to export.", "warning");
 
+                // --- CHINNAPATRA OFFICIAL THEME HEADER ---
+                // Navy Blue Background Header
+                doc.setFillColor(10, 25, 49); // var(--primary)
+                doc.rect(0, 0, 210, 40, 'F');
+                
+                // Gold Accent Line
+                doc.setFillColor(255, 153, 51); // var(--gold)
+                doc.rect(0, 40, 210, 2, 'F');
+
+                // Main Heading
+                doc.setTextColor(255, 153, 51); // Gold text
+                doc.setFont("helvetica", "bold");
+                doc.setFontSize(26);
+                doc.text("CHINNAPATRA OFFICIAL", 105, 20, { align: "center" });
+                
+                // Subtitle
+                doc.setTextColor(255, 255, 255); // White text
+                doc.setFont("helvetica", "normal");
+                doc.setFontSize(14);
+                doc.text("Special Day List", 105, 30, { align: "center" });
+
+                // Date Selection Details
+                doc.setTextColor(10, 25, 49); // Navy Blue
+                doc.setFont("helvetica", "bold");
+                doc.setFontSize(12);
+                doc.text(`Month / Year: ${displaySelection}`, 14, 52);
+
+                // --- TABLE GENERATION ---
                 doc.autoTable({
-                    startY: 40,
+                    startY: 58,
                     head: [["Date", "Day", "Special Event Name"]],
                     body: rows,
-                    styles: { font: "helvetica", fontSize: 11, cellPadding: 4 }, 
-                    headStyles: { fontStyle: "bold", fillColor: [212, 175, 55] },
+                    styles: { 
+                        font: "helvetica", 
+                        fontSize: 11, 
+                        cellPadding: 6 
+                    }, 
+                    headStyles: { 
+                        fillColor: [10, 25, 49],   // Navy Blue Header
+                        textColor: [255, 153, 51], // Gold Text
+                        fontStyle: "bold" 
+                    },
+                    alternateRowStyles: {
+                        fillColor: [248, 249, 250] // Very light grey for contrast
+                    }
                 });
 
-                doc.save(`Special_Days_${monthVal || searchDate}.pdf`);
-                UI.showToast("PDF generated! Note: Use CSV for full Bengali character support.", "success");
+                // --- CHINNAPATRA OFFICIAL STAMP ---
+                const finalY = doc.lastAutoTable.finalY; // Get the Y position where the table ended
+                
+                // Draw Stamp Box at the bottom right
+                doc.setDrawColor(255, 153, 51); // Gold border
+                doc.setLineWidth(0.8);
+                doc.roundedRect(135, finalY + 15, 60, 16, 2, 2, 'S');
+                
+                // Stamp Text
+                doc.setTextColor(255, 153, 51); // Gold text
+                doc.setFont("helvetica", "bold");
+                doc.setFontSize(10);
+                doc.text("AUTHORIZED BY", 165, finalY + 22, { align: "center" });
+                doc.setFontSize(12);
+                doc.text("CHINNAPATRA OFFICIAL", 165, finalY + 28, { align: "center" });
+
+                // --- SAVE PDF ---
+                doc.save(`Chinnapatra_Special_Days_${monthVal || searchDate}.pdf`);
+                UI.showToast("Premium PDF Generated!", "success");
             },
 
             // --- MEMBER DIRECTORY (ARTISTS) ---
