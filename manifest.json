@@ -1,53 +1,21 @@
-const CACHE_NAME = 'pr-desk-v1';
-const urlsToCache = [
-  './',
-  './index.html',
-  './manifest.json'
-];
-
-// Install the app locally
-self.addEventListener('install', event => {
-    event.waitUntil(
-        caches.open(CACHE_NAME).then(cache => {
-            return cache.addAll(urlsToCache);
-        })
-    );
-    self.skipWaiting();
-});
-
-self.addEventListener('activate', event => {
-    event.waitUntil(clients.claim());
-});
-
-// Required by Chrome to show the "Install App" prompt
-self.addEventListener('fetch', event => {
-    event.respondWith(
-        caches.match(event.request).then(response => {
-            return response || fetch(event.request);
-        })
-    );
-});
-
-// Handle Background Push Notifications (WhatsApp style)
-self.addEventListener('push', function(event) {
-    const data = event.data ? event.data.json() : {};
-    
-    const title = data.title || "Message from Admin";
-    const options = {
-        body: data.message || "You have a new update in your portal.",
-        icon: "https://scontent.fccu1-2.fna.fbcdn.net/v/t39.30808-6/581658030_122153183462624100_5274430875005336625_n.jpg?stp=dst-jpg_tt6&cstp=mx1062x1129&ctp=s1062x1129&_nc_cat=111&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=rF-Nk66cE4EQ7kNvwFi5yp8&_nc_oc=Adp3c8Ezfq7J3h_Zl_tYgixuEriCModebfW0gf-8-na8Sha0ZvCJjhRNrCM4wPZnf0Y&_nc_zt=23&_nc_ht=scontent.fccu1-2.fna&_nc_gid=wZT0Rv2zhwjPxTnTCLh3Hg&_nc_ss=7b2a8&oh=00_AQHQJX10uzX9Y6WWYdMpWLLUdcnBzxFm-8a-IdIJZwlwFw&oe=6A77866A",
-        badge: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png",
-        vibrate: [200, 100, 200], // Makes the phone vibrate like a real text message
-        requireInteraction: true
-    };
-
-    event.waitUntil(self.registration.showNotification(title, options));
-});
-
-// When user clicks the notification in their notification panel
-self.addEventListener('notificationclick', function(event) {
-    event.notification.close();
-    event.waitUntil(
-        clients.openWindow('./index.html')
-    );
-});
+{
+  "name": "Premium PR Attendance Desk",
+  "short_name": "PR Desk",
+  "description": "PR Attendance & Management System",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0A1931",
+  "theme_color": "#0A1931",
+  "icons": [
+    {
+      "src": "3b81e8eb-b9aa-4741-a15b-05089409732e(3).png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "3b81e8eb-b9aa-4741-a15b-05089409732e(3).png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
