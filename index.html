@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#0A1931">
-    <title>Premium PR Attendance Desk</title>
+    <title>Premium PR Attendance Desk - Independence Special</title>
     
     <!-- Link to Manifest -->
     <link rel="manifest" href="manifest.json">
@@ -18,7 +18,6 @@
 
     <style>
         :root {
-            :root {
             /* INDEPENDENCE DAY THEME COLORS */
             --primary: #0A1931;       /* Navy Blue (Ashoka Chakra Background) */
             --secondary: #132F4C;     /* Lighter Navy */
@@ -63,7 +62,7 @@
         ::-webkit-scrollbar-thumb:hover { background: var(--gold); }
 
         .glass { background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.5); }
-        .glass-dark { background: rgba(10, 25, 49, 0.95); backdrop-filter: blur(16px); border-right: 1px solid rgba(255, 153, 51, 0.15); }
+        .glass-dark { background: rgba(10, 25, 49, 0.95); backdrop-filter: blur(16px); border-right: 1px solid rgba(255, 153, 51, 0.2); position: relative; overflow: hidden; }
         .text-gold { color: var(--gold); }
         .bg-gold { background: var(--gold); }
         .gradient-gold { background: linear-gradient(135deg, #FF9933 0%, #FF8000 100%); color: var(--white); }
@@ -91,12 +90,15 @@
 
         .app-container { display: flex; height: 100vh; width: 100vw; overflow: hidden; }
         .sidebar { width: 280px; height: 100vh; flex-shrink: 0; display: flex; flex-direction: column; color: var(--white); transition: var(--transition); z-index: 100; }
-        .sidebar-header { padding: 30px 24px; display: flex; align-items: center; gap: 12px; }
+        .sidebar-header { padding: 30px 24px; display: flex; align-items: center; gap: 12px; z-index: 2; position: relative; }
         .sidebar-logo-icon { font-size: 32px; color: var(--gold); }
         .sidebar-title { font-family: var(--font-heading); font-size: 20px; font-weight: 700; line-height: 1.2; }
-        .nav-menu { flex: 1; overflow-y: auto; padding: 0 16px; display: flex; flex-direction: column; gap: 4px; }
-        .nav-item { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: var(--radius-md); color: rgba(255, 255, 255, 0.7); font-size: 14px; font-weight: 500; transition: var(--transition); cursor: pointer; }
-        .nav-item:hover, .nav-item.active { background: rgba(255, 153, 51, 0.1); color: var(--gold); }
+        
+        /* Thematic Nav Menu */
+        .nav-menu { flex: 1; overflow-y: auto; padding: 0 16px; display: flex; flex-direction: column; gap: 4px; z-index: 2; position: relative; }
+        .nav-item { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: var(--radius-md); color: rgba(255, 255, 255, 0.7); font-size: 14px; font-weight: 500; transition: var(--transition); cursor: pointer; border-left: 3px solid transparent; }
+        .nav-item:hover { background: rgba(255, 153, 51, 0.05); color: var(--gold-light); }
+        .nav-item.active { background: rgba(255, 153, 51, 0.15); color: var(--gold); border-left: 3px solid var(--gold); font-weight: 600; }
         .nav-item i { font-size: 20px; }
 
         .realtime-clock { display: flex; align-items: center; gap: 12px; background: rgba(255, 255, 255, 0.9); padding: 8px 20px; border-radius: var(--radius-pill); box-shadow: var(--shadow-sm); border: 1px solid rgba(255, 153, 51, 0.3); transition: var(--transition); }
@@ -105,7 +107,10 @@
         .clock-date { font-size: 12px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; border-left: 2px solid rgba(255, 153, 51, 0.5); padding-left: 12px; letter-spacing: 0.5px; }
         
         .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative; }
-        .topbar { height: 80px; padding: 0 32px; display: flex; align-items: center; justify-content: space-between; background: rgba(245, 247, 250, 0.8); backdrop-filter: blur(10px); z-index: 10; border-bottom: 1px solid rgba(0,0,0,0.05); }
+        
+        /* Thematic Top Strip for Dashboard */
+        .tiranga-top-strip { height: 4px; width: 100%; background: linear-gradient(90deg, #FF9933 0%, #FF9933 33%, #FFFFFF 33%, #FFFFFF 66%, #138808 66%, #138808 100%); z-index: 20; position: relative; }
+        .topbar { height: 76px; padding: 0 32px; display: flex; align-items: center; justify-content: space-between; background: rgba(245, 247, 250, 0.8); backdrop-filter: blur(10px); z-index: 10; border-bottom: 1px solid rgba(0,0,0,0.05); }
         .mobile-menu-btn { display: none; font-size: 24px; color: var(--primary); cursor: pointer; }
         .page-content { flex: 1; overflow-y: auto; padding: 32px; }
 
@@ -121,7 +126,7 @@
 
         .content-card { background: var(--white); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); padding: 24px; margin-bottom: 24px; }
         .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid rgba(10, 25, 49, 0.05); }
-        .card-title { font-size: 18px; font-weight: 600; color: var(--primary); }
+        .card-title { font-size: 18px; font-weight: 600; color: var(--primary); display: flex; align-items: center; gap: 8px; }
 
         .table-responsive { overflow-x: auto; }
         .premium-table { width: 100%; border-collapse: collapse; white-space: nowrap; }
@@ -150,7 +155,7 @@
 
         .centered-container { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--bg-main) 0%, #E2E8F0 100%); padding: 20px; overflow-y: auto;}
         .auth-card { width: 100%; max-width: 440px; background: var(--white); border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); padding: 40px; position: relative; overflow: hidden; margin: auto; }
-        .auth-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 6px; background: linear-gradient(90deg, #FF9933, #FFFFFF, #138808); } /* TriColor Top Border */
+        .auth-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 6px; background: linear-gradient(90deg, #FF9933, #FFFFFF, #138808); }
 
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(10, 25, 49, 0.6); backdrop-filter: blur(4px); z-index: 1000; display: none; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s ease; }
         .modal-overlay.active { display: flex; opacity: 1; }
@@ -160,6 +165,7 @@
         .modal-close { font-size: 24px; color: var(--text-muted); cursor: pointer; transition: color 0.2s; }
         .modal-close:hover { color: var(--danger); }
 
+        /* Custom OS Tone Toast */
         .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 2000; display: flex; flex-direction: column; gap: 12px; }
         .toast { min-width: 300px; padding: 16px 20px; border-radius: var(--radius-md); background: var(--white); box-shadow: var(--shadow-lg); display: flex; align-items: center; gap: 12px; transform: translateX(120%); transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); border-left: 4px solid var(--primary); }
         .toast.show { transform: translateX(0); }
@@ -169,6 +175,13 @@
         .toast-icon { font-size: 24px; }
         .toast.success .toast-icon { color: var(--success); }
         .toast.error .toast-icon { color: var(--danger); }
+
+        /* WhatsApp Style Notification Popup */
+        .whatsapp-toast { background: #25D366 !important; color: #FFFFFF !important; border-left: none !important; box-shadow: 0 10px 30px rgba(37, 211, 102, 0.3) !important; border-radius: 12px !important; padding: 16px 20px !important; z-index: 999999 !important; }
+        .whatsapp-toast .toast-icon { color: #FFFFFF !important; font-size: 32px; }
+        .whatsapp-text { display: flex; flex-direction: column; }
+        .whatsapp-text strong { font-size: 15px; letter-spacing: 0.3px; }
+        .whatsapp-text span { font-size: 13px; opacity: 0.9; margin-top: 2px; }
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
@@ -187,104 +200,69 @@
 
         /* --- SPLASH SCREEN STYLES & TRI-COLOR ANIMATIONS --- */
         #splash-screen {
-            position: fixed;
-            top: 0; left: 0; width: 100vw; height: 100vh;
-            background: #0A1931; /* Deep Navy Background */
-            z-index: 99999; 
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: #0A1931; z-index: 99999; 
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            transition: opacity 0.6s ease-out, visibility 0.6s ease-out;
-            overflow: hidden;
+            transition: opacity 0.6s ease-out, visibility 0.6s ease-out; overflow: hidden;
         }
-
-        /* Subtle glowing aura in the background */
-        #splash-screen::before {
-            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 40vh;
-            background: radial-gradient(ellipse at top, rgba(255, 153, 51, 0.15) 0%, transparent 70%);
-        }
-        #splash-screen::after {
-            content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 40vh;
-            background: radial-gradient(ellipse at bottom, rgba(19, 136, 8, 0.15) 0%, transparent 70%);
-        }
-
+        #splash-screen::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 40vh; background: radial-gradient(ellipse at top, rgba(255, 153, 51, 0.15) 0%, transparent 70%); }
+        #splash-screen::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 40vh; background: radial-gradient(ellipse at bottom, rgba(19, 136, 8, 0.15) 0%, transparent 70%); }
         #splash-screen.hidden { opacity: 0; visibility: hidden; }
         
         .splash-content { display: flex; flex-direction: column; align-items: center; z-index: 1; }
         
         .splash-chakra-wrapper {
-            opacity: 0;
-            transform: scale(0.5);
-            /* Pops the wheel in from nothing */
+            opacity: 0; transform: scale(0.5);
             animation: splashLogoFadeIn 1s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
         }
-        
         .splash-chakra-img {
-            width: 80px;
-            height: 80px;
-            /* Inverts the official black wheel to pure white with a soft glow */
+            width: 80px; height: 80px;
             filter: invert(1) drop-shadow(0 0 15px rgba(255, 255, 255, 0.7));
-            /* Spins the wheel endlessly while the app loads */
             animation: spinChakra 5s linear infinite; 
         }
-        
         .splash-line {
             height: 4px;
-            /* Authentic Indian Flag Gradient Line */
             background: linear-gradient(90deg, #FF9933 0%, #FF9933 33%, #FFFFFF 33%, #FFFFFF 66%, #138808 66%, #138808 100%);
-            width: 0; margin: 24px 0; opacity: 0;
-            border-radius: 4px;
+            width: 0; margin: 24px 0; opacity: 0; border-radius: 4px;
             box-shadow: 0 0 15px rgba(255,255,255,0.2);
             animation: splashLine 1.2s 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         }
-        
         .splash-text {
-            font-size: 28px;
-            font-weight: 700;
-            /* Tri-color text mask for Bengali text */
+            font-size: 28px; font-weight: 700;
             background: linear-gradient(180deg, #FF9933 0%, #FF9933 33%, #FFFFFF 33%, #FFFFFF 66%, #138808 66%, #138808 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            opacity: 0;
-            transform: translateY(15px) scale(0.95);
-            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            opacity: 0; transform: translateY(15px) scale(0.95); filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4));
             animation: splashText 1.2s 1.2s ease-out forwards; 
         }
 
-        @keyframes splashLogoFadeIn { 
-            to { opacity: 1; transform: scale(1); } 
+        /* Continuous Animations */
+        @keyframes splashLogoFadeIn { to { opacity: 1; transform: scale(1); } }
+        @keyframes spinChakra { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes splashLine { 0% { width: 0; opacity: 0; } 50% { opacity: 1; } 100% { width: 340px; opacity: 1; } }
+        @keyframes splashText { to { opacity: 1; transform: translateY(0) scale(1); } }
+        
+        /* Festive Badges & Stickers */
+        .festive-badge {
+            margin-top: 8px; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #FFFFFF; 
+            background: linear-gradient(90deg, #FF9933, #138808); padding: 4px 10px; border-radius: 4px; 
+            display: inline-flex; align-items: center; gap: 4px; width: fit-content; box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            font-weight: 600;
         }
-        @keyframes spinChakra {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-        @keyframes splashLine { 
-            0% { width: 0; opacity: 0; }
-            50% { opacity: 1; }
-            100% { width: 340px; opacity: 1; }
-        }
-        @keyframes splashText { 
-            to { opacity: 1; transform: translateY(0) scale(1); } 
-        }
+        .bg-watermark { position: absolute; bottom: -60px; right: -60px; width: 250px; opacity: 0.04; animation: spinChakra 30s linear infinite; pointer-events: none; z-index: 0; filter: invert(1); }
     </style>
 </head>
 <body>
-<!-- SPLASH SCREEN ANIMATION -->
+    
+    <!-- SPLASH SCREEN ANIMATION -->
     <div id="splash-screen">
         <div class="splash-content">
-            <!-- Animated Ashoka Chakra Wrapper -->
             <div class="splash-chakra-wrapper">
-                <!-- Using official SVG, inverted to white glow -->
                 <img src="https://upload.wikimedia.org/wikipedia/commons/1/17/Ashoka_Chakra.svg" class="splash-chakra-img" alt="Ashoka Chakra">
             </div>
-            
             <div class="splash-line"></div>
             <div class="splash-text">শিল্প যেখানে কথা বলে</div>
         </div>
     </div>
-    <!-- Custom Notification Tone -->
-    <audio id="notificationSound" preload="auto">
-        <!-- You can replace this link with any .mp3 file you like -->
-        <source src="universfield-new-notification-054-494259.mp3" type="audio/mpeg">
-    </audio>
 
     <div class="toast-container" id="toastArea"></div>
 
@@ -304,42 +282,22 @@
             <div class="auth-card">
                 <div style="text-align: center; margin-bottom: 32px;">
                     <div style="font-size: 40px; color: var(--gold); margin-bottom: 8px;"><i class="ph-fill ph-calendar-star"></i></div>
-                    <h2 class="font-heading">Member Leave Request</h2>
+                    <h2 class="font-heading">Member Leave Request 🇮🇳</h2>
                     <p style="color: var(--text-muted); font-size: 14px; margin-top: 8px;">Submit your leave application.</p>
                 </div>
                 
                 <form id="formMemberLeave" onsubmit="PublicApp.submitLeave(event)">
-                    <div class="form-group">
-                        <label class="form-label">Select Member</label>
-                        <select id="mlArtist" class="form-control" required onchange="PublicApp.onArtistChange()">
-                            <option value="">Loading members...</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Department <small style="color:var(--text-muted);">(Hold Ctrl/Cmd to select multiple)</small></label>
-                        <select id="mlDepartment" class="form-control" multiple required style="height: 100px; padding: 8px;">
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Mobile Number</label>
-                        <input type="tel" id="mlMobile" class="form-control" required placeholder="Enter mobile number">
-                    </div>
+                    <div class="form-group"><label class="form-label">Select Member</label><select id="mlArtist" class="form-control" required onchange="PublicApp.onArtistChange()"><option value="">Loading members...</option></select></div>
+                    <div class="form-group"><label class="form-label">Department <small style="color:var(--text-muted);">(Hold Ctrl/Cmd to select multiple)</small></label><select id="mlDepartment" class="form-control" multiple required style="height: 100px; padding: 8px;"></select></div>
+                    <div class="form-group"><label class="form-label">Mobile Number</label><input type="tel" id="mlMobile" class="form-control" required placeholder="Enter mobile number"></div>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
                         <div class="form-group"><label class="form-label">Leave From</label><input type="date" id="mlFrom" class="form-control" required onchange="PublicApp.calcDays()"></div>
                         <div class="form-group"><label class="form-label">Leave To</label><input type="date" id="mlTo" class="form-control" required onchange="PublicApp.calcDays()"></div>
                     </div>
-                    <div class="form-group">
-                        <label class="form-label">Total Days: <span id="mlDaysText" class="text-gold font-weight-bold">0</span></label>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Reason</label>
-                        <textarea id="mlReason" class="form-control" required placeholder="State your reason..."></textarea>
-                    </div>
+                    <div class="form-group"><label class="form-label">Total Days: <span id="mlDaysText" class="text-gold font-weight-bold">0</span></label></div>
+                    <div class="form-group"><label class="form-label">Reason</label><textarea id="mlReason" class="form-control" required placeholder="State your reason..."></textarea></div>
                     <button type="submit" class="btn btn-primary" style="width: 100%;">Submit Leave Request <i class="ph-bold ph-paper-plane-right"></i></button>
-                    
-                    <div style="text-align: center; margin-top: 24px;">
-                        <a href="javascript:void(0)" onclick="App.route('page-login')" style="color: var(--text-muted); font-size: 13px;">Return to Staff Login</a>
-                    </div>
+                    <div style="text-align: center; margin-top: 24px;"><a href="javascript:void(0)" onclick="App.route('page-login')" style="color: var(--text-muted); font-size: 13px;">Return to Staff Login</a></div>
                 </form>
             </div>
         </div>
@@ -347,15 +305,13 @@
 
     <!-- LOGIN PAGE -->
     <div id="page-login" class="page-view active">
-        
         <div class="centered-container">
             <div class="auth-card">
                 <div style="text-align: center; margin-bottom: 32px;">
                     <div style="font-size: 48px; color: var(--primary); margin-bottom: 8px;"><i class="ph-fill ph-shield-check"></i></div>
                     <h2 class="font-heading" style="font-size: 28px;">Attendance Desk</h2>
-                    <p style="color: var(--text-muted); font-size: 14px; margin-top: 8px;">Premium PR Management System</p>
-                
-                <!-- NEW: App Install Button -->
+                    <p style="color: var(--text-muted); font-size: 14px; margin-top: 8px;">Premium PR Management System 🇮🇳</p>
+                    
                     <button id="installAppBtn" class="btn btn-outline" style="display:none; margin: 16px auto 0 auto; background: var(--gold); color: var(--primary); border:none; font-weight:bold;">
                         <i class="ph-bold ph-download-simple"></i> Install App to Home Screen
                     </button>
@@ -394,10 +350,17 @@
 
     <!-- ADMIN DASHBOARD -->
     <div id="page-admin" class="page-view app-container">
+        <!-- Festive Sidebar -->
         <aside class="sidebar glass-dark">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/1/17/Ashoka_Chakra.svg" class="bg-watermark">
             <div class="sidebar-header">
-                <i class="ph-fill ph-crown sidebar-logo-icon"></i>
-                <div class="sidebar-title">Admin Desk</div>
+                <div style="display:flex; flex-direction:column;">
+                   <div style="display:flex; align-items:center; gap:12px;">
+                       <i class="ph-fill ph-crown sidebar-logo-icon"></i>
+                       <div class="sidebar-title">Admin Desk</div>
+                   </div>
+                   <div class="festive-badge">🇮🇳 Independence Special</div>
+               </div>
             </div>
             <nav class="nav-menu">
                 <div class="nav-item active" onclick="AdminApp.switchTab('admin-dashboard', event)"><i class="ph ph-squares-four"></i> Dashboard</div>
@@ -416,7 +379,7 @@
                 <div class="nav-item" onclick="AdminApp.switchTab('admin-notifications', event)"><i class="ph ph-bell"></i> Notifications</div>
                 <div class="nav-item" onclick="AdminApp.switchTab('admin-settings', event)"><i class="ph ph-gear"></i> Settings</div>
             </nav>
-            <div style="padding: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
+            <div style="padding: 20px; border-top: 1px solid rgba(255,255,255,0.1); z-index: 2; position: relative;">
                 <div class="nav-item" onclick="Auth.logout()" style="color: var(--gold-light);"><i class="ph ph-sign-out"></i> Secure Logout</div>
             </div>
         </aside>
@@ -424,10 +387,11 @@
 
         <!-- Main Content -->
         <main class="main-content">
+            <div class="tiranga-top-strip"></div>
             <header class="topbar">
                 <div style="display: flex; align-items: center; gap: 16px; flex: 1;">
                     <i class="ph ph-list mobile-menu-btn" onclick="UI.toggleSidebar()"></i>
-                    <h3 class="font-heading" id="adminHeaderTitle">Overview Dashboard</h3>
+                    <h3 class="font-heading" id="adminHeaderTitle">Overview Dashboard 🇮🇳</h3>
                 </div>
                 <div class="clock-container" style="display: flex; justify-content: center; flex: 1;">
                     <div class="realtime-clock">
@@ -463,7 +427,7 @@
                 <!-- Admin PR Management -->
                 <div id="admin-pr" class="dashboard-view">
                     <div class="card-header" style="border-bottom: none; padding-bottom: 0;">
-                        <h2 class="card-title" style="font-size: 24px;">PR Directory</h2>
+                        <h2 class="card-title" style="font-size: 24px;">PR Directory 🇮🇳</h2>
                         <button class="btn btn-primary ripple-btn" onclick="AdminApp.openAddPRModal()"><i class="ph ph-plus"></i> Add New PR</button>
                     </div>
                     <div class="filter-bar" style="margin-top: 16px;">
@@ -565,7 +529,7 @@
                             </button>
                         </div>
                     </div>
-                    <div class="filter-bar" style="margin-top: 16px; background: rgba(16, 185, 129, 0.05); padding: 16px; border-radius: var(--radius-md); border-left: 4px solid var(--success);">
+                    <div class="filter-bar" style="margin-top: 16px; background: rgba(19, 136, 8, 0.05); padding: 16px; border-radius: var(--radius-md); border-left: 4px solid var(--success);">
                         <div class="form-group" style="margin: 0; flex: 1;">
                             <label class="form-label" style="color: var(--primary); font-weight: 600;">Select PR Group</label>
                             <select id="filterPRGroup" class="form-control" onchange="AdminApp.loadPRGroupMembers()" style="border-color: var(--success); box-shadow: var(--shadow-sm);"></select>
@@ -627,7 +591,7 @@
                             </button>
                         </div>
                     </div>
-                    <div class="filter-bar" style="margin-top: 16px; background: rgba(212, 175, 55, 0.05); padding: 16px; border-radius: var(--radius-md); border-left: 4px solid var(--gold);">
+                    <div class="filter-bar" style="margin-top: 16px; background: rgba(255, 153, 51, 0.05); padding: 16px; border-radius: var(--radius-md); border-left: 4px solid var(--gold);">
                         <div class="form-group" style="margin: 0; flex: 1;">
                             <label class="form-label" style="color: var(--primary); font-weight: 600;">Select Department to Load Members</label>
                             <select id="filterArtistDept" class="form-control" onchange="AdminApp.filterArtists()" style="border-color: var(--gold); box-shadow: var(--shadow-sm);">
@@ -648,13 +612,13 @@
                 <!-- Admin Special Days Calendar -->
                 <div id="admin-special-days" class="dashboard-view">
                     <div class="card-header" style="border-bottom: none; padding-bottom: 0;">
-                        <h2 class="card-title" style="font-size: 24px;">Special Days Calendar</h2>
+                        <h2 class="card-title" style="font-size: 24px;">Special Days Calendar 🇮🇳</h2>
                         <div style="display:flex; gap:12px;">
                             <button class="btn btn-outline ripple-btn" onclick="AdminApp.exportSpecialDaysCSV()"><i class="ph ph-file-csv"></i> Export CSV (Bengali Support)</button>
                             <button class="btn btn-primary ripple-btn" onclick="AdminApp.exportSpecialDaysPDF()"><i class="ph ph-file-pdf"></i> Export PDF</button>
                         </div>
                     </div>
-                    <div class="filter-bar" style="margin-top: 16px; background: rgba(212, 175, 55, 0.05); padding: 16px; border-radius: var(--radius-md); border-left: 4px solid var(--gold);">
+                    <div class="filter-bar" style="margin-top: 16px; background: rgba(255, 153, 51, 0.05); padding: 16px; border-radius: var(--radius-md); border-left: 4px solid var(--gold);">
                         <div class="form-group" style="margin: 0; flex: 1;"><label class="form-label" style="color: var(--primary); font-weight: 600;">Select Month</label><input type="month" id="specialDaysMonth" class="form-control" onchange="AdminApp.renderSpecialDays()"></div>
                         <div class="form-group" style="margin: 0; flex: 1;"><label class="form-label" style="color: var(--primary); font-weight: 600;">Search Specific Date</label><input type="date" id="specialDaysSearch" class="form-control" onchange="AdminApp.renderSpecialDays()"></div>
                     </div>
@@ -777,20 +741,27 @@
 
     <!-- PR DASHBOARD -->
     <div id="page-pr" class="page-view app-container">
-        <aside class="sidebar" style="background: var(--white); color: var(--primary); border-right: 1px solid rgba(0,0,0,0.05);">
+        <!-- Festive Sidebar (Upgraded to Dark Glass for Tri-color Pop) -->
+        <aside class="sidebar glass-dark">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/1/17/Ashoka_Chakra.svg" class="bg-watermark">
             <div class="sidebar-header">
-                <i class="ph-fill ph-user-circle sidebar-logo-icon" style="color: var(--primary);"></i>
-                <div class="sidebar-title" style="color: var(--primary);">PR Portal</div>
+                <div style="display:flex; flex-direction:column;">
+                   <div style="display:flex; align-items:center; gap:12px;">
+                       <i class="ph-fill ph-user-circle sidebar-logo-icon"></i>
+                       <div class="sidebar-title">PR Portal</div>
+                   </div>
+                   <div class="festive-badge">🇮🇳 Independence Special</div>
+               </div>
             </div>
             <nav class="nav-menu">
-                <div class="nav-item active" style="color: var(--text-dark);" onclick="PRApp.switchTab('pr-dashboard', event)"><i class="ph ph-clock"></i> Attendance Desk</div>
-                <div class="nav-item" style="color: var(--text-muted);" onclick="PRApp.switchTab('pr-history', event)"><i class="ph ph-list-dashes"></i> Attendance History</div>
-                <div class="nav-item" style="color: var(--text-muted);" onclick="PRApp.switchTab('pr-leave', event)"><i class="ph ph-calendar-plus"></i> Apply Leave</div>
-                <div class="nav-item" style="color: var(--text-muted);" onclick="PRApp.switchTab('pr-leave-history', event)"><i class="ph ph-calendar-check"></i> Leave History</div>
-                <div class="nav-item" style="color: var(--text-muted);" onclick="PRApp.switchTab('pr-notifications', event)"><i class="ph ph-bell"></i> My Notifications</div>
-                <div class="nav-item" style="color: var(--text-muted);" onclick="PRApp.switchTab('pr-profile', event)"><i class="ph ph-user"></i> Profile</div>
+                <div class="nav-item active" onclick="PRApp.switchTab('pr-dashboard', event)"><i class="ph ph-clock"></i> Attendance Desk</div>
+                <div class="nav-item" onclick="PRApp.switchTab('pr-history', event)"><i class="ph ph-list-dashes"></i> Attendance History</div>
+                <div class="nav-item" onclick="PRApp.switchTab('pr-leave', event)"><i class="ph ph-calendar-plus"></i> Apply Leave</div>
+                <div class="nav-item" onclick="PRApp.switchTab('pr-leave-history', event)"><i class="ph ph-calendar-check"></i> Leave History</div>
+                <div class="nav-item" onclick="PRApp.switchTab('pr-notifications', event)"><i class="ph ph-bell"></i> My Notifications</div>
+                <div class="nav-item" onclick="PRApp.switchTab('pr-profile', event)"><i class="ph ph-user"></i> Profile</div>
             </nav>
-            <div style="padding: 20px; border-top: 1px solid rgba(0,0,0,0.05);">
+            <div style="padding: 20px; border-top: 1px solid rgba(255,255,255,0.1); z-index: 2; position: relative;">
                 <div class="nav-item" onclick="Auth.logout()" style="color: var(--danger);"><i class="ph ph-sign-out"></i> Logout</div>
             </div>
         </aside>
@@ -798,6 +769,7 @@
 
         <!-- Main Content -->
         <main class="main-content">
+            <div class="tiranga-top-strip"></div>
             <header class="topbar">
                 <div style="display: flex; align-items: center; gap: 16px; flex: 1;">
                     <i class="ph ph-list mobile-menu-btn" onclick="UI.toggleSidebar()"></i>
@@ -815,7 +787,7 @@
                         <div style="font-size: 14px; font-weight: 600;" id="prTopName">PR Executive</div>
                         <div style="font-size: 12px; color: var(--gold);" id="prTopId">PR-XXXX</div>
                     </div>
-                    <div class="gradient-gold" style="width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;" id="prTopAvatar">P</div>
+                    <div class="gradient-gold" style="width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 18px;" id="prTopAvatar">P</div>
                 </div>
             </header>
 
@@ -823,9 +795,9 @@
                 <!-- PR Dashboard / Check-In -->
                 <div id="pr-dashboard" class="dashboard-view active">
                     <div style="max-width: 600px; margin: 0 auto; text-align: center; margin-top: 40px;">
-                        <div class="content-card" style="padding: 48px 32px; border-radius: 32px; position: relative; overflow: hidden;">
-                            <div style="position: absolute; top: -50px; right: -50px; width: 150px; height: 150px; background: rgba(212, 175, 55, 0.1); border-radius: 50%;"></div>
-                            <h2 style="font-size: 28px; margin-bottom: 8px;" id="prGreeting">Good Morning!</h2>
+                        <div class="content-card" style="padding: 48px 32px; border-radius: 32px; position: relative; overflow: hidden; border-top: 4px solid var(--success);">
+                            <div style="position: absolute; top: -50px; right: -50px; width: 150px; height: 150px; background: rgba(255, 153, 51, 0.1); border-radius: 50%;"></div>
+                            <h2 style="font-size: 28px; margin-bottom: 8px;" id="prGreeting">Good Morning! 🇮🇳</h2>
                             <p class="text-muted" style="margin-bottom: 32px;" id="prCurrentDate">Monday, 1 January 2026</p>
                             <div id="prActionArea"></div>
                         </div>
@@ -953,19 +925,15 @@
         };
 
         // --- CORE APP SYSTEM ---
-        // --- CORE APP SYSTEM ---
         const App = {
             currentUser: null,
             
-            // NEW: Automatically formats usernames into full FB/Insta links
             formatSocialLink: function(baseUrl, input) {
                 if (!input) return '#';
                 input = input.trim();
-                // If the user already pasted a full link, keep it
                 if (input.startsWith('http://') || input.startsWith('https://')) {
                     return input;
                 }
-                // Remove '@' if the user typed it by mistake
                 input = input.replace(/^@/, '');
                 return `${baseUrl}${input}`;
             },
@@ -1011,24 +979,20 @@
                     const splash = document.getElementById('splash-screen');
                     if (splash) {
                         splash.classList.add('hidden');
-                        setTimeout(() => splash.remove(), 600); // Remove from HTML entirely
+                        setTimeout(() => splash.remove(), 600);
                     }
-                }, 3500); // Shows for 3.5 seconds total
+                }, 3500);
 
-                LiveClock.init();
-                // ... rest of your init function
                 LiveClock.init();
                 this.applySettings();
                 this.autoCloseMissedSessions();
                 
-                // Register Service Worker for App Installation & Notifications
                 if ('serviceWorker' in navigator) {
                     navigator.serviceWorker.register('sw.js')
                         .then(() => console.log('PWA Service Worker Registered!'))
                         .catch(err => console.error('Service Worker Error:', err));
                 }
 
-                // Handle the "Install App" button prompt
                 window.addEventListener('beforeinstallprompt', (e) => {
                     e.preventDefault();
                     window.deferredPrompt = e;
@@ -1152,6 +1116,24 @@
                     </div>
                 `);
                 document.getElementById('confirmActionBtn').onclick = () => { UI.closeModal(); onConfirm(); };
+            },
+            showWhatsAppNotification: (title, message) => {
+                const container = document.getElementById('toastArea');
+                const toast = document.createElement('div');
+                toast.className = `toast whatsapp-toast`;
+                
+                const shortMessage = message.length > 60 ? message.substring(0, 60) + '...' : message;
+                
+                toast.innerHTML = `
+                    <i class="ph-fill ph-whatsapp-logo toast-icon"></i>
+                    <div class="whatsapp-text">
+                        <strong>${title}</strong>
+                        <span>${shortMessage}</span>
+                    </div>
+                `;
+                container.appendChild(toast);
+                setTimeout(() => toast.classList.add('show'), 10);
+                setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 400); }, 6000);
             }
         };
         
@@ -1173,7 +1155,6 @@
                 const p = document.getElementById('loginPassword').value;
                 const r = document.getElementById('loginRole').value;
                 
-                // Ask for WhatsApp-style Notification permissions when they log in
                 if ('Notification' in window && Notification.permission !== 'granted') {
                     Notification.requestPermission();
                 }
@@ -1195,7 +1176,7 @@
                     if(user.status === 'Disabled') return UI.showToast('Account disabled by Admin.', 'error');
                     App.currentUser = user;
                     sessionStorage.setItem('active_user', JSON.stringify(user));
-                    UI.showToast(`Welcome back, ${user.full_name || r}!`);
+                    UI.showToast(`Welcome back, ${user.full_name || r}! 🇮🇳`);
                     App.route(r === 'Admin' ? 'page-admin' : 'page-pr');
                 } else {
                     UI.showToast('Invalid credentials. Check your username & password.', 'error');
@@ -1570,8 +1551,8 @@
                     const onLeave = leaves.find(l => l && l.status === 'Approved' && l.member_name.startsWith(a.name) && date >= l.leave_from && date <= l.leave_to);
                     const leaveBadge = onLeave ? `<span class="badge badge-pending">On Leave</span>` : `<span class="badge badge-completed">Working</span>`;
                     
-                    const fbUrl = a.facebook ? (a.facebook.startsWith('http') ? a.facebook : `https://www.facebook.com/${a.facebook.replace('@', '')}`) : '#';
-                    const igUrl = a.instagram ? (a.instagram.startsWith('http') ? a.instagram : `https://www.instagram.com/${a.instagram.replace('@', '')}`) : '#';
+                    const fbUrl = App.formatSocialLink('https://www.facebook.com/', a.facebook);
+                    const igUrl = App.formatSocialLink('https://www.instagram.com/', a.instagram);
                     
                     const fb = a.facebook ? `<a href="${fbUrl}" target="_blank" style="color:#1877F2; font-size:20px;"><i class="ph-fill ph-facebook-logo"></i></a>` : `<i class="ph ph-facebook-logo text-muted" style="font-size:20px; opacity:0.3;"></i>`;
                     const ig = a.instagram ? `<a href="${igUrl}" target="_blank" style="color:#E4405F; font-size:20px;"><i class="ph-fill ph-instagram-logo"></i></a>` : `<i class="ph ph-instagram-logo text-muted" style="font-size:20px; opacity:0.3;"></i>`;
@@ -2957,64 +2938,76 @@
             deletePR: (id) => { UI.confirm('Delete PR', 'Permanently delete this PR account?', async () => { await DB.remove('users', id); UI.showToast('PR deleted.', 'success'); AdminApp.renderPRs(); }); },
 
             renderAttendance: async () => {
-                let date = document.getElementById("filterAttDate").value;
-                if (!date) { date = todayStr(); document.getElementById("filterAttDate").value = date; }
+                try {
+                    const filterEl = document.getElementById("filterAttDate");
+                    let date = filterEl ? filterEl.value : "";
+                    if (!date) { 
+                        date = todayStr(); 
+                        if (filterEl) filterEl.value = date; 
+                    }
 
-                const attendance = await DB.get("attendance");
-                const users = await DB.get("users");
-                const leaves = await DB.get("pr_leave_requests");
-                const atts = attendance.filter(a => a.date === date);
-                const prs = users.filter(u => u.role === "PR");
+                    const attendance = await DB.get("attendance") || [];
+                    const users = await DB.get("users") || [];
+                    const leaves = await DB.get("pr_leave_requests") || [];
+                    
+                    const atts = attendance.filter(a => a && a.date === date);
+                    const prs = users.filter(u => u && u.role === "PR");
 
-                let html = "";
-                prs.forEach(p => {
-                    const record = atts.find(a => a.pr_id === p.pr_id);
-                    const onLeave = leaves.find(l => l.pr_id === p.pr_id && l.status === "Approved" && date >= l.leave_from && date <= l.leave_to) || p.status === 'Disabled';
+                    let html = "";
+                    prs.forEach(p => {
+                        const record = atts.find(a => a.pr_id === p.pr_id);
+                        const onLeave = leaves.find(l => l && l.pr_id === p.pr_id && l.status === "Approved" && date >= l.leave_from && date <= l.leave_to) || p.status === 'Disabled';
 
-                    if (!record) {
-                        if (onLeave) {
-                            html += `<tr><td><strong>${p.full_name}</strong><br><small>${p.pr_id}</small></td><td>${date}</td><td>-</td><td>-</td><td><span class="badge badge-pending">On Leave</span></td><td><button class="btn btn-outline btn-sm" style="padding: 4px 10px;" onclick="AdminApp.openEditAttendanceModal('${p.pr_id}', '${date}')"><i class="ph-bold ph-pencil"></i> Edit</button></td></tr>`;
-                        } else {
-                            html += `<tr><td><strong>${p.full_name}</strong><br><small>${p.pr_id}</small></td><td>${date}</td><td>-</td><td>-</td><td><span class="badge badge-absent">Absent</span></td><td><div style="display:flex;gap:8px;"><button class="btn btn-warning btn-sm" onclick="AdminApp.sendReminder('${p.pr_id}')"><i class="ph ph-whatsapp-logo"></i></button> <button class="btn btn-outline btn-sm" style="padding: 4px 10px;" onclick="AdminApp.openEditAttendanceModal('${p.pr_id}', '${date}')"><i class="ph-bold ph-plus"></i> Add</button></div></td></tr>`;
+                        if (!record) {
+                            if (onLeave) {
+                                html += `<tr><td><strong>${p.full_name}</strong><br><small>${p.pr_id}</small></td><td>${date}</td><td>-</td><td>-</td><td><span class="badge badge-pending">On Leave</span></td><td><button class="btn btn-outline btn-sm" style="padding: 4px 10px;" onclick="AdminApp.openEditAttendanceModal('${p.pr_id}', '${date}')"><i class="ph-bold ph-pencil"></i> Edit</button></td></tr>`;
+                            } else {
+                                html += `<tr><td><strong>${p.full_name}</strong><br><small>${p.pr_id}</small></td><td>${date}</td><td>-</td><td>-</td><td><span class="badge badge-absent">Absent</span></td><td><div style="display:flex;gap:8px;"><button class="btn btn-warning btn-sm" onclick="AdminApp.sendReminder('${p.pr_id}')"><i class="ph ph-whatsapp-logo"></i></button> <button class="btn btn-outline btn-sm" style="padding: 4px 10px;" onclick="AdminApp.openEditAttendanceModal('${p.pr_id}', '${date}')"><i class="ph-bold ph-plus"></i> Add</button></div></td></tr>`;
+                            }
+                            return;
                         }
-                        return;
-                    }
 
-                    const sessions = record.sessions || [];
-                    let sessionText = "-";
-                    if (sessions.length) {
-                        sessionText = sessions.map((s, i) => {
-                            const inTime = s.check_in ? new Date(s.check_in).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "--";
-                            const outTime = s.check_out ? new Date(s.check_out).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "--";
-                            return `#${i + 1}: ${inTime} → ${outTime}`;
-                        }).join("<br>");
-                    }
-                    const totalHours = ((record.total_minutes || 0) / 60).toFixed(2);
-                    const status = sessions.length && sessions[sessions.length - 1].check_out === null ? "Working" : "Completed";
+                        const sessions = record.sessions || [];
+                        let sessionText = "-";
+                        if (sessions.length) {
+                            sessionText = sessions.map((s, i) => {
+                                const inTime = s.check_in ? new Date(s.check_in).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "--";
+                                const outTime = s.check_out ? new Date(s.check_out).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "--";
+                                return `#${i + 1}: ${inTime} → ${outTime}`;
+                            }).join("<br>");
+                        }
+                        const totalHours = ((record.total_minutes || 0) / 60).toFixed(2);
+                        const status = sessions.length && sessions[sessions.length - 1].check_out === null ? "Working" : "Completed";
 
-                    html += `<tr><td><strong>${p.full_name}</strong><br><small>${p.pr_id}</small></td><td>${date}</td><td>${sessionText}</td><td><strong>${totalHours} hrs</strong></td><td><span class="badge ${status === "Working" ? "badge-working" : "badge-completed"}">${status}</span></td><td><button class="btn btn-outline btn-sm" style="padding: 4px 10px;" onclick="AdminApp.openEditAttendanceModal('${p.pr_id}', '${date}')"><i class="ph-bold ph-pencil"></i> Edit</button></td></tr>`;
-                });
-                document.getElementById("tableAdminAttendance").innerHTML = html;
+                        html += `<tr><td><strong>${p.full_name}</strong><br><small>${p.pr_id}</small></td><td>${date}</td><td>${sessionText}</td><td><strong>${totalHours} hrs</strong></td><td><span class="badge ${status === "Working" ? "badge-working" : "badge-completed"}">${status}</span></td><td><button class="btn btn-outline btn-sm" style="padding: 4px 10px;" onclick="AdminApp.openEditAttendanceModal('${p.pr_id}', '${date}')"><i class="ph-bold ph-pencil"></i> Edit</button></td></tr>`;
+                    });
+                    const tbody = document.getElementById("tableAdminAttendance");
+                    if (tbody) tbody.innerHTML = html || '<tr><td colspan="6" class="text-center text-muted">No attendance data found</td></tr>';
+                } catch (err) {
+                    console.error("Error in renderAttendance:", err);
+                    UI.showToast("Failed to load attendance data.", "error");
+                }
             },
+
             sendReminder: async (prId) => {
-                const users = await DB.get("users");
-                const user = users.find(u => u.pr_id === prId);
+                const users = await DB.get("users") || [];
+                const user = users.find(u => u && u.pr_id === prId);
                 if (!user || !user.mobile) return UI.showToast("Mobile number not found", "error");
                 const message = `🌿 নমস্কার, ${user.full_name},\n\n📌 আমাদের রেকর্ড অনুযায়ী আজকের আপনার উপস্থিতি (Attendance) এখনও নথিভুক্ত হয়নি।\n✅ অনুগ্রহ করে যত দ্রুত সম্ভব আপনার Check-In সম্পন্ন করুন।`;
                 window.open(`https://wa.me/91${user.mobile.replace(/\D/g, "")}?text=${encodeURIComponent(message)}`, "_blank");
             },
             sendReminderAll: async () => {
                 const date = todayStr();
-                const attendance = await DB.get("attendance");
-                const users = await DB.get("users");
-                const leaves = await DB.get("pr_leave_requests");
-                const todayAttendance = attendance.filter(a => a.date === date);
+                const attendance = await DB.get("attendance") || [];
+                const users = await DB.get("users") || [];
+                const leaves = await DB.get("pr_leave_requests") || [];
+                const todayAttendance = attendance.filter(a => a && a.date === date);
 
                 const absents = users.filter(user => {
-                    if (user.role !== "PR") return false;
+                    if (!user || user.role !== "PR") return false;
                     if (user.status === 'Disabled') return false; 
                     if (todayAttendance.find(a => a.pr_id === user.pr_id)) return false;
-                    if (leaves.find(l => l.pr_id === user.pr_id && l.status === "Approved" && date >= l.leave_from && date <= l.leave_to)) return false;
+                    if (leaves.find(l => l && l.pr_id === user.pr_id && l.status === "Approved" && date >= l.leave_from && date <= l.leave_to)) return false;
                     if (!user.mobile || user.mobile.trim() === "") return false;
                     return true;
                 });
@@ -3243,7 +3236,7 @@
                 
                 const hour = new Date().getHours();
                 let greeting = hour < 12 ? "Good Morning" : (hour < 15 ? "Good Noon" : (hour < 18 ? "Good Afternoon" : "Good Evening"));
-                document.getElementById("prGreeting").innerText = `${greeting}, ${u.full_name.split(" ")[0]}!`;
+                document.getElementById("prGreeting").innerText = `${greeting}, ${u.full_name.split(" ")[0]}! 🇮🇳`;
                 document.getElementById("prCurrentDate").innerText = new Date().toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
                 
                 document.getElementById('prProfileDetails').innerHTML = `<div><strong>Full Name:</strong> ${u.full_name}</div><div><strong>PR ID:</strong> ${u.pr_id}</div><div><strong>Mobile:</strong> ${u.mobile}</div>`;
@@ -3254,7 +3247,6 @@
                     Notification.requestPermission();
                 }
 
-          
                 // Subscribing to Supabase Realtime for Notifications
                 if (App.currentUser && App.currentUser.role === 'PR') {
                     supabaseClient.channel('public:pr_notification_targets')
@@ -3503,7 +3495,7 @@
                     let uClass = n.urgency === 'urgent' ? 'badge-absent' : (n.urgency === 'important' ? 'badge-pending' : 'badge-working');
                     let attachHtml = n.attachment ? `<a href="${n.attachment}" target="_blank" class="btn btn-outline" style="padding: 4px 12px; font-size:12px;"><i class="ph-bold ph-paperclip"></i> View File</a>` : '-';
                     let readBtn = t.is_read ? `<span class="badge badge-completed"><i class="ph-fill ph-checks"></i> Read</span>` : `<button class="btn btn-primary" style="padding: 6px 12px; font-size:12px;" onclick="PRApp.markNotifRead('${t.id}')">Mark Read</button>`;
-                    let rowStyle = t.is_read ? '' : 'background: rgba(212, 175, 55, 0.05); font-weight: 500;';
+                    let rowStyle = t.is_read ? '' : 'background: rgba(255, 153, 51, 0.05); font-weight: 500;';
 
                     html += `<tr style="${rowStyle}">
                         <td>${new Date(n.created_at + 'Z').toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })}</td>
