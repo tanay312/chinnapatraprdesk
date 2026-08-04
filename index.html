@@ -235,6 +235,11 @@
             <div class="splash-text">শিল্প যেখানে কথা বলে</div>
         </div>
     </div>
+    <!-- Custom Notification Tone -->
+    <audio id="notificationSound" preload="auto">
+        <!-- You can replace this link with any .mp3 file you like -->
+        <source src="universfield-new-notification-054-494259.mp3" type="audio/mpeg">
+    </audio>
 
     <div class="toast-container" id="toastArea"></div>
 
@@ -3197,15 +3202,52 @@
                     Notification.requestPermission();
                 }
 
+          
                 // Subscribing to Supabase Realtime for Notifications
                 if (App.currentUser && App.currentUser.role === 'PR') {
                     supabaseClient.channel('public:pr_notification_targets')
-                        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'pr_notification_targets', filter: `pr_id=eq.${u.pr_id}` }, payload => {
-                            PRApp.loadNotifications();
-                            UI.showToast('New message from Admin!', 'warning');
-                            if ('Notification' in window && Notification.permission === 'granted') {
-                                new Notification('New Admin Broadcast', { body: 'Check your portal for a new message.', icon: 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png' });
+                        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'pr_notification_targets', filter: `pr_id=eq.${u.pr_id}` }, async (payload) => {
+                            
+                            // Fetch the actual notification details from the database
+                            const { data: notif } = await supabaseClient
+                                .from('pr_notifications')
+                                .select('*')
+                                .eq('id', payload.new.notification_id)
+                                .single();
+
+                            if (notif) {
+                                // 1. Refresh the notification table behind the scenes
+                                PRApp.loadNotifications(); 
+                                
+                                // 2. PLAY CUSTOM NOTIFICATION TONE
+                                const audio = document.getElementById('notificationSound');
+                                if (audio) {
+                                    audio.currentTime = 0; // Reset audio to start
+                                    audio.play().catch(err => console.log('Audio blocked by browser auto-play policy:', err));
+                                }
+                                
+                                // 3. Show WhatsApp-style in-app popup
+                                if(UI.showWhatsAppNotification) {
+                                    UI.showWhatsAppNotification(notif.title || 'New Admin Message', notif.message);
+                                } else {
+                                    UI.showToast(`New Notification: ${notif.title}`, 'warning');
+                                }
+                                
+                                // 4. NATIVE OS APP NOTIFICATION (Routes through Service Worker)
+                                if ('Notification' in window && Notification.permission === 'granted' && 'serviceWorker' in navigator) {
+                                    navigator.serviceWorker.ready.then(function(registration) {
+                                        registration.showNotification(notif.title, {
+                                            body: notif.message,
+                                            icon: 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png', // Your App Icon
+                                            badge: 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png', // Small icon for the status bar
+                                            vibrate: [200, 100, 200, 100, 200], // Native vibration pattern
+                                            tag: 'pr-admin-msg', // Groups multiple messages together
+                                            requireInteraction: true // Keeps it on lock screen until swiped
+                                        });
+                                    });
+                                }
                             }
+                            
                         }).subscribe();
                 }
             },
