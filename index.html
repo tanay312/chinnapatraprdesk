@@ -3155,6 +3155,13 @@
                     }
                 }
             },
+            deleteNotification: async (id) => {
+                UI.confirm('Delete Notification', 'Are you sure?', async () => {
+                    const { error } = await supabaseClient.from('pr_notifications').delete().eq('id', id);
+                    if (error) UI.showToast(`Error: ${error.message}`, 'error');
+                    else { UI.showToast('Notification safely removed.', 'success'); AdminApp.renderNotifications(); }
+                });
+            },
             saveSettings: async (e) => {
                 e.preventDefault();
                 const btn = e.target.querySelector('button');
