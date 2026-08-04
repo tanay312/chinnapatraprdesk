@@ -1,11 +1,11 @@
 {
   "name": "Premium PR Attendance Desk",
   "short_name": "Chinnapatra PR Desk",
-  "description": "PR Attendance & Management System",
+  "description": "PR Attendance &amp; Management System",
   "start_url": "./index.html",
-  "display": "standalone",
-  "background_color": "#0A1931",
-  "theme_color": "#0A1931",
+  "display": "browser",
+  "background_color": "#000051",
+  "theme_color": "#ce9900",
   "icons": [
     {
       "src": "3b81e8eb-b9aa-4741-a15b-05089409732e(3).png",
@@ -17,5 +17,15 @@
       "sizes": "512x512",
       "type": "image/png"
     }
+  ],
+  "id": "prdesk",
+  "lang": "en",
+  "orientation": "portrait",
+  "display_override": [
+    "browser",
+    "fullscreen",
+    "minimal-ui",
+    "standalone",
+    "window-controls-overlay"
   ]
 }
