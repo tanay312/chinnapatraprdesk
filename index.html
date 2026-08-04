@@ -2,19 +2,18 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Premium PR Attendance Desk & Management System</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0A1931">
+    <title>Premium PR Attendance Desk</title>
     
-    <!-- Google Fonts & Phosphor Icons -->
+    <!-- Link to Manifest -->
     <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3135/3135715.png">
+    
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    
-    <!-- PDF Export Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
-    
-    <!-- Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
@@ -229,12 +228,18 @@
 
     <!-- LOGIN PAGE -->
     <div id="page-login" class="page-view active">
+        
         <div class="centered-container">
             <div class="auth-card">
                 <div style="text-align: center; margin-bottom: 32px;">
                     <div style="font-size: 48px; color: var(--primary); margin-bottom: 8px;"><i class="ph-fill ph-shield-check"></i></div>
                     <h2 class="font-heading" style="font-size: 28px;">Attendance Desk</h2>
                     <p style="color: var(--text-muted); font-size: 14px; margin-top: 8px;">Premium PR Management System</p>
+                
+                <!-- NEW: App Install Button -->
+                    <button id="installAppBtn" class="btn btn-outline" style="display:none; margin: 16px auto 0 auto; background: var(--gold); color: var(--primary); border:none; font-weight:bold;">
+                        <i class="ph-bold ph-download-simple"></i> Install App to Home Screen
+                    </button>
                 </div>
                 
                 <form id="formLogin" onsubmit="Auth.login(event)">
@@ -829,8 +834,23 @@
         };
 
         // --- CORE APP SYSTEM ---
+        // --- CORE APP SYSTEM ---
         const App = {
             currentUser: null,
+            
+            // NEW: Automatically formats usernames into full FB/Insta links
+            formatSocialLink: function(baseUrl, input) {
+                if (!input) return '#';
+                input = input.trim();
+                // If the user already pasted a full link, keep it
+                if (input.startsWith('http://') || input.startsWith('https://')) {
+                    return input;
+                }
+                // Remove '@' if the user typed it by mistake
+                input = input.replace(/^@/, '');
+                return `${baseUrl}${input}`;
+            },
+
             applySettings: function() {
                 const settings = JSON.parse(localStorage.getItem('app_settings') || '{"officeName":"Premium PR Headquarters","logoUrl":""}');
                 
@@ -866,16 +886,35 @@
                 if (nameInput) nameInput.value = settings.officeName || 'Premium PR Headquarters';
                 if (logoInput) logoInput.value = settings.logoUrl || '';
             },
+
             init: function() {
                 LiveClock.init();
                 this.applySettings();
                 this.autoCloseMissedSessions();
                 
+                // Register Service Worker for App Installation & Notifications
                 if ('serviceWorker' in navigator) {
                     navigator.serviceWorker.register('sw.js')
                         .then(() => console.log('PWA Service Worker Registered!'))
                         .catch(err => console.error('Service Worker Error:', err));
                 }
+
+                // Handle the "Install App" button prompt
+                window.addEventListener('beforeinstallprompt', (e) => {
+                    e.preventDefault();
+                    window.deferredPrompt = e;
+                    const installBtn = document.getElementById('installAppBtn');
+                    if (installBtn) {
+                        installBtn.style.display = 'inline-flex';
+                        installBtn.addEventListener('click', () => {
+                            installBtn.style.display = 'none';
+                            window.deferredPrompt.prompt();
+                            window.deferredPrompt.userChoice.then((choiceResult) => {
+                                window.deferredPrompt = null;
+                            });
+                        });
+                    }
+                });
 
                 document.addEventListener('click', function(e) {
                     if (e.target.closest('.btn') || e.target.closest('.ripple-btn')) {
@@ -909,6 +948,7 @@
                 document.getElementById('reportDate').value = todayStr();
                 Auth.fillDemoCredentials();
             },
+
             autoCloseMissedSessions: async function() {
                 const today = todayStr();
                 const attendance = await DB.get('attendance') || [];
@@ -940,6 +980,7 @@
                     }
                 }
             },
+
             route: function(pageId) {
                 document.querySelectorAll('.page-view').forEach(el => el.classList.remove('active'));
                 const pageEl = document.getElementById(pageId);
@@ -1003,6 +1044,11 @@
                 const p = document.getElementById('loginPassword').value;
                 const r = document.getElementById('loginRole').value;
                 
+                // Ask for WhatsApp-style Notification permissions when they log in
+                if ('Notification' in window && Notification.permission !== 'granted') {
+                    Notification.requestPermission();
+                }
+
                 const btn = e.target.querySelector('button');
                 const origText = btn.innerHTML;
                 btn.innerHTML = '<i class="ph ph-spinner ph-spin"></i> Authenticating...';
