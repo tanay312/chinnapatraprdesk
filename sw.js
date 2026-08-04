@@ -1,4 +1,4 @@
-const CACHE_NAME = 'pr-desk-v2';
+const CACHE_NAME = 'pr-desk-v3';
 
 self.addEventListener('install', event => {
     self.skipWaiting();
@@ -8,17 +8,14 @@ self.addEventListener('activate', event => {
     event.waitUntil(clients.claim());
 });
 
-// Required to trigger the "Install App" button on mobile/desktop
+// Required by Chrome/Android to show the "Install App" button
 self.addEventListener('fetch', event => {
-    // Basic network-first strategy
     event.respondWith(
-        fetch(event.request).catch(() => {
-            return caches.match(event.request);
-        })
+        fetch(event.request).catch(() => caches.match(event.request))
     );
 });
 
-// Handle clicking on the Native OS Notification
+// Handle clicking on the Native OS Outer Notification
 self.addEventListener('notificationclick', function(event) {
     event.notification.close(); // Close the notification on the phone
     
@@ -27,16 +24,13 @@ self.addEventListener('notificationclick', function(event) {
         clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function(clientList) {
             for (let i = 0; i < clientList.length; i++) {
                 let client = clientList[i];
-                // If it's already open, bring it to the front
                 if (client.url.includes('index.html') && 'focus' in client) {
-                    return client.focus();
+                    return client.focus(); // Bring app to the front
                 }
             }
-            // If the app is fully minimized/closed, open it!
             if (clients.openWindow) {
-                return clients.openWindow('./index.html');
+                return clients.openWindow('./index.html'); // Open app if completely closed
             }
         })
     );
 });
-       
