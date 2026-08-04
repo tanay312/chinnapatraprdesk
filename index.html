@@ -18,23 +18,24 @@
 
     <style>
         :root {
+            :root {
             /* INDEPENDENCE DAY THEME COLORS */
-            --primary: #0A1931;       /* Navy Blue (Ashoka Chakra) */
+            --primary: #0A1931;       /* Navy Blue (Ashoka Chakra Background) */
             --secondary: #132F4C;     /* Lighter Navy */
-            --gold: #FF9933;          /* India Saffron replaces Gold */
+            --gold: #FF9933;          /* India Saffron */
             --gold-light: #FFD699;    /* Light Saffron */
             --bg-main: #F8F9FA;       /* Clean White/Ash Background */
             --white: #FFFFFF;
             --text-dark: #1A1A1A;
             --text-muted: #64748B;
             --danger: #EF4444; 
-            --success: #138808;       /* India Green replaces standard green */
-            --warning: #FF9933;       /* Saffron for warnings */
+            --success: #138808;       /* India Green */
+            --warning: #FF9933;       /* Saffron */
             
             --shadow-sm: 0 2px 8px rgba(10, 25, 49, 0.05);
             --shadow-md: 0 8px 24px rgba(10, 25, 49, 0.08);
             --shadow-lg: 0 16px 32px rgba(10, 25, 49, 0.12);
-            --shadow-gold: 0 4px 16px rgba(255, 153, 51, 0.25); /* Saffron shadow */
+            --shadow-gold: 0 4px 16px rgba(255, 153, 51, 0.25);
             
             --radius-sm: 8px;
             --radius-md: 12px;
@@ -188,7 +189,7 @@
         #splash-screen {
             position: fixed;
             top: 0; left: 0; width: 100vw; height: 100vh;
-            background: #0A1931; /* Deep Navy (Ashoka Chakra color) */
+            background: #0A1931; /* Deep Navy Background */
             z-index: 99999; 
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             transition: opacity 0.6s ease-out, visibility 0.6s ease-out;
@@ -209,12 +210,20 @@
         
         .splash-content { display: flex; flex-direction: column; align-items: center; z-index: 1; }
         
-        .splash-logo {
-            font-size: 80px;
-            color: #FFFFFF; /* Pure white center logo */
-            opacity: 0; transform: scale(0.5);
-            animation: splashLogo 1s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-            filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.3));
+        .splash-chakra-wrapper {
+            opacity: 0;
+            transform: scale(0.5);
+            /* Pops the wheel in from nothing */
+            animation: splashLogoFadeIn 1s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+        
+        .splash-chakra-img {
+            width: 80px;
+            height: 80px;
+            /* Inverts the official black wheel to pure white with a soft glow */
+            filter: invert(1) drop-shadow(0 0 15px rgba(255, 255, 255, 0.7));
+            /* Spins the wheel endlessly while the app loads */
+            animation: spinChakra 5s linear infinite; 
         }
         
         .splash-line {
@@ -240,20 +249,33 @@
             animation: splashText 1.2s 1.2s ease-out forwards; 
         }
 
-        @keyframes splashLogo { to { opacity: 1; transform: scale(1); } }
+        @keyframes splashLogoFadeIn { 
+            to { opacity: 1; transform: scale(1); } 
+        }
+        @keyframes spinChakra {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
         @keyframes splashLine { 
             0% { width: 0; opacity: 0; }
             50% { opacity: 1; }
             100% { width: 340px; opacity: 1; }
         }
-        @keyframes splashText { to { opacity: 1; transform: translateY(0) scale(1); } }
+        @keyframes splashText { 
+            to { opacity: 1; transform: translateY(0) scale(1); } 
+        }
     </style>
 </head>
 <body>
-    <!-- SPLASH SCREEN ANIMATION -->
+<!-- SPLASH SCREEN ANIMATION -->
     <div id="splash-screen">
         <div class="splash-content">
-            <i class="ph-fill ph-crown splash-logo"></i>
+            <!-- Animated Ashoka Chakra Wrapper -->
+            <div class="splash-chakra-wrapper">
+                <!-- Using official SVG, inverted to white glow -->
+                <img src="https://upload.wikimedia.org/wikipedia/commons/1/17/Ashoka_Chakra.svg" class="splash-chakra-img" alt="Ashoka Chakra">
+            </div>
+            
             <div class="splash-line"></div>
             <div class="splash-text">শিল্প যেখানে কথা বলে</div>
         </div>
