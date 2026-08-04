@@ -3239,7 +3239,62 @@
                 document.getElementById("prGreeting").innerText = `${greeting}, ${u.full_name.split(" ")[0]}! 🇮🇳`;
                 document.getElementById("prCurrentDate").innerText = new Date().toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
                 
-                document.getElementById('prProfileDetails').innerHTML = `<div><strong>Full Name:</strong> ${u.full_name}</div><div><strong>PR ID:</strong> ${u.pr_id}</div><div><strong>Mobile:</strong> ${u.mobile}</div>`;
+                document.getElementById('prProfileDetails').innerHTML = `
+                    <div style="background: rgba(10, 25, 49, 0.02); border: 1px solid rgba(10, 25, 49, 0.05); border-radius: var(--radius-md); padding: 20px; margin-bottom: 24px;">
+                        <div style="display: flex; justify-content: space-between; padding-bottom: 12px; border-bottom: 1px dashed rgba(0,0,0,0.1); margin-bottom: 12px;">
+                            <span style="color: var(--text-muted); font-size: 13px;"><i class="ph-fill ph-user"></i> Full Name</span>
+                            <strong style="color: var(--primary);">${u.full_name}</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding-bottom: 12px; border-bottom: 1px dashed rgba(0,0,0,0.1); margin-bottom: 12px;">
+                            <span style="color: var(--text-muted); font-size: 13px;"><i class="ph-fill ph-identification-badge"></i> PR ID</span>
+                            <strong style="color: var(--gold);">${u.pr_id}</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding-bottom: 12px; border-bottom: 1px dashed rgba(0,0,0,0.1); margin-bottom: 12px;">
+                            <span style="color: var(--text-muted); font-size: 13px;"><i class="ph-fill ph-at"></i> Username</span>
+                            <strong style="color: var(--primary);">${u.username}</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding-bottom: 12px; border-bottom: 1px dashed rgba(0,0,0,0.1); margin-bottom: 12px;">
+                            <span style="color: var(--text-muted); font-size: 13px;"><i class="ph-fill ph-phone"></i> Mobile Number</span>
+                            <strong style="color: var(--primary);">${u.mobile}</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span style="color: var(--text-muted); font-size: 13px;"><i class="ph-fill ph-shield-check"></i> Account Status</span>
+                            <span class="badge ${u.status === 'Active' ? 'badge-completed' : 'badge-absent'}">${u.status}</span>
+                        </div>
+                    </div>
+
+                    <h4 style="font-size: 14px; margin-bottom: 12px; color: var(--text-muted);">DIGITAL IDENTITY CARD</h4>
+                    <div id="prIdCard" style="background: linear-gradient(135deg, var(--primary), var(--secondary)); border-radius: 16px; padding: 24px; color: white; position: relative; overflow: hidden; box-shadow: var(--shadow-md); margin-bottom: 16px;">
+                        <!-- Tri-color Top Border for ID Card -->
+                        <div style="position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, #FF9933 0%, #FF9933 33%, #FFFFFF 33%, #FFFFFF 66%, #138808 66%, #138808 100%);"></div>
+                        
+                        <!-- Watermark -->
+                        <div style="position: absolute; top: -10px; right: -20px; opacity: 0.05; font-size: 120px;"><i class="ph-fill ph-identification-card"></i></div>
+                        
+                        <div style="border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 16px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <h3 style="color: var(--gold); margin: 0; font-family: var(--font-heading); font-size: 16px; letter-spacing: 1px;">PREMIUM PR</h3>
+                                <div style="font-size: 9px; letter-spacing: 2px; color: rgba(255,255,255,0.6);">OFFICIAL IDENTITY</div>
+                            </div>
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/1/17/Ashoka_Chakra.svg" style="width: 24px; filter: invert(1) drop-shadow(0 0 5px rgba(255,255,255,0.5));">
+                        </div>
+                        
+                        <div style="display: flex; align-items: center; gap: 16px; text-align: left;">
+                            <div style="width: 64px; height: 64px; background: linear-gradient(135deg, var(--gold), var(--gold-light)); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold; color: var(--primary); box-shadow: 0 4px 10px rgba(0,0,0,0.3);">
+                                ${u.full_name.charAt(0)}
+                            </div>
+                            <div>
+                                <div style="font-size: 18px; font-weight: bold; color: white;">${u.full_name}</div>
+                                <div style="color: var(--gold-light); font-size: 13px; margin-bottom: 8px;">${u.role} Executive</div>
+                                <div style="font-size: 12px; color: rgba(255,255,255,0.8); display: flex; align-items: center; gap: 6px;"><i class="ph-fill ph-fingerprint text-gold"></i> ID: ${u.pr_id}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-outline" style="width: 100%; border-color: var(--gold); color: var(--primary); font-weight: bold;" onclick="PRApp.downloadIDCard()">
+                        <i class="ph-bold ph-download-simple"></i> Download Digital Card (PDF)
+                    </button>
+                `;
                 PRApp.switchTab('pr-dashboard');
                 
                 // Request Notification Permission
@@ -3502,6 +3557,69 @@
             markNotifRead: async (targetId) => {
                 await supabaseClient.from('pr_notification_targets').update({ is_read: true }).eq('id', targetId);
                 UI.showToast('Notification marked as read.'); PRApp.loadNotifications();
+            },
+            markNotifRead: async (targetId) => {
+                await supabaseClient.from('pr_notification_targets').update({ is_read: true }).eq('id', targetId);
+                UI.showToast('Notification marked as read.'); PRApp.loadNotifications();
+            }, // Make sure there is a comma here!
+            
+            downloadIDCard: () => {
+                const u = App.currentUser;
+                if (!u) return;
+                if (!window.jspdf) return UI.showToast("PDF Library loading...", "warning");
+                
+                const { jsPDF } = window.jspdf;
+                // Standard CR80 ID Card Size (Vertical): 54mm x 86mm
+                const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: [54, 86] });
+                
+                // Dark Navy Background
+                doc.setFillColor(10, 25, 49);
+                doc.rect(0, 0, 54, 86, 'F');
+                
+                // Tri-color top border
+                doc.setFillColor(255, 153, 51); doc.rect(0, 0, 54, 1.5, 'F'); // Saffron
+                doc.setFillColor(255, 255, 255); doc.rect(0, 1.5, 54, 1.5, 'F'); // White
+                doc.setFillColor(19, 136, 8); doc.rect(0, 3, 54, 1.5, 'F'); // Green
+
+                // Header Text
+                doc.setTextColor(255, 153, 51); // Gold
+                doc.setFontSize(14);
+                doc.setFont("helvetica", "bold");
+                doc.text("PREMIUM PR", 27, 15, { align: "center" });
+                
+                doc.setTextColor(255, 255, 255);
+                doc.setFontSize(6);
+                doc.setFont("helvetica", "normal");
+                doc.text("OFFICIAL IDENTITY CARD", 27, 19, { align: "center" });
+                
+                // Avatar Circle
+                doc.setFillColor(255, 153, 51);
+                doc.circle(27, 38, 10, 'F');
+                doc.setTextColor(10, 25, 49); // Dark blue text for initial
+                doc.setFontSize(16);
+                doc.setFont("helvetica", "bold");
+                doc.text(u.full_name.charAt(0), 27, 40, { align: "center" });
+
+                // User Info
+                doc.setTextColor(255, 255, 255);
+                doc.setFontSize(12);
+                doc.text(u.full_name.toUpperCase(), 27, 56, { align: "center" });
+
+                doc.setTextColor(255, 214, 153);
+                doc.setFontSize(8);
+                doc.setFont("helvetica", "normal");
+                doc.text(`${u.role} Executive`, 27, 61, { align: "center" });
+
+                // Details block
+                doc.setFillColor(19, 47, 76); // Secondary dark
+                doc.rect(5, 68, 44, 12, 'F');
+                doc.setTextColor(255, 255, 255);
+                doc.setFontSize(8);
+                doc.text(`ID: ${u.pr_id}`, 27, 73, { align: "center" });
+                doc.text(`Mob: ${u.mobile}`, 27, 78, { align: "center" });
+
+                doc.save(`${u.pr_id}_Identity_Card.pdf`);
+                UI.showToast("ID Card Downloaded Successfully!", "success");
             }
         };
 
