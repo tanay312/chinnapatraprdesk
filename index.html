@@ -3252,7 +3252,6 @@
                     supabaseClient.channel('public:pr_notification_targets')
                         .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'pr_notification_targets', filter: `pr_id=eq.${u.pr_id}` }, async (payload) => {
                             
-                            // Fetch the actual notification details from the database
                             const { data: notif } = await supabaseClient
                                 .from('pr_notifications')
                                 .select('*')
@@ -3260,30 +3259,22 @@
                                 .single();
 
                             if (notif) {
-                                // 1. Refresh the notification table behind the scenes
                                 PRApp.loadNotifications(); 
                                 
-                                // 2. BULLETPROOF CUSTOM AUDIO PLAYER
+                                // 1. PLAY YOUR CUSTOM TONE
                                 try {
-                                    // Using a highly reliable CDN link for the sound
-                                    const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
+                                    // Make sure this mp3 file is in the same folder as your index.html!
+                                    const audio = new Audio('universfield-new-notification-054-494259.mp3');
                                     audio.volume = 1.0;
-                                    let playPromise = audio.play();
-                                    if (playPromise !== undefined) {
-                                        playPromise.catch(error => {
-                                            console.warn("Browser blocked auto-play. User needs to interact with the screen first.", error);
-                                        });
-                                    }
-                                } catch(e) { console.error("Audio error:", e); }
+                                    audio.play().catch(e => console.warn("Audio auto-play blocked by browser", e));
+                                } catch(e) {}
                                 
-                                // 3. Show WhatsApp-style in-app popup
+                                // 2. IN-APP WHATSAPP STYLE POPUP
                                 if(UI.showWhatsAppNotification) {
                                     UI.showWhatsAppNotification(notif.title || 'New Admin Message', notif.message);
-                                } else {
-                                    UI.showToast(`New Notification: ${notif.title}`, 'warning');
                                 }
                                 
-                                // 4. NATIVE OS APP NOTIFICATION
+                                // 3. OUTER OS NOTIFICATION (Lock Screen / Background)
                                 if ('Notification' in window && Notification.permission === 'granted' && 'serviceWorker' in navigator) {
                                     navigator.serviceWorker.ready.then(function(registration) {
                                         registration.showNotification(notif.title, {
@@ -3291,7 +3282,7 @@
                                             icon: 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png',
                                             badge: 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png',
                                             vibrate: [200, 100, 200, 100, 200], 
-                                            silent: false, // Forces the OS to play the default device notification sound!
+                                            silent: false, // Ensures the phone plays a sound even if locked
                                             tag: 'pr-admin-msg',
                                             requireInteraction: true
                                         });
