@@ -3264,35 +3264,46 @@
                     </div>
 
                     <h4 style="font-size: 14px; margin-bottom: 12px; color: var(--text-muted);">DIGITAL IDENTITY CARD</h4>
-                    <div id="prIdCard" style="background: linear-gradient(135deg, var(--primary), var(--secondary)); border-radius: 16px; padding: 24px; color: white; position: relative; overflow: hidden; box-shadow: var(--shadow-md); margin-bottom: 16px;">
-                        <!-- Tri-color Top Border for ID Card -->
-                        <div style="position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, #FF9933 0%, #FF9933 33%, #FFFFFF 33%, #FFFFFF 66%, #138808 66%, #138808 100%);"></div>
+                    
+                    <!-- NAVY BLUE & GOLDEN ID CARD -->
+                    <div id="prIdCard" style="background: var(--primary); border: 2px solid var(--gold); border-radius: 16px; padding: 24px; color: white; position: relative; overflow: hidden; box-shadow: var(--shadow-gold); margin-bottom: 16px;">
                         
-                        <!-- Watermark -->
-                        <div style="position: absolute; top: -10px; right: -20px; opacity: 0.05; font-size: 120px;"><i class="ph-fill ph-identification-card"></i></div>
+                        <!-- Gold Top Accent -->
+                        <div style="position: absolute; top: 0; left: 0; right: 0; height: 6px; background: var(--gold);"></div>
                         
-                        <div style="border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 16px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
-                            <div>
-                                <h3 style="color: var(--gold); margin: 0; font-family: var(--font-heading); font-size: 16px; letter-spacing: 1px;">PREMIUM PR</h3>
-                                <div style="font-size: 9px; letter-spacing: 2px; color: rgba(255,255,255,0.6);">OFFICIAL IDENTITY</div>
-                            </div>
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/1/17/Ashoka_Chakra.svg" style="width: 24px; filter: invert(1) drop-shadow(0 0 5px rgba(255,255,255,0.5));">
+                        <!-- Chinnapatra Official Stamp -->
+                        <div style="position: absolute; bottom: 20px; right: 16px; border: 2px solid rgba(212, 175, 55, 0.4); color: rgba(212, 175, 55, 0.4); font-weight: bold; font-size: 11px; text-transform: uppercase; padding: 6px 10px; transform: rotate(-12deg); border-radius: 6px; letter-spacing: 1px; text-align: center; pointer-events: none;">
+                            CHINNAPATRA<br>OFFICIAL
                         </div>
                         
-                        <div style="display: flex; align-items: center; gap: 16px; text-align: left;">
-                            <div style="width: 64px; height: 64px; background: linear-gradient(135deg, var(--gold), var(--gold-light)); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold; color: var(--primary); box-shadow: 0 4px 10px rgba(0,0,0,0.3);">
+                        <!-- Header -->
+                        <div style="border-bottom: 1px solid rgba(212, 175, 55, 0.3); padding-bottom: 16px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <h3 style="color: var(--gold); margin: 0; font-family: var(--font-heading); font-size: 18px; letter-spacing: 1px; text-transform: uppercase;">CHINNAPATRA</h3>
+                                <div style="font-size: 9px; letter-spacing: 2px; color: rgba(255,255,255,0.7);">OFFICIAL PR DESK</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Info Section -->
+                        <div style="display: flex; align-items: center; gap: 20px; text-align: left; position: relative; z-index: 2;">
+                            <div style="width: 70px; height: 70px; background: var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: bold; color: var(--primary); box-shadow: 0 4px 10px rgba(0,0,0,0.3); border: 2px solid white;">
                                 ${u.full_name.charAt(0)}
                             </div>
-                            <div>
-                                <div style="font-size: 18px; font-weight: bold; color: white;">${u.full_name}</div>
-                                <div style="color: var(--gold-light); font-size: 13px; margin-bottom: 8px;">${u.role} Executive</div>
-                                <div style="font-size: 12px; color: rgba(255,255,255,0.8); display: flex; align-items: center; gap: 6px;"><i class="ph-fill ph-fingerprint text-gold"></i> ID: ${u.pr_id}</div>
+                            <div style="flex: 1;">
+                                <div style="font-size: 18px; font-weight: bold; color: white; margin-bottom: 2px;">${u.full_name}</div>
+                                <div style="color: var(--gold); font-size: 12px; margin-bottom: 12px; font-weight: 600; letter-spacing: 0.5px;">${u.role.toUpperCase()} EXECUTIVE</div>
+                                
+                                <div style="display: grid; grid-template-columns: auto 1fr; gap: 4px 8px; font-size: 12px; color: rgba(255,255,255,0.85);">
+                                    <strong style="color: var(--gold-light);">ID No:</strong> <span>${u.pr_id}</span>
+                                    <strong style="color: var(--gold-light);">User:</strong> <span>${u.username}</span>
+                                    <strong style="color: var(--gold-light);">Mob:</strong> <span>${u.mobile}</span>
+                                </div>
                             </div>
                         </div>
                     </div>
 
                     <button class="btn btn-outline" style="width: 100%; border-color: var(--gold); color: var(--primary); font-weight: bold;" onclick="PRApp.downloadIDCard()">
-                        <i class="ph-bold ph-download-simple"></i> Download Digital Card (PDF)
+                        <i class="ph-bold ph-download-simple"></i> Download PDF Card
                     </button>
                 `;
                 PRApp.switchTab('pr-dashboard');
@@ -3554,14 +3565,11 @@
                 const tbody = document.getElementById('tablePRMyNotifications');
                 if (tbody) tbody.innerHTML = html || '<tr><td colspan="5" class="text-center">You have no new notifications.</td></tr>';
             },
-            markNotifRead: async (targetId) => {
+            
+           markNotifRead: async (targetId) => {
                 await supabaseClient.from('pr_notification_targets').update({ is_read: true }).eq('id', targetId);
                 UI.showToast('Notification marked as read.'); PRApp.loadNotifications();
-            },
-            markNotifRead: async (targetId) => {
-                await supabaseClient.from('pr_notification_targets').update({ is_read: true }).eq('id', targetId);
-                UI.showToast('Notification marked as read.'); PRApp.loadNotifications();
-            }, // Make sure there is a comma here!
+            }, // <-- Ensure you add this comma!
             
             downloadIDCard: () => {
                 const u = App.currentUser;
@@ -3573,53 +3581,76 @@
                 const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: [54, 86] });
                 
                 // Dark Navy Background
-                doc.setFillColor(10, 25, 49);
+                doc.setFillColor(10, 25, 49); // var(--primary)
                 doc.rect(0, 0, 54, 86, 'F');
                 
-                // Tri-color top border
-                doc.setFillColor(255, 153, 51); doc.rect(0, 0, 54, 1.5, 'F'); // Saffron
-                doc.setFillColor(255, 255, 255); doc.rect(0, 1.5, 54, 1.5, 'F'); // White
-                doc.setFillColor(19, 136, 8); doc.rect(0, 3, 54, 1.5, 'F'); // Green
+                // Gold Outer Frame & Top Bar
+                doc.setFillColor(255, 153, 51); // var(--gold)
+                doc.rect(0, 0, 54, 3, 'F');
+                doc.setDrawColor(255, 153, 51);
+                doc.setLineWidth(0.5);
+                doc.roundedRect(2, 5, 50, 79, 2, 2, 'S');
 
-                // Header Text
+                // Header Text: CHINNAPATRA OFFICIAL
                 doc.setTextColor(255, 153, 51); // Gold
-                doc.setFontSize(14);
+                doc.setFontSize(12);
                 doc.setFont("helvetica", "bold");
-                doc.text("PREMIUM PR", 27, 15, { align: "center" });
+                doc.text("CHINNAPATRA", 27, 13, { align: "center" });
                 
                 doc.setTextColor(255, 255, 255);
-                doc.setFontSize(6);
+                doc.setFontSize(5.5);
                 doc.setFont("helvetica", "normal");
-                doc.text("OFFICIAL IDENTITY CARD", 27, 19, { align: "center" });
+                doc.text("OFFICIAL PR IDENTITY", 27, 17, { align: "center" });
+                
+                // Subtle divider line
+                doc.setDrawColor(255, 255, 255);
+                doc.setLineWidth(0.1);
+                doc.line(10, 20, 44, 20);
                 
                 // Avatar Circle
-                doc.setFillColor(255, 153, 51);
-                doc.circle(27, 38, 10, 'F');
+                doc.setFillColor(255, 153, 51); // Gold
+                doc.circle(27, 32, 8, 'F');
                 doc.setTextColor(10, 25, 49); // Dark blue text for initial
-                doc.setFontSize(16);
+                doc.setFontSize(14);
                 doc.setFont("helvetica", "bold");
-                doc.text(u.full_name.charAt(0), 27, 40, { align: "center" });
+                doc.text(u.full_name.charAt(0), 27, 34.5, { align: "center" });
 
                 // User Info
                 doc.setTextColor(255, 255, 255);
-                doc.setFontSize(12);
-                doc.text(u.full_name.toUpperCase(), 27, 56, { align: "center" });
+                doc.setFontSize(10);
+                doc.text(u.full_name.toUpperCase(), 27, 46, { align: "center" });
 
-                doc.setTextColor(255, 214, 153);
-                doc.setFontSize(8);
-                doc.setFont("helvetica", "normal");
-                doc.text(`${u.role} Executive`, 27, 61, { align: "center" });
+                doc.setTextColor(255, 153, 51); // Gold
+                doc.setFontSize(6.5);
+                doc.text(`${u.role.toUpperCase()} EXECUTIVE`, 27, 50, { align: "center" });
 
                 // Details block
-                doc.setFillColor(19, 47, 76); // Secondary dark
-                doc.rect(5, 68, 44, 12, 'F');
+                doc.setFillColor(19, 47, 76); // Secondary dark blue
+                doc.roundedRect(5, 54, 44, 18, 2, 2, 'F');
                 doc.setTextColor(255, 255, 255);
-                doc.setFontSize(8);
-                doc.text(`ID: ${u.pr_id}`, 27, 73, { align: "center" });
-                doc.text(`Mob: ${u.mobile}`, 27, 78, { align: "center" });
+                doc.setFontSize(6.5);
+                
+                // Map details inside the box
+                doc.setFont("helvetica", "normal"); doc.text(`ID:`, 8, 59);        
+                doc.setFont("helvetica", "bold");   doc.text(`${u.pr_id}`, 18, 59); 
+                doc.setFont("helvetica", "normal"); doc.text(`User:`, 8, 64);      
+                doc.setFont("helvetica", "bold");   doc.text(`${u.username}`, 18, 64); 
+                doc.setFont("helvetica", "normal"); doc.text(`Mob:`, 8, 69);       
+                doc.setFont("helvetica", "bold");   doc.text(`${u.mobile}`, 18, 69); 
 
-                doc.save(`${u.pr_id}_Identity_Card.pdf`);
-                UI.showToast("ID Card Downloaded Successfully!", "success");
+                // "Chinnapatra Official" Stamp at the bottom
+                doc.setTextColor(255, 153, 51); // Gold text
+                doc.setFontSize(7);
+                doc.setFont("helvetica", "bold");
+                doc.setDrawColor(255, 153, 51);
+                doc.setLineWidth(0.4);
+                // Creating a stamp border and text
+                doc.roundedRect(12, 76, 30, 5, 1, 1, 'S');
+                doc.text("CHINNAPATRA OFFICIAL", 27, 79.5, { align: "center" });
+                
+                // Trigger Download
+                doc.save(`Chinnapatra_ID_${u.pr_id}.pdf`);
+                UI.showToast("Official ID Card Downloaded!", "success");
             }
         };
 
