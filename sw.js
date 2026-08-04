@@ -1,4 +1,4 @@
-const CACHE_NAME = 'pr-desk-v4';
+const CACHE_NAME = 'pr-desk-v5';
 
 self.addEventListener('install', event => {
     self.skipWaiting();
@@ -8,18 +8,16 @@ self.addEventListener('activate', event => {
     event.waitUntil(clients.claim());
 });
 
-// Required by Chrome to show the "Install App" button
+// 1. THIS MAKES THE "INSTALL APP" BUTTON WORK
 self.addEventListener('fetch', event => {
     event.respondWith(
         fetch(event.request).catch(() => caches.match(event.request))
     );
 });
 
-// Handle clicking on the Native OS Outer Notification
+// 2. THIS OPENS THE APP WHEN YOU CLICK THE OUTER NOTIFICATION FROM LOCK SCREEN
 self.addEventListener('notificationclick', function(event) {
-    event.notification.close(); // Close the outer notification
-    
-    // Open the app or bring it to the front
+    event.notification.close();
     event.waitUntil(
         clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function(clientList) {
             for (let i = 0; i < clientList.length; i++) {
