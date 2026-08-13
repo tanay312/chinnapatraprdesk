@@ -377,6 +377,7 @@
                 <div class="nav-item" onclick="AdminApp.switchTab('admin-approved-member-leave', event)"><i class="ph ph-check-square"></i> Appr. Member Leaves</div>
                 <div class="nav-item" onclick="AdminApp.switchTab('admin-reports', event)"><i class="ph ph-file-text"></i> Reports</div>
                 <div class="nav-item" onclick="AdminApp.switchTab('admin-notifications', event)"><i class="ph ph-bell"></i> Notifications</div>
+                <div class="nav-item" onclick="AdminApp.switchTab('admin-pr-worklist', event)"><i class="ph ph-list-numbers"></i> Assign Work List</div>
                 <div class="nav-item" onclick="AdminApp.switchTab('admin-settings', event)"><i class="ph ph-gear"></i> Settings</div>
             </nav>
             <div style="padding: 20px; border-top: 1px solid rgba(255,255,255,0.1); z-index: 2; position: relative;">
@@ -723,6 +724,24 @@
                         </div>
                     </div>
                 </div>
+                
+                <!-- Admin PR Work List Assignment -->
+<div id="admin-pr-worklist" class="dashboard-view">
+    <div class="card-header" style="border-bottom: none; padding-bottom: 0;">
+        <h2 class="card-title" style="font-size: 24px;">PR Work List Assignment</h2>
+        <button class="btn btn-primary ripple-btn" onclick="AdminApp.openAssignWorkListModal()">
+            <i class="ph ph-plus"></i> Assign New Work
+        </button>
+    </div>
+    <div class="content-card" style="padding: 0; margin-top: 24px;">
+        <div class="table-responsive">
+            <table class="premium-table">
+                <thead><tr><th>Date Issued</th><th>Assigned PR</th><th>Title/Subject</th><th>Actions</th></tr></thead>
+                <tbody id="tableAdminWorkLists"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
 
                 <!-- Admin Settings -->
                 <div id="admin-settings" class="dashboard-view">
@@ -759,6 +778,7 @@
                 <div class="nav-item" onclick="PRApp.switchTab('pr-leave', event)"><i class="ph ph-calendar-plus"></i> Apply Leave</div>
                 <div class="nav-item" onclick="PRApp.switchTab('pr-leave-history', event)"><i class="ph ph-calendar-check"></i> Leave History</div>
                 <div class="nav-item" onclick="PRApp.switchTab('pr-notifications', event)"><i class="ph ph-bell"></i> My Notifications</div>
+                <div class="nav-item" onclick="PRApp.switchTab('pr-worklist', event)"><i class="ph ph-list-numbers"></i> My Work List</div>
                 <div class="nav-item" onclick="PRApp.switchTab('pr-profile', event)"><i class="ph ph-user"></i> Profile</div>
             </nav>
             <div style="padding: 20px; border-top: 1px solid rgba(255,255,255,0.1); z-index: 2; position: relative;">
@@ -877,6 +897,13 @@
                         </div>
                     </div>
                 </div>
+                <!-- PR Work List View -->
+<div id="pr-worklist" class="dashboard-view">
+    <h2 class="card-title" style="font-size: 24px; margin-bottom: 24px;">My Assigned Work Lists</h2>
+    <div id="prWorkListCardsContainer" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px;">
+        <!-- Work List Cards will load here -->
+    </div>
+</div>
 
                 <!-- PR Profile -->
                 <div id="pr-profile" class="dashboard-view">
@@ -1331,6 +1358,97 @@
                 if(tabId === 'admin-pr-activity') AdminApp.initPRActivityTab();
                 if(tabId === 'admin-artists') AdminApp.renderArtistTracking();
                 if(tabId === 'admin-special-days') AdminApp.initSpecialDaysTab();
+                if(tabId === 'admin-pr-worklist') AdminApp.initPRWorkListTab();
+            },
+            // --- PR WORK LIST ASSIGNMENT ---
+            initPRWorkListTab: async () => {
+                if (!AdminApp.cachedPRs || AdminApp.cachedPRs.length === 0) {
+                    const users = await DB.get('users') || [];
+                    AdminApp.cachedPRs = users.filter(u => u && u.role === 'PR');
+                }
+                AdminApp.renderPRWorkLists();
+            },
+
+            renderPRWorkLists: async () => {
+                const workLists = await DB.get('pr_work_lists') || [];
+                workLists.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+                
+                let html = '';
+                workLists.forEach(w => {
+                    const pr = (AdminApp.cachedPRs || []).find(p => p.pr_id === w.pr_id);
+                    const prName = pr ? pr.full_name : w.pr_id;
+                    
+                    // FIXED: Safely parsing the date without breaking the timezone string
+                    const rawDate = w.created_at ? new Date(w.created_at) : new Date();
+                    const dateStr = !isNaN(rawDate) ? rawDate.toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Unknown Date';
+                    
+                    html += `<tr>
+                        <td><strong>${dateStr}</strong></td>
+                        <td>${prName}<br><small style="color:var(--text-muted);">${w.pr_id}</small></td>
+                        <td><span style="color:var(--primary); font-weight:600;">${w.title}</span></td>
+                        <td>
+                            <button class="btn btn-danger" style="padding: 4px 8px;" onclick="AdminApp.deletePRWorkList('${w.id}')" title="Delete">
+                                <i class="ph ph-trash"></i>
+                            </button>
+                        </td>
+                    </tr>`;
+                });
+                
+                const tbody = document.getElementById('tableAdminWorkLists');
+                if (tbody) tbody.innerHTML = html || '<tr><td colspan="4" class="text-center text-muted">No work lists assigned yet.</td></tr>';
+            },
+
+            openAssignWorkListModal: () => {
+                let prOptions = `<option value="">-- Select PR Executive --</option>`;
+                (AdminApp.cachedPRs || []).forEach(pr => { 
+                    prOptions += `<option value="${pr.pr_id}">${pr.full_name} (${pr.pr_id})</option>`; 
+                });
+
+                UI.showModal('Assign Work List', `
+                    <form onsubmit="AdminApp.savePRWorkList(event)">
+                        <div class="form-group">
+                            <label class="form-label">Assign To</label>
+                            <select id="wlPRSelect" class="form-control" required>${prOptions}</select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Work List Title / Subject</label>
+                            <input type="text" id="wlTitle" class="form-control" placeholder="e.g. Weekly Campaign Tasks" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Tasks (Enter 1 task per line)</label>
+                            <textarea id="wlTasks" class="form-control" style="min-height: 150px;" placeholder="- Upload 5 FB posts\n- Share group links\n- Collect artist details..." required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="width:100%; margin-top: 16px;"><i class="ph-bold ph-paper-plane-right"></i> Send Work List</button>
+                    </form>
+                `);
+            },
+
+            savePRWorkList: async (e) => {
+                e.preventDefault();
+                const btn = e.target.querySelector('button');
+                const origHtml = btn.innerHTML;
+                btn.innerHTML = '<i class="ph ph-spinner ph-spin"></i> Saving...';
+                btn.disabled = true;
+
+                const payload = {
+                    pr_id: document.getElementById('wlPRSelect').value,
+                    title: document.getElementById('wlTitle').value,
+                    tasks: document.getElementById('wlTasks').value
+                };
+
+                await DB.insert('pr_work_lists', payload);
+                
+                UI.closeModal();
+                UI.showToast('Work list assigned successfully!', 'success');
+                AdminApp.renderPRWorkLists();
+            },
+
+            deletePRWorkList: (id) => {
+                UI.confirm('Delete Work List', 'Are you sure you want to delete this assigned work list?', async () => {
+                    await DB.remove('pr_work_lists', id);
+                    UI.showToast('Work list deleted.', 'success');
+                    AdminApp.renderPRWorkLists();
+                });
             },
 
             // --- SPECIAL DAYS CALENDAR ---
@@ -2073,6 +2191,7 @@
             },
 
             // --- WEEKLY PR STATUS REPORT ---
+           // --- WEEKLY PR STATUS REPORT ---
             prReportState: { active: [], inactive: [], onLeave: [] },
 
             openPRWeeklyReportModal: () => {
@@ -2094,6 +2213,7 @@
                             <input type="date" id="repPRDate" class="form-control" value="${todayStr()}" onchange="AdminApp.loadPRWeeklyReportData()" style="padding: 6px; font-weight: bold; color: var(--primary);">
                         </div>
                         <div id="prReportDataArea" style="display: none; animation: fadeIn 0.4s ease;">
+                            
                             <div style="background: rgba(16, 185, 129, 0.05); border-left: 4px solid var(--success); padding: 16px; border-radius: 8px; margin-bottom: 16px;">
                                 <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
                                     <strong style="color: var(--success); font-size: 15px;">🟢 Active Members:</strong>
@@ -2101,17 +2221,23 @@
                                 </div>
                                 <div id="repPRActiveContainer" style="display: flex; flex-wrap: wrap; gap: 8px;"></div>
                             </div>
-                            <div style="background: rgba(245, 158, 11, 0.05); border-left: 4px solid var(--warning); padding: 16px; border-radius: 8px; margin-bottom: 16px;">
-                                <strong style="color: var(--warning); font-size: 15px; display: block; margin-bottom: 12px;">🟡 On Leave (ছুটিতে): <small style="font-weight: normal; color: var(--text-muted);">(Auto-fetched)</small></strong>
-                                <div id="repPRLeaveContainer" style="display: flex; flex-wrap: wrap; gap: 8px;"></div>
-                            </div>
-                            <div style="background: rgba(239, 68, 68, 0.05); border-left: 4px solid var(--danger); padding: 16px; border-radius: 8px; margin-bottom: 24px;">
+                            
+                            <div style="background: rgba(239, 68, 68, 0.05); border-left: 4px solid var(--danger); padding: 16px; border-radius: 8px; margin-bottom: 16px;">
                                 <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
                                     <strong style="color: var(--danger); font-size: 15px;">🔴 Inactive Members:</strong>
-                                    <small style="color: var(--text-muted);">Click to mark Active 👆</small>
+                                    <small style="color: var(--text-muted);">Click to mark On Leave 👇</small>
                                 </div>
                                 <div id="repPRInactiveContainer" style="display: flex; flex-wrap: wrap; gap: 8px;"></div>
                             </div>
+
+                            <div style="background: rgba(245, 158, 11, 0.05); border-left: 4px solid var(--warning); padding: 16px; border-radius: 8px; margin-bottom: 24px;">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+                                    <strong style="color: var(--warning); font-size: 15px;">🟡 On Leave (ছুটিতে):</strong>
+                                    <small style="color: var(--text-muted);">Click to mark Active 👆</small>
+                                </div>
+                                <div id="repPRLeaveContainer" style="display: flex; flex-wrap: wrap; gap: 8px;"></div>
+                            </div>
+
                             <div style="background: var(--primary); color: var(--white); padding: 16px; border-radius: 8px; font-size: 14px; margin-bottom: 20px; box-shadow: var(--shadow-md);">
                                 <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
                                     <span>○ No. Of Active Member:</span> <strong id="cntPRActive" style="color: var(--success); font-size: 16px;">0</strong>
@@ -2152,7 +2278,7 @@
                     myActs.sort((x,y) => new Date(y.created_at) - new Date(x.created_at));
                     const currentStatus = myActs.length > 0 ? myActs[0].activeness_status : 'Active';
 
-                    if (isOnLeave) AdminApp.prReportState.onLeave.push(a);
+                    if (isOnLeave || currentStatus === 'On Leave') AdminApp.prReportState.onLeave.push(a);
                     else if (currentStatus === 'Inactive') AdminApp.prReportState.inactive.push(a);
                     else AdminApp.prReportState.active.push(a);
                 });
@@ -2163,28 +2289,33 @@
             movePRReportArtist: (artistId, targetList) => {
                 const artist = (AdminApp.cachedArtists || []).find(a => a && a.id === artistId);
                 if (!artist) return;
+                
+                // Remove from all lists
                 AdminApp.prReportState.active = AdminApp.prReportState.active.filter(a => a.id !== artistId);
                 AdminApp.prReportState.inactive = AdminApp.prReportState.inactive.filter(a => a.id !== artistId);
+                AdminApp.prReportState.onLeave = AdminApp.prReportState.onLeave.filter(a => a.id !== artistId);
+                
+                // Add to target list
                 AdminApp.prReportState[targetList].push(artist);
                 AdminApp.renderPRReportUI();
             },
 
             renderPRReportUI: () => {
                 const activeHtml = AdminApp.prReportState.active.map(a => `
-                    <div onclick="AdminApp.movePRReportArtist('${a.id}', 'inactive')" style="background: var(--white); color: var(--success); border: 1px solid var(--success); padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 4px rgba(16, 185, 129, 0.1); display: flex; align-items: center; gap: 6px;" onmouseover="this.style.background='var(--danger)'; this.style.color='white'" onmouseout="this.style.background='var(--white)'; this.style.color='var(--success)'">
+                    <div onclick="AdminApp.movePRReportArtist('${a.id}', 'inactive')" style="background: var(--white); color: var(--success); border: 1px solid var(--success); padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 4px rgba(16, 185, 129, 0.1); display: flex; align-items: center; gap: 6px;" onmouseover="this.style.background='var(--danger)'; this.style.color='white'" onmouseout="this.style.background='var(--white)'; this.style.color='var(--success)'" title="Move to Inactive">
                         <i class="ph-fill ph-check-circle"></i> ${a.name}
                     </div>
                 `).join('');
 
                 const inactiveHtml = AdminApp.prReportState.inactive.map(a => `
-                    <div onclick="AdminApp.movePRReportArtist('${a.id}', 'active')" style="background: var(--white); color: var(--danger); border: 1px solid var(--danger); padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 4px rgba(239, 68, 68, 0.1); display: flex; align-items: center; gap: 6px;" onmouseover="this.style.background='var(--success)'; this.style.color='white'" onmouseout="this.style.background='var(--white)'; this.style.color='var(--danger)'">
+                    <div onclick="AdminApp.movePRReportArtist('${a.id}', 'onLeave')" style="background: var(--white); color: var(--danger); border: 1px solid var(--danger); padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 4px rgba(239, 68, 68, 0.1); display: flex; align-items: center; gap: 6px;" onmouseover="this.style.background='var(--warning)'; this.style.color='white'" onmouseout="this.style.background='var(--white)'; this.style.color='var(--danger)'" title="Move to On Leave">
                         <i class="ph-fill ph-x-circle"></i> ${a.name}
                     </div>
                 `).join('');
 
                 const leaveHtml = AdminApp.prReportState.onLeave.map(a => `
-                    <div style="background: var(--warning); color: var(--white); padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; opacity: 0.8; cursor: not-allowed;">
-                        ${a.name} (On Leave)
+                    <div onclick="AdminApp.movePRReportArtist('${a.id}', 'active')" style="background: var(--warning); color: var(--white); border: 1px solid var(--warning); padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 4px rgba(245, 158, 11, 0.2); display: flex; align-items: center; gap: 6px;" onmouseover="this.style.background='var(--success)'; this.style.borderColor='var(--success)'" onmouseout="this.style.background='var(--warning)'; this.style.borderColor='var(--warning)'" title="Move to Active">
+                        <i class="ph-fill ph-airplane-tilt"></i> ${a.name}
                     </div>
                 `).join('');
 
@@ -2194,7 +2325,7 @@
 
                 if (activeContainer) activeContainer.innerHTML = activeHtml || '<em style="color:var(--text-muted); font-size:13px;">No active members.</em>';
                 if (inactiveContainer) inactiveContainer.innerHTML = inactiveHtml || '<em style="color:var(--text-muted); font-size:13px;">No inactive members.</em>';
-                if (leaveContainer) leaveContainer.innerHTML = leaveHtml || '<em style="color:var(--text-muted); font-size:13px;">No members on leave today.</em>';
+                if (leaveContainer) leaveContainer.innerHTML = leaveHtml || '<em style="color:var(--text-muted); font-size:13px;">No members on leave.</em>';
 
                 const cntActive = document.getElementById('cntPRActive');
                 const cntInactive = document.getElementById('cntPRInactive');
@@ -2215,22 +2346,41 @@
                 }
 
                 const loggedByName = App.currentUser ? App.currentUser.full_name : 'Admin';
+                
+                // Load existing data so we can update instead of duplicate if submitting on same day
+                const activities = await DB.get('pr_group_activities') || [];
+                const artistActivities = await DB.get('artist_activities') || [];
 
                 const insertActivity = async (artist, status, score) => {
-                    await DB.insert('pr_group_activities', { pr_id: grp, artist_id: artist.id, activity_date: date, activeness_status: status });
-                    if (score > 0 || status === 'Inactive') {
-                        await DB.insert('artist_activities', {
-                            artist_id: artist.id, department: artist.department || 'PR Task', activity_name: 'PR Group Activeness',
-                            uploading_date: date, status: status, auto_score: score, logged_by: loggedByName,
-                            notes: `Weekly PR status update marked as ${status}`
-                        });
+                    
+                    // 1. Update PR Group Activities Log
+                    const existingPR = activities.find(act => act.artist_id === artist.id && act.pr_id === grp && act.activity_date === date);
+                    if (existingPR) {
+                        await DB.update('pr_group_activities', existingPR.id, { activeness_status: status });
+                    } else {
+                        await DB.insert('pr_group_activities', { pr_id: grp, artist_id: artist.id, activity_date: date, activeness_status: status });
+                    }
+
+                    // 2. Update Master Artist Points Log
+                    const existingScore = artistActivities.find(l => l.artist_id === artist.id && l.activity_name === 'PR Group Activeness' && l.uploading_date === date);
+                    const scorePayload = {
+                        artist_id: artist.id, department: artist.department || 'PR Task', activity_name: 'PR Group Activeness',
+                        uploading_date: date, status: status, auto_score: score, logged_by: loggedByName,
+                        notes: `Weekly PR status update marked as ${status}`
+                    };
+                    
+                    if (existingScore) {
+                        await DB.update('artist_activities', existingScore.id, scorePayload);
+                    } else {
+                        await DB.insert('artist_activities', scorePayload);
                     }
                 };
 
                 for (let a of AdminApp.prReportState.active) { await insertActivity(a, 'Active', 5); }
                 for (let a of AdminApp.prReportState.inactive) { await insertActivity(a, 'Inactive', 0); }
+                for (let a of AdminApp.prReportState.onLeave) { await insertActivity(a, 'On Leave', 0); }
 
-                UI.showToast('PR Group Status Submitted! +5 Pts awarded to Active members.', 'success');
+                UI.showToast('PR Group Status Submitted! Points updated successfully.', 'success');
                 UI.closeModal();
                 const prActTab = document.getElementById('admin-pr-activity');
                 if(prActTab && prActTab.classList.contains('active')) AdminApp.loadPRGroupMembers();
@@ -2268,6 +2418,7 @@
                             <input type="date" id="repDate" class="form-control" value="${todayStr()}" onchange="AdminApp.loadDeptReportData()" style="padding: 6px; font-weight: bold; color: var(--primary);">
                         </div>
                         <div id="reportDataArea" style="display: none; animation: fadeIn 0.4s ease;">
+                            
                             <div style="background: rgba(16, 185, 129, 0.05); border-left: 4px solid var(--success); padding: 16px; border-radius: 8px; margin-bottom: 16px;">
                                 <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
                                     <strong style="color: var(--success); font-size: 15px;">🟢 Active Members:</strong>
@@ -2275,17 +2426,23 @@
                                 </div>
                                 <div id="repActiveContainer" style="display: flex; flex-wrap: wrap; gap: 8px;"></div>
                             </div>
-                            <div style="background: rgba(245, 158, 11, 0.05); border-left: 4px solid var(--warning); padding: 16px; border-radius: 8px; margin-bottom: 16px;">
-                                <strong style="color: var(--warning); font-size: 15px; display: block; margin-bottom: 12px;">🟡 On Leave (ছুটিতে): <small style="font-weight: normal; color: var(--text-muted);">(Auto-fetched)</small></strong>
-                                <div id="repLeaveContainer" style="display: flex; flex-wrap: wrap; gap: 8px;"></div>
-                            </div>
-                            <div style="background: rgba(239, 68, 68, 0.05); border-left: 4px solid var(--danger); padding: 16px; border-radius: 8px; margin-bottom: 24px;">
+                            
+                            <div style="background: rgba(239, 68, 68, 0.05); border-left: 4px solid var(--danger); padding: 16px; border-radius: 8px; margin-bottom: 16px;">
                                 <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
                                     <strong style="color: var(--danger); font-size: 15px;">🔴 Inactive Members:</strong>
-                                    <small style="color: var(--text-muted);">Click to mark Active 👆</small>
+                                    <small style="color: var(--text-muted);">Click to mark On Leave 👇</small>
                                 </div>
                                 <div id="repInactiveContainer" style="display: flex; flex-wrap: wrap; gap: 8px;"></div>
                             </div>
+
+                            <div style="background: rgba(245, 158, 11, 0.05); border-left: 4px solid var(--warning); padding: 16px; border-radius: 8px; margin-bottom: 24px;">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+                                    <strong style="color: var(--warning); font-size: 15px;">🟡 On Leave (ছুটিতে):</strong>
+                                    <small style="color: var(--text-muted);">Click to mark Active 👆</small>
+                                </div>
+                                <div id="repLeaveContainer" style="display: flex; flex-wrap: wrap; gap: 8px;"></div>
+                            </div>
+
                             <div style="background: var(--primary); color: var(--white); padding: 16px; border-radius: 8px; font-size: 14px; margin-bottom: 20px; box-shadow: var(--shadow-md);">
                                 <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
                                     <span>○ No. Of Active Member:</span> <strong id="cntActive" style="color: var(--success); font-size: 16px;">0</strong>
@@ -2334,7 +2491,7 @@
                     const isOnLeave = (AdminApp.cachedMemberLeaves || []).find(l => l && l.status === 'Approved' && l.member_name.startsWith(a.name) && date >= l.leave_from && date <= l.leave_to);
                     const currentStatus = AdminApp.getDeptStatus(a.id, dept);
 
-                    if (isOnLeave) AdminApp.reportState.onLeave.push(a);
+                    if (isOnLeave || currentStatus === 'On Leave') AdminApp.reportState.onLeave.push(a);
                     else if (currentStatus === 'Inactive') AdminApp.reportState.inactive.push(a);
                     else AdminApp.reportState.active.push(a);
                 });
@@ -2349,28 +2506,33 @@
             moveReportArtist: (artistId, targetList) => {
                 const artist = (AdminApp.cachedArtists || []).find(a => a && a.id === artistId);
                 if (!artist) return;
+                
+                // Remove from all lists
                 AdminApp.reportState.active = AdminApp.reportState.active.filter(a => a.id !== artistId);
                 AdminApp.reportState.inactive = AdminApp.reportState.inactive.filter(a => a.id !== artistId);
+                AdminApp.reportState.onLeave = AdminApp.reportState.onLeave.filter(a => a.id !== artistId);
+                
+                // Add to target
                 AdminApp.reportState[targetList].push(artist);
                 AdminApp.renderReportUI();
             },
 
             renderReportUI: () => {
                 const activeHtml = AdminApp.reportState.active.map(a => `
-                    <div onclick="AdminApp.moveReportArtist('${a.id}', 'inactive')" style="background: var(--white); color: var(--success); border: 1px solid var(--success); padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 4px rgba(16, 185, 129, 0.1); display: flex; align-items: center; gap: 6px;" onmouseover="this.style.background='var(--danger)'; this.style.color='white'" onmouseout="this.style.background='var(--white)'; this.style.color='var(--success)'">
+                    <div onclick="AdminApp.moveReportArtist('${a.id}', 'inactive')" style="background: var(--white); color: var(--success); border: 1px solid var(--success); padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 4px rgba(46, 125, 50, 0.1); display: flex; align-items: center; gap: 6px;" onmouseover="this.style.background='var(--danger)'; this.style.color='white'" onmouseout="this.style.background='var(--white)'; this.style.color='var(--success)'" title="Move to Inactive">
                         <i class="ph-fill ph-check-circle"></i> ${a.name}
                     </div>
                 `).join('');
 
                 const inactiveHtml = AdminApp.reportState.inactive.map(a => `
-                    <div onclick="AdminApp.moveReportArtist('${a.id}', 'active')" style="background: var(--white); color: var(--danger); border: 1px solid var(--danger); padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 4px rgba(239, 68, 68, 0.1); display: flex; align-items: center; gap: 6px;" onmouseover="this.style.background='var(--success)'; this.style.color='white'" onmouseout="this.style.background='var(--white)'; this.style.color='var(--danger)'">
+                    <div onclick="AdminApp.moveReportArtist('${a.id}', 'onLeave')" style="background: var(--white); color: var(--danger); border: 1px solid var(--danger); padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 4px rgba(211, 47, 47, 0.1); display: flex; align-items: center; gap: 6px;" onmouseover="this.style.background='var(--warning)'; this.style.color='white'" onmouseout="this.style.background='var(--white)'; this.style.color='var(--danger)'" title="Move to On Leave">
                         <i class="ph-fill ph-x-circle"></i> ${a.name}
                     </div>
                 `).join('');
 
                 const leaveHtml = AdminApp.reportState.onLeave.map(a => `
-                    <div style="background: var(--warning); color: var(--white); padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; opacity: 0.8; cursor: not-allowed;">
-                        ${a.name} (On Leave)
+                    <div onclick="AdminApp.moveReportArtist('${a.id}', 'active')" style="background: var(--warning); color: var(--white); border: 1px solid var(--warning); padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 4px rgba(245, 124, 0, 0.2); display: flex; align-items: center; gap: 6px;" onmouseover="this.style.background='var(--success)'; this.style.borderColor='var(--success)'" onmouseout="this.style.background='var(--warning)'; this.style.borderColor='var(--warning)'" title="Move to Active">
+                        <i class="ph-fill ph-airplane-tilt"></i> ${a.name}
                     </div>
                 `).join('');
 
@@ -2380,7 +2542,7 @@
 
                 if (activeContainer) activeContainer.innerHTML = activeHtml || '<em style="color:var(--text-muted); font-size:13px;">No active members.</em>';
                 if (inactiveContainer) inactiveContainer.innerHTML = inactiveHtml || '<em style="color:var(--text-muted); font-size:13px;">No inactive members.</em>';
-                if (leaveContainer) leaveContainer.innerHTML = leaveHtml || '<em style="color:var(--text-muted); font-size:13px;">No members on leave today.</em>';
+                if (leaveContainer) leaveContainer.innerHTML = leaveHtml || '<em style="color:var(--text-muted); font-size:13px;">No members on leave.</em>';
 
                 const cntActive = document.getElementById('cntActive');
                 const cntInactive = document.getElementById('cntInactive');
@@ -2411,26 +2573,35 @@
                     btn.disabled = true;
                 }
 
+                const existingLogs = (AdminApp.cachedActivities || []).filter(l => l.department === dept && l.activity_name === 'Weekly Activeness' && l.uploading_date === repDate);
+
                 const insertActivity = async (artist, status, score) => {
-                    if (score > 0 || status === 'Inactive') {
-                        await DB.insert('artist_activities', {
-                            artist_id: artist.id,
-                            department: dept,
-                            activity_name: 'Weekly Activeness',
-                            uploading_date: repDate,
-                            status: status,
-                            auto_score: score,
-                            logged_by: reporterName,
-                            notes: `Weekly status update marked as ${status}`
-                        });
+                    const existing = existingLogs.find(l => l.artist_id === artist.id);
+                    
+                    const payload = {
+                        artist_id: artist.id,
+                        department: dept,
+                        activity_name: 'Weekly Activeness',
+                        uploading_date: repDate,
+                        status: status,
+                        auto_score: score,
+                        logged_by: reporterName,
+                        notes: `Weekly status update marked as ${status}`
+                    };
+
+                    if (existing) {
+                        await DB.update('artist_activities', existing.id, payload);
+                    } else {
+                        await DB.insert('artist_activities', payload);
                     }
                 };
 
                 for (let a of AdminApp.reportState.active) { await insertActivity(a, 'Active', 5); }
                 for (let a of AdminApp.reportState.inactive) { await insertActivity(a, 'Inactive', 0); }
+                for (let a of AdminApp.reportState.onLeave) { await insertActivity(a, 'On Leave', 0); }
 
                 AdminApp.cachedActivities = await DB.get('artist_activities') || []; 
-                UI.showToast('Department Report Submitted! +5 Pts awarded to Active members.', 'success');
+                UI.showToast('Department Report Submitted! Points updated successfully.', 'success');
                 UI.closeModal();
                 AdminApp.filterArtists();
             },
@@ -3109,6 +3280,7 @@
             },
             deleteHoliday: async (id) => { await DB.remove('holidays', id); UI.showToast('Holiday removed.'); AdminApp.renderHolidays(); },
 
+            // --- PR LEAVES ---
             renderPRLeaves: async () => {
                 const leaves = await DB.get('pr_leave_requests') || [];
                 const prs = await DB.get('users') || [];
@@ -3117,8 +3289,12 @@
                     if (!l) return;
                     const pr = prs.find(p => p && p.pr_id === l.pr_id) || {full_name: 'Unknown'};
                     const bc = l.status === 'Approved' ? 'badge-completed' : (l.status === 'Rejected' ? 'badge-absent' : 'badge-pending');
-                    let actions = l.status === 'Pending' ? `<button class="btn btn-success" style="padding: 4px 8px;" onclick="AdminApp.updatePRLeave('${l.id}', 'Approved')"><i class="ph ph-check"></i></button> <button class="btn btn-danger" style="padding: 4px 8px;" onclick="AdminApp.updatePRLeave('${l.id}', 'Rejected')"><i class="ph ph-x"></i></button>` : '-';
-                    html += `<tr><td><strong>${pr.full_name}</strong><br><small>${l.pr_id}</small></td><td>${l.leave_from} to ${l.leave_to}</td><td>${l.total_days}</td><td>${l.reason}</td><td><span class="badge ${bc}">${l.status}</span></td><td>${actions}</td></tr>`;
+                    
+                    // Added Delete Button to Actions
+                    let actions = l.status === 'Pending' ? `<button class="btn btn-success" style="padding: 4px 8px; margin-right: 4px;" onclick="AdminApp.updatePRLeave('${l.id}', 'Approved')" title="Approve"><i class="ph ph-check"></i></button> <button class="btn btn-warning" style="padding: 4px 8px; margin-right: 4px;" onclick="AdminApp.updatePRLeave('${l.id}', 'Rejected')" title="Reject"><i class="ph ph-x"></i></button>` : '';
+                    actions += `<button class="btn btn-danger" style="padding: 4px 8px;" onclick="AdminApp.deletePRLeave('${l.id}')" title="Delete Request"><i class="ph ph-trash"></i></button>`;
+                    
+                    html += `<tr><td><strong>${pr.full_name}</strong><br><small>${l.pr_id}</small></td><td>${l.leave_from} to ${l.leave_to}</td><td>${l.total_days}</td><td>${l.reason}</td><td><span class="badge ${bc}">${l.status}</span></td><td><div style="display:flex; align-items:center;">${actions}</div></td></tr>`;
                 });
                 const tbody = document.getElementById('tablePRLeaves');
                 if (tbody) tbody.innerHTML = html || '<tr><td colspan="6" class="text-center">No requests found.</td></tr>';
@@ -3129,15 +3305,28 @@
                     UI.showToast(`Request ${status}`, 'success'); AdminApp.renderPRLeaves();
                 });
             },
+            // NEW FUNCTION: Delete PR Leave
+            deletePRLeave: async (id) => {
+                UI.confirm('Delete Leave Request', 'Are you sure you want to permanently delete this PR leave request?', async () => {
+                    await DB.remove('pr_leave_requests', id);
+                    UI.showToast('Leave request deleted successfully.', 'success');
+                    AdminApp.renderPRLeaves();
+                });
+            },
 
+            // --- MEMBER LEAVES ---
             renderMemberLeaves: async () => {
                 const leaves = await DB.get('member_leave_requests') || [];
                 let html = '';
                 leaves.forEach(l => {
                     if (!l) return;
                     const bc = l.status === 'Approved' ? 'badge-completed' : (l.status === 'Rejected' ? 'badge-absent' : 'badge-pending');
-                    let actions = l.status === 'Pending' ? `<button class="btn btn-success" style="padding: 4px 8px;" onclick="AdminApp.updateMemberLeave('${l.id}', 'Approved')"><i class="ph ph-check"></i></button> <button class="btn btn-danger" style="padding: 4px 8px;" onclick="AdminApp.updateMemberLeave('${l.id}', 'Rejected')"><i class="ph ph-x"></i></button>` : '-';
-                    html += `<tr><td><strong>${l.member_name}</strong><br><small>${l.mobile}</small></td><td>${l.leave_from} to ${l.leave_to}</td><td>${l.total_days}</td><td>${l.reason}</td><td><span class="badge ${bc}">${l.status}</span></td><td>${actions}</td></tr>`;
+                    
+                    // Added Delete Button to Actions
+                    let actions = l.status === 'Pending' ? `<button class="btn btn-success" style="padding: 4px 8px; margin-right: 4px;" onclick="AdminApp.updateMemberLeave('${l.id}', 'Approved')" title="Approve"><i class="ph ph-check"></i></button> <button class="btn btn-warning" style="padding: 4px 8px; margin-right: 4px;" onclick="AdminApp.updateMemberLeave('${l.id}', 'Rejected')" title="Reject"><i class="ph ph-x"></i></button>` : '';
+                    actions += `<button class="btn btn-danger" style="padding: 4px 8px;" onclick="AdminApp.deleteMemberLeave('${l.id}')" title="Delete Request"><i class="ph ph-trash"></i></button>`;
+                    
+                    html += `<tr><td><strong>${l.member_name}</strong><br><small>${l.mobile}</small></td><td>${l.leave_from} to ${l.leave_to}</td><td>${l.total_days}</td><td>${l.reason}</td><td><span class="badge ${bc}">${l.status}</span></td><td><div style="display:flex; align-items:center;">${actions}</div></td></tr>`;
                 });
                 const tbody = document.getElementById('tableMemberLeaves');
                 if (tbody) tbody.innerHTML = html || '<tr><td colspan="6" class="text-center">No requests found.</td></tr>';
@@ -3152,10 +3341,29 @@
                 const leaves = (await DB.get('member_leave_requests') || []).filter(l => l && l.status === 'Approved');
                 let html = '';
                 leaves.forEach(l => {
-                    html += `<tr><td><strong>${l.member_name}</strong><br><small>${l.mobile}</small></td><td>${l.leave_from} to ${l.leave_to}</td><td>${l.total_days}</td><td>${l.reason}</td><td><span class="badge badge-completed">Approved by ${l.approved_by || 'Admin'}</span></td></tr>`;
+                    // Added Delete Button next to the Approved Status
+                    html += `<tr>
+                        <td><strong>${l.member_name}</strong><br><small>${l.mobile}</small></td>
+                        <td>${l.leave_from} to ${l.leave_to}</td>
+                        <td>${l.total_days}</td>
+                        <td>${l.reason}</td>
+                        <td style="display:flex; gap:8px; align-items:center;">
+                            <span class="badge badge-completed">Approved by ${l.approved_by || 'Admin'}</span>
+                            <button class="btn btn-danger" style="padding: 4px 8px;" onclick="AdminApp.deleteMemberLeave('${l.id}')" title="Delete Request"><i class="ph ph-trash"></i></button>
+                        </td>
+                    </tr>`;
                 });
                 const tbody = document.getElementById('tableApprovedMemberLeaves');
                 if (tbody) tbody.innerHTML = html || '<tr><td colspan="5" class="text-center">No approved member leaves.</td></tr>';
+            },
+            // NEW FUNCTION: Delete Member Leave
+            deleteMemberLeave: async (id) => {
+                UI.confirm('Delete Leave Request', 'Are you sure you want to permanently delete this Member leave request?', async () => {
+                    await DB.remove('member_leave_requests', id);
+                    UI.showToast('Leave request deleted successfully.', 'success');
+                    AdminApp.renderMemberLeaves();
+                    AdminApp.renderApprovedMemberLeaves(); 
+                });
             },
 
             renderNotifications: async () => {
@@ -3419,6 +3627,139 @@
                         }).subscribe();
                 }
             },
+            // --- MY WORK LIST ---
+            cachedMyWorkLists: [],
+            
+            loadWorkLists: async () => {
+                const u = App.currentUser;
+                if (!u) return;
+                
+                const container = document.getElementById('prWorkListCardsContainer');
+                if (!container) return;
+                container.innerHTML = `<div style="grid-column: 1/-1; text-align:center;"><i class="ph ph-spinner ph-spin"></i> Loading...</div>`;
+
+                const workLists = await DB.get('pr_work_lists') || [];
+                PRApp.cachedMyWorkLists = workLists.filter(w => w.pr_id === u.pr_id).sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
+
+                if (PRApp.cachedMyWorkLists.length === 0) {
+                    container.innerHTML = `<div style="grid-column: 1/-1; text-align:center; padding: 40px; background: white; border-radius: 12px; color: var(--text-muted);">🎉 You have no pending work lists assigned!</div>`;
+                    return;
+                }
+
+                let html = '';
+                PRApp.cachedMyWorkLists.forEach(w => {
+                    const dateObj = new Date(w.created_at + 'Z');
+                    const dateStr = dateObj.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' });
+                    
+                    // Convert line breaks into nice list items
+                    const taskItems = w.tasks.split('\n').filter(t => t.trim() !== '').map(t => 
+                        `<div style="display:flex; gap:8px; margin-bottom:8px; font-size:13px; color:var(--text-dark);">
+                            <i class="ph-bold ph-check-square" style="color:var(--gold); margin-top:2px;"></i> <span>${t}</span>
+                        </div>`
+                    ).join('');
+
+                    html += `
+                        <div class="content-card" style="margin-bottom: 0; display: flex; flex-direction: column; border-top: 4px solid var(--primary); position: relative;">
+                            <div style="position: absolute; top: -10px; right: 10px; font-size: 80px; color: rgba(10,25,49,0.03); z-index:0;"><i class="ph-fill ph-clipboard-text"></i></div>
+                            <div style="position: relative; z-index: 1; flex: 1;">
+                                <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:16px;">
+                                    <div>
+                                        <h3 style="color:var(--primary); font-size:16px; margin-bottom:4px; font-family:var(--font-heading);">${w.title}</h3>
+                                        <div style="font-size:11px; color:var(--text-muted); font-weight:600;"><i class="ph-bold ph-calendar"></i> ISSUED: ${dateStr}</div>
+                                    </div>
+                                    <span class="badge badge-pending" style="font-size:10px;">Pending Tasks</span>
+                                </div>
+                                <div style="background: rgba(10,25,49,0.02); border-radius: 8px; padding: 12px; border: 1px dashed rgba(10,25,49,0.1); margin-bottom: 20px;">
+                                    ${taskItems}
+                                </div>
+                            </div>
+                            <button class="btn btn-outline" style="width: 100%; border-color: var(--primary); color: var(--primary); z-index:1;" onclick="PRApp.downloadWorkListPDF('${w.id}')">
+                                <i class="ph-bold ph-download-simple"></i> Download PDF
+                            </button>
+                        </div>
+                    `;
+                });
+                
+                container.innerHTML = html;
+            },
+
+            downloadWorkListPDF: (id) => {
+                const w = PRApp.cachedMyWorkLists.find(x => x.id === id);
+                if (!w || !window.jspdf) return UI.showToast("Cannot generate PDF right now.", "error");
+                
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                const u = App.currentUser;
+                const dateStr = new Date(w.created_at + 'Z').toLocaleDateString();
+
+                // Theme Header
+                doc.setFillColor(10, 25, 49); // Navy Blue
+                doc.rect(0, 0, 210, 35, 'F');
+                doc.setFillColor(255, 153, 51); // Gold Line
+                doc.rect(0, 35, 210, 2, 'F');
+
+                doc.setTextColor(255, 153, 51);
+                doc.setFont("helvetica", "bold");
+                doc.setFontSize(22);
+                doc.text("CHINNAPATRA OFFICIAL", 105, 18, { align: "center" });
+                
+                doc.setTextColor(255, 255, 255);
+                doc.setFontSize(12);
+                doc.setFont("helvetica", "normal");
+                doc.text("OFFICIAL PR WORK ASSIGNMENT", 105, 26, { align: "center" });
+
+                // Document Meta
+                doc.setTextColor(10, 25, 49);
+                doc.setFontSize(12);
+                doc.setFont("helvetica", "bold");
+                doc.text(`Subject: ${w.title}`, 14, 50);
+                
+                doc.setFont("helvetica", "normal");
+                doc.setFontSize(10);
+                doc.text(`Assigned To: ${u.full_name} (ID: ${u.pr_id})`, 14, 58);
+                doc.text(`Date Issued: ${dateStr}`, 14, 64);
+                
+                doc.setDrawColor(200, 200, 200);
+                doc.line(14, 68, 196, 68);
+
+                // Tasks Parsing
+                doc.setFont("helvetica", "bold");
+                doc.setFontSize(14);
+                doc.text("Assigned Tasks & Duties:", 14, 78);
+                
+                doc.setFont("helvetica", "normal");
+                doc.setFontSize(11);
+                
+                const tasksArray = w.tasks.split('\n').filter(t => t.trim() !== '');
+                let startY = 88;
+                
+                tasksArray.forEach((task, index) => {
+                    // Draw a checkbox square
+                    doc.setDrawColor(10, 25, 49);
+                    doc.rect(14, startY - 4, 4, 4);
+                    
+                    // Break text to fit page width
+                    const splitText = doc.splitTextToSize(task, 170);
+                    doc.text(splitText, 22, startY);
+                    
+                    startY += (splitText.length * 6) + 4; // Adjust spacing based on text lines
+                });
+
+                // Footer Stamp
+                const finalY = Math.max(startY + 20, 250);
+                doc.setDrawColor(255, 153, 51);
+                doc.setLineWidth(0.8);
+                doc.roundedRect(135, finalY - 10, 60, 16, 2, 2, 'S');
+                doc.setTextColor(255, 153, 51);
+                doc.setFont("helvetica", "bold");
+                doc.setFontSize(10);
+                doc.text("AUTHORIZED BY", 165, finalY - 3, { align: "center" });
+                doc.setFontSize(12);
+                doc.text("CHINNAPATRA ADMIN", 165, finalY + 3, { align: "center" });
+
+                doc.save(`WorkList_${u.pr_id}_${dateStr.replace(/\//g, '-')}.pdf`);
+                UI.showToast("Work List PDF Downloaded!", "success");
+            },
             switchTab: (tabId, evt) => {
                 const view = document.getElementById('page-pr');
                 if (!view) return;
@@ -3438,6 +3779,7 @@
                 if(tabId === 'pr-history') PRApp.loadHistory();
                 if(tabId === 'pr-leave-history') PRApp.loadLeaves();
                 if(tabId === 'pr-notifications') PRApp.loadNotifications();
+                if(tabId === 'pr-worklist') PRApp.loadWorkLists();
             },
             loadDashboard: async () => {
                 const u = App.currentUser;
