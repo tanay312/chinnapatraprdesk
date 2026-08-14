@@ -1109,6 +1109,137 @@
             }
         };
 
+        function showIndependenceDayPopup() {
+    // Prevent multiple popups if it already exists
+    if (document.getElementById('independencePopup')) return;
+
+    const popupOverlay = document.createElement('div');
+    popupOverlay.id = 'independencePopup';
+    
+    // Injecting HTML and Scoped CSS dynamically
+    popupOverlay.innerHTML = `
+        <style>
+            #independencePopup {
+                position: fixed; inset: 0; background: rgba(10, 25, 49, 0.85); backdrop-filter: blur(8px);
+                z-index: 9999999; display: flex; align-items: center; justify-content: center;
+                animation: indFadeIn 0.4s ease-out forwards;
+            }
+            
+            /* Modal Base & Floating Animation */
+            .ind-modal {
+                background: white; border-radius: 24px; padding: 40px; text-align: center;
+                max-width: 450px; width: 90%; position: relative;
+                box-shadow: 0 24px 60px rgba(0,0,0,0.6);
+                border-top: 8px solid #FF9933; border-bottom: 8px solid #138808;
+                transform: scale(0.8) translateY(20px); opacity: 0;
+                animation: 
+                    indPopUp 0.6s 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards,
+                    indFloat 6s 1s ease-in-out infinite alternate;
+            }
+
+            /* Cut (Cross) Button */
+            .ind-close-btn {
+                position: absolute; top: -18px; right: -18px; background: #EF4444; color: white;
+                border: 3px solid white; width: 44px; height: 44px; border-radius: 50%; 
+                font-size: 20px; font-weight: bold; font-family: Arial, sans-serif;
+                cursor: pointer; display: flex; align-items: center; justify-content: center;
+                box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4); z-index: 10; outline: none;
+                opacity: 0; transform: scale(0) rotate(-90deg);
+                animation: indClosePop 0.5s 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+                transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.2s; 
+            }
+            .ind-close-btn:hover { transform: scale(1.15) rotate(90deg) !important; background: #DC2626; }
+
+            /* Image Container */
+            .ind-image-container {
+                position: relative; width: 110px; height: 110px; margin: 0 auto 20px auto;
+            }
+            
+            /* Netaji Image */
+            .ind-netaji-img {
+                width: 100%; height: 100%; border-radius: 50%; object-fit: cover;
+                border: 4px solid #FF9933; box-shadow: 0 8px 24px rgba(255, 153, 51, 0.4);
+                position: relative; z-index: 2;
+                transform: scale(0); opacity: 0;
+                animation: indZoomBounce 0.8s 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+            }
+
+            /* Animated Chakra Background Accent */
+            .ind-chakra-bg {
+                position: absolute; top: -15px; right: -15px; width: 55px; height: 55px;
+                opacity: 0; z-index: 1; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
+                animation: 
+                    indFadeIn 0.5s 0.6s forwards,
+                    indSpin 6s linear infinite;
+            }
+
+            /* Animated Title */
+            .ind-title {
+                font-family: 'Playfair Display', serif; font-size: 30px; font-weight: 700; margin-bottom: 8px;
+                background: linear-gradient(90deg, #FF9933 0%, #FF9933 33%, #0A1931 33%, #0A1931 66%, #138808 66%);
+                -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+                background-size: 200% auto;
+                opacity: 0; transform: translateY(10px);
+                animation: indSlideUp 0.5s 0.5s forwards, indShimmer 4s infinite linear; 
+            }
+            
+            .ind-subtitle {
+                color: #64748B; font-size: 14px; opacity: 0;
+                animation: indFadeIn 0.5s 0.7s forwards;
+            }
+
+            /* Quote Box Sliding Up */
+            .ind-quote-box {
+                background: rgba(10, 25, 49, 0.03); border-radius: 12px; padding: 20px; margin-top: 24px;
+                border-left: 4px solid #FF9933; position: relative;
+                opacity: 0; transform: translateY(20px);
+                animation: indSlideUp 0.6s 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+            }
+            .ind-quote { font-style: italic; color: #132F4C; font-size: 16px; font-weight: 500; line-height: 1.6; margin-bottom: 8px; }
+            .ind-author { color: #EF4444; font-weight: 700; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; }
+            
+            /* Keyframes */
+            @keyframes indFadeIn { to { opacity: 1; } }
+            @keyframes indPopUp { to { transform: scale(1) translateY(0); opacity: 1; } }
+            @keyframes indClosePop { to { transform: scale(1) rotate(0deg); opacity: 1; } }
+            @keyframes indZoomBounce { 
+                0% { transform: scale(0); opacity: 0; } 
+                60% { transform: scale(1.1); opacity: 1; } 
+                100% { transform: scale(1); opacity: 1; } 
+            }
+            @keyframes indSlideUp { to { opacity: 1; transform: translateY(0); } }
+            @keyframes indSpin { 100% { transform: rotate(360deg); } }
+            @keyframes indShimmer { to { background-position: 200% center; } }
+            @keyframes indFloat {
+                0% { transform: translateY(0px); }
+                100% { transform: translateY(-8px); }
+            }
+        </style>
+
+        <div class="ind-modal">
+            <!-- HTML Cross Entity (&#10006;) for the cut button -->
+            <button class="ind-close-btn" onclick="document.getElementById('independencePopup').remove()">&#10006;</button>
+            
+            <div class="ind-image-container">
+                <!-- Netaji Image -->
+                <img src="https://upload.wikimedia.org/wikipedia/commons/4/44/Subhas_Chandra_Bose_NRB.jpg" class="ind-netaji-img" alt="Netaji Subhas Chandra Bose">
+                <!-- Spinning Chakra Accent behind image -->
+                <img src="https://upload.wikimedia.org/wikipedia/commons/1/17/Ashoka_Chakra.svg" class="ind-chakra-bg" alt="Chakra">
+            </div>
+            
+            <h2 class="ind-title">Happy Independence Day</h2>
+            <p class="ind-subtitle">Celebrating the spirit of freedom and the glory of our nation! 🇮🇳</p>
+            
+            <div class="ind-quote-box">
+                <div class="ind-quote">"Give me blood, and I shall give you freedom!"</div>
+                <div class="ind-author">- Netaji Subhas Chandra Bose</div>
+            </div>
+        </div>
+        `;
+    
+    document.body.appendChild(popupOverlay);
+}
+
         // --- CORE APP SYSTEM ---
         const App = {
             currentUser: null,
@@ -1220,6 +1351,9 @@
                 if (session) {
                     this.currentUser = JSON.parse(session);
                     this.route(this.currentUser.role === 'Admin' ? 'page-admin' : 'page-pr');
+                    setTimeout(() => {
+                        showIndependenceDayPopup();
+                    }, 3600);
                 }
                 
                 document.getElementById('filterAttDate').value = todayStr();
