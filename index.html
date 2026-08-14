@@ -1497,6 +1497,7 @@
                     sessionStorage.setItem('active_user', JSON.stringify(user));
                     UI.showToast(`Welcome back, ${user.full_name || r}! 🇮🇳`);
                     App.route(r === 'Admin' ? 'page-admin' : 'page-pr');
+                    showIndependenceDayPopup();
                 } else {
                     UI.showToast('Invalid credentials. Check your username & password.', 'error');
                 }
