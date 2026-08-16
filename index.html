@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#0A1931">
-    <title>Premium PR Attendance Desk - Independence Special</title>
+    <title>Premium PR Attendance Desk </title>
     
     <!-- Link to Manifest -->
     <link rel="manifest" href="manifest.json">
@@ -17,262 +17,289 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
-        :root {
-            /* INDEPENDENCE DAY THEME COLORS */
-            --primary: #0A1931;       /* Navy Blue (Ashoka Chakra Background) */
-            --secondary: #132F4C;     /* Lighter Navy */
-            --gold: #FF9933;          /* India Saffron */
-            --gold-light: #FFD699;    /* Light Saffron */
-            --bg-main: #F8F9FA;       /* Clean White/Ash Background */
-            --white: #FFFFFF;
-            --text-dark: #1A1A1A;
-            --text-muted: #64748B;
-            --danger: #EF4444; 
-            --success: #138808;       /* India Green */
-            --warning: #FF9933;       /* Saffron */
-            
-            --shadow-sm: 0 2px 8px rgba(10, 25, 49, 0.05);
-            --shadow-md: 0 8px 24px rgba(10, 25, 49, 0.08);
-            --shadow-lg: 0 16px 32px rgba(10, 25, 49, 0.12);
-            --shadow-gold: 0 4px 16px rgba(255, 153, 51, 0.25);
-            
-            --radius-sm: 8px;
-            --radius-md: 12px;
-            --radius-lg: 20px;
-            --radius-pill: 50px;
-            
-            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            
-            --font-main: 'Poppins', sans-serif;
-            --font-heading: 'Playfair Display', serif;
-        }
-        /* --- CHINNAPATRA CONNECT (LIVE CHAT) STYLES --- */
-        .chat-container { display: flex; flex-direction: column; height: calc(100vh - 220px); background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border-radius: var(--radius-lg); box-shadow: var(--shadow-md); border: 1px solid rgba(255, 184, 0, 0.2); overflow: hidden; position: relative; }
-        .chat-container::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: url('https://www.transparenttextures.com/patterns/stardust.png'); opacity: 0.4; pointer-events: none; z-index: 0; }
-        .chat-messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 16px; position: relative; z-index: 1; }
-        .chat-bubble { max-width: 80%; padding: 12px 16px; border-radius: 16px; position: relative; animation: fadeIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
-        .chat-bubble.me { align-self: flex-end; background: linear-gradient(135deg, var(--gold), #FF5100); color: white; border-bottom-right-radius: 4px; box-shadow: 0 4px 15px rgba(255, 81, 0, 0.3); }
-        .chat-bubble.other { align-self: flex-start; background: white; color: var(--text-dark); border: 1px solid rgba(90,0,22,0.1); border-bottom-left-radius: 4px; }
-        .chat-bubble.admin { border-left: 4px solid var(--primary); background: rgba(90, 0, 22, 0.02); }
-        .chat-meta { font-size: 10px; opacity: 0.85; margin-bottom: 6px; display: flex; justify-content: space-between; gap: 16px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
-        .chat-text { font-size: 14px; line-height: 1.5; word-wrap: break-word; }
-        .chat-input-area { display: flex; padding: 16px; background: white; border-top: 1px solid rgba(90,0,22,0.05); gap: 12px; align-items: flex-end; position: relative; z-index: 1; }
-        .chat-input { flex: 1; border: 1.5px solid rgba(90,0,22,0.1); border-radius: 24px; padding: 12px 20px; font-size: 14px; outline: none; transition: var(--transition); background: rgba(90,0,22,0.02); resize: none; max-height: 100px; font-family: var(--font-main); }
-        .chat-input:focus { border-color: var(--gold); background: white; box-shadow: 0 0 0 4px rgba(255,184,0,0.15); }
-        .chat-send-btn { width: 45px; height: 45px; border-radius: 50%; background: var(--primary); color: var(--gold); display: flex; align-items: center; justify-content: center; font-size: 20px; cursor: pointer; transition: var(--transition); border: none; flex-shrink: 0; box-shadow: 0 4px 10px rgba(90,0,22,0.2); }
-        .chat-send-btn:hover { background: var(--secondary); transform: scale(1.08) rotate(-10deg); box-shadow: 0 6px 15px rgba(90,0,22,0.3); }
+    :root {
+        /* CHINNAPATRA THEME COLORS */
+        --primary: #0b1938;       /* Deep Navy */
+        --secondary: #2b2b2b;     /* Dark Charcoal */
+        --gold: #c89b3c;          /* Antique Gold */
+        --gold-light: #e8dfc8;    /* Beige / Light Gold */
+        --bg-main: #f6f1e9;       /* Cream Background */
+        --white: #FFFFFF;
+        --text-dark: #2b2b2b;
+        --text-muted: #6b6b6b;
+        --danger: #EF4444; 
+        --success: #138808; 
+        --warning: #c89b3c;
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: var(--font-main); }
-        body { background-color: var(--bg-main); color: var(--text-dark); overflow-x: hidden; -webkit-font-smoothing: antialiased; }
-        h1, h2, h3, h4 { color: var(--primary); }
-        .font-heading { font-family: var(--font-heading); }
-        
-        a { text-decoration: none; color: inherit; }
-        button { border: none; outline: none; cursor: pointer; background: none; font-family: inherit; }
-        input, select, textarea { font-family: inherit; outline: none; }
+        --shadow-sm: 0 2px 8px rgba(31, 42, 68, 0.05);
+        --shadow-md: 0 8px 24px rgba(31, 42, 68, 0.08);
+        --shadow-lg: 0 16px 32px rgba(31, 42, 68, 0.15);
+        --shadow-gold: 0 4px 16px rgba(200, 155, 60, 0.25);
 
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(10, 25, 49, 0.2); border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: var(--gold); }
+        --radius-sm: 8px;
+        --radius-md: 12px;
+        --radius-lg: 20px;
+        --radius-pill: 50px;
 
-        .glass { background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.5); }
-        .glass-dark { background: rgba(10, 25, 49, 0.95); backdrop-filter: blur(16px); border-right: 1px solid rgba(255, 153, 51, 0.2); position: relative; overflow: hidden; }
-        .text-gold { color: var(--gold); }
-        .bg-gold { background: var(--gold); }
-        .gradient-gold { background: linear-gradient(135deg, #FF9933 0%, #FF8000 100%); color: var(--white); }
+        --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
-        .btn { padding: 10px 24px; border-radius: var(--radius-pill); font-weight: 500; font-size: 14px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; transition: var(--transition); position: relative; overflow: hidden; }
-        .btn-primary { background: linear-gradient(135deg, #FF9933 0%, #E67E00 100%); color: var(--white); box-shadow: var(--shadow-gold); font-weight: 600; }
-        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(255, 153, 51, 0.4); }
-        .btn-secondary { background: var(--primary); color: var(--white); }
-        .btn-secondary:hover { background: var(--secondary); transform: translateY(-2px); }
-        .btn-outline { border: 1.5px solid var(--gold); color: var(--gold); background: transparent; }
-        .btn-outline:hover { background: var(--gold); color: var(--white); }
-        .btn-danger { background: rgba(239, 68, 68, 0.1); color: var(--danger); border: 1px solid transparent; }
-        .btn-danger:hover { background: var(--danger); color: var(--white); }
-        .btn-success { background: rgba(19, 136, 8, 0.1); color: var(--success); }
-        .btn-success:hover { background: var(--success); color: var(--white); }
+        --font-main: 'Poppins', sans-serif;
+        --font-heading: 'Playfair Display', serif;
+    }
 
-        .ripple { position: absolute; border-radius: 50%; transform: scale(0); animation: ripple-anim 0.6s linear; background-color: rgba(255, 255, 255, 0.4); }
-        @keyframes ripple-anim { to { transform: scale(4); opacity: 0; } }
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: var(--font-main); }
+    body { background-color: var(--bg-main); color: var(--text-dark); overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+    h1, h2, h3, h4 { color: var(--primary); }
+    .font-heading { font-family: var(--font-heading); }
 
-        .form-group { margin-bottom: 20px; }
-        .form-label { display: block; font-size: 13px; font-weight: 500; color: var(--secondary); margin-bottom: 8px; }
-        .form-control { width: 100%; padding: 12px 16px; border: 1.5px solid rgba(10, 25, 49, 0.1); border-radius: var(--radius-md); font-size: 14px; background: rgba(255, 255, 255, 0.9); transition: var(--transition); }
-        .form-control:focus { border-color: var(--gold); box-shadow: 0 0 0 4px rgba(255, 153, 51, 0.15); }
-        textarea.form-control { resize: vertical; min-height: 100px; }
+    a { text-decoration: none; color: inherit; }
+    button { border: none; outline: none; cursor: pointer; background: none; font-family: inherit; }
+    input, select, textarea { font-family: inherit; outline: none; }
 
-        .app-container { display: flex; height: 100vh; width: 100vw; overflow: hidden; }
-        .sidebar { width: 280px; height: 100vh; flex-shrink: 0; display: flex; flex-direction: column; color: var(--white); transition: var(--transition); z-index: 100; }
-        .sidebar-header { padding: 30px 24px; display: flex; align-items: center; gap: 12px; z-index: 2; position: relative; }
-        .sidebar-logo-icon { font-size: 32px; color: var(--gold); }
-        .sidebar-title { font-family: var(--font-heading); font-size: 20px; font-weight: 700; line-height: 1.2; }
-        
-        /* Thematic Nav Menu */
-        .nav-menu { flex: 1; overflow-y: auto; padding: 0 16px; display: flex; flex-direction: column; gap: 4px; z-index: 2; position: relative; }
-        .nav-item { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: var(--radius-md); color: rgba(255, 255, 255, 0.7); font-size: 14px; font-weight: 500; transition: var(--transition); cursor: pointer; border-left: 3px solid transparent; }
-        .nav-item:hover { background: rgba(255, 153, 51, 0.05); color: var(--gold-light); }
-        .nav-item.active { background: rgba(255, 153, 51, 0.15); color: var(--gold); border-left: 3px solid var(--gold); font-weight: 600; }
-        .nav-item i { font-size: 20px; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(31, 42, 68, 0.2); border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--gold); }
 
-        .realtime-clock { display: flex; align-items: center; gap: 12px; background: rgba(255, 255, 255, 0.9); padding: 8px 20px; border-radius: var(--radius-pill); box-shadow: var(--shadow-sm); border: 1px solid rgba(255, 153, 51, 0.3); transition: var(--transition); }
-        .realtime-clock:hover { box-shadow: var(--shadow-gold); transform: translateY(-1px); }
-        .clock-time { font-size: 16px; font-weight: 700; color: var(--primary); font-family: var(--font-heading); letter-spacing: 1px; }
-        .clock-date { font-size: 12px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; border-left: 2px solid rgba(255, 153, 51, 0.5); padding-left: 12px; letter-spacing: 0.5px; }
-        
-        .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative; }
-        
-        /* Thematic Top Strip for Dashboard */
-        .tiranga-top-strip { height: 4px; width: 100%; background: linear-gradient(90deg, #FF9933 0%, #FF9933 33%, #FFFFFF 33%, #FFFFFF 66%, #138808 66%, #138808 100%); z-index: 20; position: relative; }
-        .topbar { height: 76px; padding: 0 32px; display: flex; align-items: center; justify-content: space-between; background: rgba(245, 247, 250, 0.8); backdrop-filter: blur(10px); z-index: 10; border-bottom: 1px solid rgba(0,0,0,0.05); }
-        .mobile-menu-btn { display: none; font-size: 24px; color: var(--primary); cursor: pointer; }
-        .page-content { flex: 1; overflow-y: auto; padding: 32px; }
+    /* GLASSMORPHISM UI */
+    .glass { background: rgba(255, 255, 255, 0.65); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.5); }
+    .glass-dark { background: #1f2a44; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-right: 1px solid rgba(200, 155, 60, 0.2); position: relative; overflow: hidden; }
+    
+    .text-gold { color: var(--gold); }
+    .bg-gold { background: var(--gold); }
+    .gradient-gold { background: linear-gradient(135deg, var(--gold) 0%, #a67c29 100%); color: var(--white); }
 
-        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; margin-bottom: 32px; }
-        .stat-card { padding: 24px; border-radius: var(--radius-lg); display: flex; align-items: center; gap: 20px; box-shadow: var(--shadow-sm); transition: var(--transition); background: var(--white); }
-        .stat-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
-        .stat-icon { width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; }
-        .stat-icon.primary { background: rgba(10, 25, 49, 0.1); color: var(--primary); }
-        .stat-icon.gold { background: rgba(255, 153, 51, 0.1); color: var(--gold); }
-        .stat-icon.success { background: rgba(19, 136, 8, 0.1); color: var(--success); }
-        .stat-info h4 { font-size: 13px; color: var(--text-muted); font-weight: 500; margin-bottom: 4px; }
-        .stat-info p { font-size: 24px; font-weight: 700; color: var(--primary); }
+    .btn { padding: 10px 24px; border-radius: var(--radius-pill); font-weight: 500; font-size: 14px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; transition: var(--transition); position: relative; overflow: hidden; }
+    .btn-primary { background: linear-gradient(135deg, var(--gold) 0%, #a67c29 100%); color: var(--white); box-shadow: var(--shadow-gold); font-weight: 600; border: 1px solid rgba(255,255,255,0.2); }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(200, 155, 60, 0.4); }
+    .btn-secondary { background: var(--primary); color: var(--white); border: 1px solid rgba(255,255,255,0.1); }
+    .btn-secondary:hover { background: var(--secondary); transform: translateY(-2px); }
+    .btn-outline { border: 1.5px solid var(--gold); color: var(--gold); background: transparent; font-weight: 600; }
+    .btn-outline:hover { background: var(--gold); color: var(--white); }
+    .btn-danger { background: rgba(239, 68, 68, 0.1); color: var(--danger); border: 1px solid transparent; }
+    .btn-danger:hover { background: var(--danger); color: var(--white); }
+    .btn-success { background: rgba(19, 136, 8, 0.1); color: var(--success); }
+    .btn-success:hover { background: var(--success); color: var(--white); }
 
-        .content-card { background: var(--white); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); padding: 24px; margin-bottom: 24px; }
-        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid rgba(10, 25, 49, 0.05); }
-        .card-title { font-size: 18px; font-weight: 600; color: var(--primary); display: flex; align-items: center; gap: 8px; }
+    .ripple { position: absolute; border-radius: 50%; transform: scale(0); animation: ripple-anim 0.6s linear; background-color: rgba(255, 255, 255, 0.4); }
+    @keyframes ripple-anim { to { transform: scale(4); opacity: 0; } }
 
-        .table-responsive { overflow-x: auto; }
-        .premium-table { width: 100%; border-collapse: collapse; white-space: nowrap; }
-        .premium-table th, .premium-table td { padding: 16px; text-align: left; border-bottom: 1px solid rgba(10, 25, 49, 0.05); }
-        .premium-table th { font-size: 13px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
-        .premium-table td { font-size: 14px; color: var(--text-dark); vertical-align: middle; }
-        .premium-table tbody tr { transition: var(--transition); }
-        .premium-table tbody tr:hover { background: rgba(10, 25, 49, 0.02); }
-        
-        /* Animated Performance Bar - TriColor Effect */
-        .perf-bar-wrapper { width: 100%; background: rgba(10, 25, 49, 0.05); border-radius: 20px; height: 20px; overflow: hidden; position: relative; border: 1px solid rgba(0,0,0,0.05); margin-top: 6px; }
-        .perf-bar-fill { height: 100%; border-radius: 20px; transition: width 1.5s cubic-bezier(0.34, 1.56, 0.64, 1); position: relative; display: flex; align-items: center; justify-content: flex-end; padding-right: 8px; color: white; font-size: 11px; font-weight: bold; text-shadow: 0 1px 2px rgba(0,0,0,0.5); white-space: nowrap; background: linear-gradient(90deg, #138808, #FF9933) !important; }
-        .perf-bar-fill::after { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent); animation: shimmer 2s infinite; }
-        @keyframes shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
-        
-        .badge { padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;}
-        .badge-working { background: rgba(255, 153, 51, 0.15); color: #D67A29; }
-        .badge-completed { background: rgba(19, 136, 8, 0.15); color: var(--success); }
-        .badge-absent { background: rgba(239, 68, 68, 0.15); color: var(--danger); }
-        .badge-pending { background: rgba(245, 158, 11, 0.15); color: var(--warning); }
+    .form-group { margin-bottom: 20px; }
+    .form-label { display: block; font-size: 13px; font-weight: 600; color: var(--primary); margin-bottom: 8px; }
+    .form-control { width: 100%; padding: 12px 16px; border: 1.5px solid #1f2a44; border-radius: var(--radius-md); font-size: 14px; background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(4px); transition: var(--transition); }
+    .form-control:focus { border-color: var(--gold); box-shadow: 0 0 0 4px rgba(200, 155, 60, 0.15); background: #ffffff; }
+    textarea.form-control { resize: vertical; min-height: 100px; }
 
-        .page-view { display: none; width: 100vw; height: 100vh; }
-        .page-view.active { display: flex; }
-        .dashboard-view { display: none; }
-        .dashboard-view.active { display: block; animation: fadeIn 0.4s ease forwards; }
+    .app-container { display: flex; height: 100vh; width: 100vw; overflow: hidden; background: url('https://www.transparenttextures.com/patterns/arches.png'), var(--bg-main); }
+    .sidebar { width: 280px; height: 100vh; flex-shrink: 0; display: flex; flex-direction: column; color: var(--white); transition: var(--transition); z-index: 100; }
+    .sidebar-header { padding: 30px 24px; display: flex; align-items: center; gap: 12px; z-index: 2; position: relative; }
+    .sidebar-logo-icon { font-size: 32px; color: var(--gold); filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5)); }
+    .sidebar-title { font-family: var(--font-heading); font-size: 20px; font-weight: 700; line-height: 1.2; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
 
-        .centered-container { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--bg-main) 0%, #E2E8F0 100%); padding: 20px; overflow-y: auto;}
-        .auth-card { width: 100%; max-width: 440px; background: var(--white); border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); padding: 40px; position: relative; overflow: hidden; margin: auto; }
-        .auth-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 6px; background: linear-gradient(90deg, #FF9933, #FFFFFF, #138808); }
+    .nav-menu { flex: 1; overflow-y: auto; padding: 0 16px; display: flex; flex-direction: column; gap: 4px; z-index: 2; position: relative; }
+    .nav-item { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: var(--radius-md); color: rgba(255, 255, 255, 0.75); font-size: 14px; font-weight: 500; transition: var(--transition); cursor: pointer; border-left: 3px solid transparent; }
+    .nav-item:hover { background: rgba(200, 155, 60, 0.1); color: var(--gold-light); }
+    .nav-item.active { background: rgba(200, 155, 60, 0.2); color: var(--gold); border-left: 3px solid var(--gold); font-weight: 600; box-shadow: inset 4px 0px 10px rgba(0,0,0,0.1); }
+    .nav-item i { font-size: 20px; }
 
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(10, 25, 49, 0.6); backdrop-filter: blur(4px); z-index: 1000; display: none; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s ease; }
-        .modal-overlay.active { display: flex; opacity: 1; }
-        .modal-content { background: var(--white); border-radius: var(--radius-lg); width: 100%; max-width: 600px; padding: 24px 32px; box-shadow: var(--shadow-lg); transform: scale(0.9) translateY(20px); transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); max-height: 90vh; overflow-y: auto; }
-        .modal-overlay.active .modal-content { transform: scale(1) translateY(0); }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
-        .modal-close { font-size: 24px; color: var(--text-muted); cursor: pointer; transition: color 0.2s; }
-        .modal-close:hover { color: var(--danger); }
+    .realtime-clock { display: flex; align-items: center; gap: 12px; background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(8px); padding: 8px 20px; border-radius: var(--radius-pill); box-shadow: var(--shadow-sm); border: 1px solid rgba(200, 155, 60, 0.3); transition: var(--transition); }
+    .realtime-clock:hover { box-shadow: var(--shadow-gold); transform: translateY(-1px); }
+    .clock-time { font-size: 16px; font-weight: 700; color: var(--primary); font-family: var(--font-heading); letter-spacing: 1px; }
+    .clock-date { font-size: 12px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; border-left: 2px solid rgba(200, 155, 60, 0.5); padding-left: 12px; letter-spacing: 0.5px; }
 
-        /* Custom OS Tone Toast */
-        .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 2000; display: flex; flex-direction: column; gap: 12px; }
-        .toast { min-width: 300px; padding: 16px 20px; border-radius: var(--radius-md); background: var(--white); box-shadow: var(--shadow-lg); display: flex; align-items: center; gap: 12px; transform: translateX(120%); transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); border-left: 4px solid var(--primary); }
-        .toast.show { transform: translateX(0); }
-        .toast.success { border-color: var(--success); }
-        .toast.error { border-color: var(--danger); }
-        .toast.warning { border-color: var(--warning); }
-        .toast-icon { font-size: 24px; }
-        .toast.success .toast-icon { color: var(--success); }
-        .toast.error .toast-icon { color: var(--danger); }
+    .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative; z-index: 1;}
 
-        /* WhatsApp Style Notification Popup */
-        .whatsapp-toast { background: #25D366 !important; color: #FFFFFF !important; border-left: none !important; box-shadow: 0 10px 30px rgba(37, 211, 102, 0.3) !important; border-radius: 12px !important; padding: 16px 20px !important; z-index: 999999 !important; }
-        .whatsapp-toast .toast-icon { color: #FFFFFF !important; font-size: 32px; }
-        .whatsapp-text { display: flex; flex-direction: column; }
-        .whatsapp-text strong { font-size: 15px; letter-spacing: 0.3px; }
-        .whatsapp-text span { font-size: 13px; opacity: 0.9; margin-top: 2px; }
+    .theme-top-strip { height: 5px; width: 100%; background: linear-gradient(90deg, var(--gold) 0%, var(--primary) 50%, var(--gold) 100%); z-index: 20; position: relative; box-shadow: 0 2px 10px rgba(200, 155, 60, 0.3); }
+    .topbar { height: 76px; padding: 0 32px; display: flex; align-items: center; justify-content: space-between; background: rgba(246, 241, 233, 0.6); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); z-index: 10; border-bottom: 1px solid rgba(200, 155, 60, 0.15); }
+    .mobile-menu-btn { display: none; font-size: 24px; color: var(--primary); cursor: pointer; }
+    .page-content { flex: 1; overflow-y: auto; padding: 32px; z-index: 2; position: relative;}
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; margin-bottom: 32px; }
+    .stat-card { padding: 24px; border-radius: var(--radius-lg); display: flex; align-items: center; gap: 20px; box-shadow: var(--shadow-sm); transition: var(--transition); background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.8); border-bottom: 3px solid transparent; }
+    .stat-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); border-bottom: 3px solid var(--gold); }
+    .stat-icon { width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; }
+    .stat-icon.primary { background: rgba(31, 42, 68, 0.08); color: var(--primary); }
+    .stat-icon.gold { background: rgba(200, 155, 60, 0.12); color: #B45309; }
+    .stat-icon.success { background: rgba(19, 136, 8, 0.1); color: var(--success); }
+    .stat-info h4 { font-size: 13px; color: var(--text-muted); font-weight: 600; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .stat-info p { font-size: 28px; font-weight: 700; color: var(--primary); font-family: var(--font-heading); }
 
-        .filter-bar { display: flex; gap: 16px; margin-bottom: 24px; flex-wrap: wrap; }
-        .search-box { position: relative; flex: 1; min-width: 250px; }
-        .search-box i { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
-        .search-box input { padding-left: 44px; }
+    .content-card { background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(12px); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); padding: 24px; margin-bottom: 24px; border: 1px solid rgba(255, 255, 255, 0.8); position: relative; overflow: hidden;}
+    .content-card::after { content: '❁'; position: absolute; bottom: -20px; right: -20px; font-size: 150px; color: rgba(200, 155, 60, 0.04); pointer-events: none; transform: rotate(15deg); }
 
-        @media (max-width: 992px) {
-            .sidebar { position: fixed; left: -280px; }
-            .sidebar.active { left: 0; box-shadow: var(--shadow-lg); }
-            .mobile-menu-btn { display: block; }
-            .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 90; }
-            .sidebar.active + .sidebar-overlay { display: block; }
-        }
+    .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px dashed #1f2a44; position: relative; z-index: 2;}
+    .card-title { font-size: 18px; font-weight: 700; color: var(--primary); display: flex; align-items: center; gap: 8px; font-family: var(--font-heading); }
 
-        /* --- SPLASH SCREEN STYLES & TRI-COLOR ANIMATIONS --- */
-        #splash-screen {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: #0A1931; z-index: 99999; 
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            transition: opacity 0.6s ease-out, visibility 0.6s ease-out; overflow: hidden;
-        }
-        #splash-screen::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 40vh; background: radial-gradient(ellipse at top, rgba(255, 153, 51, 0.15) 0%, transparent 70%); }
-        #splash-screen::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 40vh; background: radial-gradient(ellipse at bottom, rgba(19, 136, 8, 0.15) 0%, transparent 70%); }
-        #splash-screen.hidden { opacity: 0; visibility: hidden; }
-        
-        .splash-content { display: flex; flex-direction: column; align-items: center; z-index: 1; }
-        
-        .splash-chakra-wrapper {
-            opacity: 0; transform: scale(0.5);
-            animation: splashLogoFadeIn 1s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-        }
-        .splash-chakra-img {
-            width: 80px; height: 80px;
-            filter: invert(1) drop-shadow(0 0 15px rgba(255, 255, 255, 0.7));
-            animation: spinChakra 5s linear infinite; 
-        }
-        .splash-line {
-            height: 4px;
-            background: linear-gradient(90deg, #FF9933 0%, #FF9933 33%, #FFFFFF 33%, #FFFFFF 66%, #138808 66%, #138808 100%);
-            width: 0; margin: 24px 0; opacity: 0; border-radius: 4px;
-            box-shadow: 0 0 15px rgba(255,255,255,0.2);
-            animation: splashLine 1.2s 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-        }
-        .splash-text {
-            font-size: 28px; font-weight: 700;
-            background: linear-gradient(180deg, #FF9933 0%, #FF9933 33%, #FFFFFF 33%, #FFFFFF 66%, #138808 66%, #138808 100%);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            opacity: 0; transform: translateY(15px) scale(0.95); filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4));
-            animation: splashText 1.2s 1.2s ease-out forwards; 
-        }
+    .table-responsive { overflow-x: auto; position: relative; z-index: 2;}
+    .premium-table { width: 100%; border-collapse: collapse; white-space: nowrap; }
+    .premium-table th, .premium-table td { padding: 16px; text-align: left; border-bottom: 1px solid rgba(31, 42, 68, 0.05); }
+    .premium-table th { font-size: 12px; font-weight: 700; color: var(--primary); text-transform: uppercase; letter-spacing: 0.5px; background: rgba(200, 155, 60, 0.08); }
+    .premium-table td { font-size: 14px; color: var(--text-dark); vertical-align: middle; }
+    .premium-table tbody tr { transition: var(--transition); }
+    .premium-table tbody tr:hover { background: rgba(200, 155, 60, 0.04); }
 
-        /* Continuous Animations */
-        @keyframes splashLogoFadeIn { to { opacity: 1; transform: scale(1); } }
-        @keyframes spinChakra { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        @keyframes splashLine { 0% { width: 0; opacity: 0; } 50% { opacity: 1; } 100% { width: 340px; opacity: 1; } }
-        @keyframes splashText { to { opacity: 1; transform: translateY(0) scale(1); } }
-        
-        /* Festive Badges & Stickers */
-        .festive-badge {
-            margin-top: 8px; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #FFFFFF; 
-            background: linear-gradient(90deg, #FF9933, #138808); padding: 4px 10px; border-radius: 4px; 
-            display: inline-flex; align-items: center; gap: 4px; width: fit-content; box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-            font-weight: 600;
-        }
-        .bg-watermark { position: absolute; bottom: -60px; right: -60px; width: 250px; opacity: 0.04; animation: spinChakra 30s linear infinite; pointer-events: none; z-index: 0; filter: invert(1); }
-    </style>
+    /* Animated Performance Bar */
+    .perf-bar-wrapper { width: 100%; background: rgba(31, 42, 68, 0.08); border-radius: 20px; height: 20px; overflow: hidden; position: relative; border: 1px solid rgba(0,0,0,0.05); margin-top: 6px; }
+    .perf-bar-fill { height: 100%; border-radius: 20px; transition: width 1.5s cubic-bezier(0.34, 1.56, 0.64, 1); position: relative; display: flex; align-items: center; justify-content: flex-end; padding-right: 8px; color: white; font-size: 11px; font-weight: bold; text-shadow: 0 1px 2px rgba(0,0,0,0.5); white-space: nowrap; background: linear-gradient(90deg, var(--gold), #a67c29) !important; }
+    .perf-bar-fill::after { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent); animation: shimmer 2s infinite; }
+    
+    .badge { padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);}
+    .badge-working { background: rgba(200, 155, 60, 0.15); color: #a67c29; border: 1px solid rgba(200, 155, 60, 0.3); }
+    .badge-completed { background: rgba(19, 136, 8, 0.15); color: var(--success); border: 1px solid rgba(19, 136, 8, 0.3); }
+    .badge-absent { background: rgba(239, 68, 68, 0.15); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.3); }
+    .badge-pending { background: rgba(200, 155, 60, 0.15); color: var(--warning); border: 1px solid rgba(200, 155, 60, 0.3); }
+
+    .page-view { display: none; width: 100vw; height: 100vh; }
+    .page-view.active { display: flex; }
+    .dashboard-view { display: none; }
+    .dashboard-view.active { display: block; animation: fadeIn 0.4s ease forwards; }
+
+    .centered-container { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--bg-main) 0%, var(--gold-light) 100%); padding: 20px; overflow-y: auto;}
+    .auth-card { width: 100%; max-width: 440px; background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(16px); border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); padding: 40px; position: relative; overflow: hidden; margin: auto; border: 1px solid rgba(255,255,255,0.5); }
+    .auth-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 6px; background: linear-gradient(90deg, var(--primary), var(--gold), var(--primary)); }
+
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(31, 42, 68, 0.7); backdrop-filter: blur(8px); z-index: 1000; display: none; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s ease; }
+    .modal-overlay.active { display: flex; opacity: 1; }
+    .modal-content { background: var(--white); border-radius: var(--radius-lg); width: 100%; max-width: 600px; padding: 24px 32px; box-shadow: var(--shadow-lg); transform: scale(0.9) translateY(20px); transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); max-height: 90vh; overflow-y: auto; border: 1px solid var(--gold-light); }
+    .modal-overlay.active .modal-content { transform: scale(1) translateY(0); }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px dashed #1f2a44; }
+    .modal-close { font-size: 24px; color: var(--text-muted); cursor: pointer; transition: color 0.2s; }
+    .modal-close:hover { color: var(--danger); }
+ss
+    /* Custom OS Tone Toast */
+    .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 2000; display: flex; flex-direction: column; gap: 12px; }
+    .toast { min-width: 300px; padding: 16px 20px; border-radius: var(--radius-md); background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); box-shadow: var(--shadow-lg); display: flex; align-items: center; gap: 12px; transform: translateX(120%); transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); border-left: 4px solid var(--primary); }
+    .toast.show { transform: translateX(0); }
+    .toast.success { border-color: var(--success); }
+    .toast.error { border-color: var(--danger); }
+    .toast.warning { border-color: var(--warning); }
+    .toast-icon { font-size: 24px; }
+    .toast.success .toast-icon { color: var(--success); }
+    .toast.error .toast-icon { color: var(--danger); }
+
+    /* CHAT APP */
+    .chat-container { display: flex; flex-direction: column; height: calc(100vh - 220px); background: rgba(255, 255, 255, 0.65); backdrop-filter: blur(12px); border-radius: var(--radius-lg); box-shadow: var(--shadow-md); border: 1px solid rgba(255, 255, 255, 0.8); overflow: hidden; position: relative; }
+    .chat-container::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: url('https://www.transparenttextures.com/patterns/arabesque.png'); opacity: 0.2; pointer-events: none; z-index: 0; }
+    .chat-messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 16px; position: relative; z-index: 1; }
+    .chat-bubble { max-width: 80%; padding: 12px 16px; border-radius: 16px; position: relative; animation: fadeIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+    .chat-bubble.me { align-self: flex-end; background: linear-gradient(135deg, var(--gold), #a67c29); color: white; border-bottom-right-radius: 4px; box-shadow: 0 4px 15px rgba(200, 155, 60, 0.3); }
+    .chat-bubble.other { align-self: flex-start; background: white; color: var(--text-dark); border: 1px solid rgba(31,42,68,0.1); border-bottom-left-radius: 4px; }
+    .chat-bubble.admin { border-left: 4px solid var(--primary); background: rgba(31, 42, 68, 0.04); }
+    .chat-meta { font-size: 10px; opacity: 0.85; margin-bottom: 6px; display: flex; justify-content: space-between; gap: 16px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+    .chat-text { font-size: 14px; line-height: 1.5; word-wrap: break-word; }
+    .chat-input-area { display: flex; padding: 16px; background: rgba(255,255,255,0.8); backdrop-filter: blur(10px); border-top: 1px solid rgba(31,42,68,0.05); gap: 12px; align-items: flex-end; position: relative; z-index: 1; }
+    .chat-input { flex: 1; border: 1.5px solid rgba(31,42,68,0.1); border-radius: 24px; padding: 12px 20px; font-size: 14px; outline: none; transition: var(--transition); background: rgba(255,255,255,0.9); resize: none; max-height: 100px; font-family: var(--font-main); }
+    .chat-input:focus { border-color: var(--gold); background: white; box-shadow: 0 0 0 4px rgba(200,155,60,0.15); }
+    .chat-send-btn { width: 45px; height: 45px; border-radius: 50%; background: var(--primary); color: var(--gold); display: flex; align-items: center; justify-content: center; font-size: 20px; cursor: pointer; transition: var(--transition); border: none; flex-shrink: 0; box-shadow: 0 4px 10px rgba(31,42,68,0.2); }
+    .chat-send-btn:hover { background: var(--secondary); transform: scale(1.08) rotate(-10deg); box-shadow: 0 6px 15px rgba(31,42,68,0.3); }
+
+    /* WhatsApp Style Notification Popup */
+    .whatsapp-toast { background: #25D366 !important; color: #FFFFFF !important; border-left: none !important; box-shadow: 0 10px 30px rgba(37, 211, 102, 0.3) !important; border-radius: 12px !important; padding: 16px 20px !important; z-index: 999999 !important; }
+    .whatsapp-toast .toast-icon { color: #FFFFFF !important; font-size: 32px; }
+    .whatsapp-text { display: flex; flex-direction: column; }
+    .whatsapp-text strong { font-size: 15px; letter-spacing: 0.3px; }
+    .whatsapp-text span { font-size: 13px; opacity: 0.9; margin-top: 2px; }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    @media (max-width: 992px) {
+        .sidebar { position: fixed; left: -280px; }
+        .sidebar.active { left: 0; box-shadow: var(--shadow-lg); }
+        .mobile-menu-btn { display: block; }
+        .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 90; }
+        .sidebar.active + .sidebar-overlay { display: block; }
+    }
+
+    /* --- SPLASH SCREEN STYLES & CHINNAPATRA ANIMATIONS --- */
+    #splash-screen {
+        position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+        background: var(--primary); z-index: 99999; 
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        transition: opacity 0.6s ease-out, visibility 0.6s ease-out; overflow: hidden;
+    }
+    #splash-screen::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 40vh; background: radial-gradient(ellipse at top, rgba(200, 155, 60, 0.15) 0%, transparent 70%); }
+    #splash-screen::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 40vh; background: radial-gradient(ellipse at bottom, rgba(246, 241, 233, 0.05) 0%, transparent 70%); }
+    #splash-screen.hidden { opacity: 0; visibility: hidden; }
+
+    .splash-content { display: flex; flex-direction: column; align-items: center; z-index: 1; }
+
+    /* Department Icons replacing Chakra */
+    .art-icons-container {
+        display: flex; gap: 20px; font-size: 45px; color: var(--gold);
+        filter: drop-shadow(0 0 15px rgba(200, 155, 60, 0.6));
+        margin-bottom: 20px;
+    }
+    .art-icon { opacity: 0; transform: translateY(20px); animation: iconPopIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards, floatIcon 3s ease-in-out infinite alternate; }
+    .art-icon:nth-child(1) { animation-delay: 0.1s, 0.1s; }
+    .art-icon:nth-child(2) { animation-delay: 0.3s, 0.3s; }
+    .art-icon:nth-child(3) { animation-delay: 0.5s, 0.5s; font-size: 55px; color: var(--white); }
+    .art-icon:nth-child(4) { animation-delay: 0.7s, 0.7s; }
+    .art-icon:nth-child(5) { animation-delay: 0.9s, 0.9s; }
+
+    /* Jhora Pata Falling Leaves Animation */
+    .jhora-pata-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; overflow: hidden; }
+    .jhora-pata { position: absolute; color: var(--gold); opacity: 0.4; font-size: 24px; animation: fallLinear 6s linear infinite; top: -10%; }
+    .jhora-pata:nth-child(1) { left: 10%; animation-duration: 7s; animation-delay: 0s; font-size: 20px; }
+    .jhora-pata:nth-child(2) { left: 30%; animation-duration: 9s; animation-delay: 2s; font-size: 30px; }
+    .jhora-pata:nth-child(3) { left: 50%; animation-duration: 6s; animation-delay: 4s; font-size: 22px; }
+    .jhora-pata:nth-child(4) { left: 70%; animation-duration: 8s; animation-delay: 1s; font-size: 28px; }
+    .jhora-pata:nth-child(5) { left: 90%; animation-duration: 7s; animation-delay: 3s; font-size: 25px; }
+
+    .splash-line {
+        height: 4px; background: linear-gradient(90deg, transparent 0%, var(--gold) 50%, transparent 100%);
+        width: 0; margin: 24px 0; opacity: 0; border-radius: 4px; box-shadow: 0 0 15px rgba(200, 155, 60, 0.4);
+        animation: splashLine 1.5s 1s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+    .splash-text {
+        font-size: 28px; font-weight: 700; font-family: var(--font-heading);
+        background: linear-gradient(180deg, var(--gold-light) 0%, var(--gold) 100%);
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        opacity: 0; transform: translateY(15px) scale(0.95); filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4));
+        animation: splashText 1.2s 1.5s ease-out forwards; 
+    }
+
+    @keyframes fallLinear { 0% { transform: translateY(0vh) rotate(0deg) translateX(0); opacity: 0; } 10% { opacity: 0.6; } 90% { opacity: 0.6; } 100% { transform: translateY(110vh) rotate(360deg) translateX(50px); opacity: 0; } }
+    @keyframes iconPopIn { to { opacity: 1; transform: translateY(0); } }
+    @keyframes floatIcon { 0% { transform: translateY(0px) rotate(0deg); } 100% { transform: translateY(-10px) rotate(8deg); } }
+    @keyframes splashLine { 0% { width: 0; opacity: 0; } 50% { opacity: 1; } 100% { width: 340px; opacity: 1; } }
+    @keyframes splashText { to { opacity: 1; transform: translateY(0) scale(1); } }
+
+    .festive-badge {
+        margin-top: 8px; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--primary); 
+        background: linear-gradient(90deg, var(--gold), var(--gold-light)); padding: 4px 10px; border-radius: 4px; 
+        display: inline-flex; align-items: center; gap: 4px; width: fit-content; box-shadow: 0 2px 8px rgba(0,0,0,0.3); font-weight: 700;
+    }
+
+    /* Chinnapatra Watermark inside sidebar */
+    .bg-watermark { position: absolute; bottom: -20px; right: -20px; width: 300px; height: 300px; color: var(--gold); opacity: 0.05; pointer-events: none; z-index: 0; }
+    .bg-watermark i { position: absolute; animation: floatSlow 8s ease-in-out infinite alternate; }
+    .bg-wm-1 { font-size: 140px; top: 20px; left: 10px; transform: rotate(-30deg); animation-delay: 0s; }
+    .bg-wm-2 { font-size: 100px; bottom: 40px; right: 20px; transform: rotate(15deg); animation-delay: 2s; }
+    .bg-wm-3 { font-size: 120px; top: 100px; right: 80px; transform: rotate(45deg); animation-delay: 1s; }
+
+    @keyframes floatSlow { 0% { transform: translateY(0px) rotate(-2deg); } 100% { transform: translateY(-15px) rotate(2deg); } }
+</style>
 </head>
 <body>
     
     <!-- SPLASH SCREEN ANIMATION -->
     <div id="splash-screen">
+        <div class="jhora-pata-container">
+            <i class="ph-fill ph-leaf jhora-pata"></i>
+            <i class="ph-fill ph-leaf jhora-pata"></i>
+            <i class="ph-fill ph-leaf jhora-pata"></i>
+            <i class="ph-fill ph-leaf jhora-pata"></i>
+            <i class="ph-fill ph-leaf jhora-pata"></i>
+        </div>
         <div class="splash-content">
             <div class="splash-chakra-wrapper">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/1/17/Ashoka_Chakra.svg" class="splash-chakra-img" alt="Ashoka Chakra">
+                <div class="art-icons-container">
+                    <i class="ph-fill ph-paint-brush-broad art-icon" title="Ankar Tuli"></i>
+                    <i class="ph-fill ph-pen-nib art-icon" title="Lekhar Pen"></i>
+                    <i class="ph-fill ph-music-notes art-icon" title="Gaan & Sur"></i>
+                    <i class="ph-fill ph-video-camera art-icon" title="Video Editing"></i>
+                    <i class="ph-fill ph-bezier-curve art-icon" title="Graphics Design"></i>
+                </div>
             </div>
             <div class="splash-line"></div>
             <div class="splash-text">শিল্প যেখানে কথা বলে</div>
@@ -297,7 +324,7 @@
             <div class="auth-card">
                 <div style="text-align: center; margin-bottom: 32px;">
                     <div style="font-size: 40px; color: var(--gold); margin-bottom: 8px;"><i class="ph-fill ph-calendar-star"></i></div>
-                    <h2 class="font-heading">Member Leave Request 🇮🇳</h2>
+                    <h2 class="font-heading">Member Leave Request </h2>
                     <p style="color: var(--text-muted); font-size: 14px; margin-top: 8px;">Submit your leave application.</p>
                 </div>
                 
@@ -325,7 +352,7 @@
                 <div style="text-align: center; margin-bottom: 32px;">
                     <div style="font-size: 48px; color: var(--primary); margin-bottom: 8px;"><i class="ph-fill ph-shield-check"></i></div>
                     <h2 class="font-heading" style="font-size: 28px;">Attendance Desk</h2>
-                    <p style="color: var(--text-muted); font-size: 14px; margin-top: 8px;">Premium PR Management System 🇮🇳</p>
+                    <p style="color: var(--text-muted); font-size: 14px; margin-top: 8px;">Premium PR Management System </p>
                     
                     <button id="installAppBtn" class="btn btn-outline" style="display:none; margin: 16px auto 0 auto; background: var(--gold); color: var(--primary); border:none; font-weight:bold;">
                         <i class="ph-bold ph-download-simple"></i> Install App to Home Screen
@@ -374,7 +401,7 @@
                        <i class="ph-fill ph-crown sidebar-logo-icon"></i>
                        <div class="sidebar-title">Admin Desk</div>
                    </div>
-                   <div class="festive-badge">🇮🇳 Independence Special</div>
+                   <div class="festive-badge">CHINNAPATRA OFFICIAL</div>
                </div>
             </div>
             <nav class="nav-menu">
@@ -408,7 +435,7 @@
             <header class="topbar">
                 <div style="display: flex; align-items: center; gap: 16px; flex: 1;">
                     <i class="ph ph-list mobile-menu-btn" onclick="UI.toggleSidebar()"></i>
-                    <h3 class="font-heading" id="adminHeaderTitle">Overview Dashboard 🇮🇳</h3>
+                    <h3 class="font-heading" id="adminHeaderTitle">Overview Dashboard </h3>
                 </div>
                 <div class="clock-container" style="display: flex; justify-content: center; flex: 1;">
                     <div class="realtime-clock">
@@ -444,7 +471,7 @@
                 <!-- Admin PR Management -->
                 <div id="admin-pr" class="dashboard-view">
                     <div class="card-header" style="border-bottom: none; padding-bottom: 0;">
-                        <h2 class="card-title" style="font-size: 24px;">PR Directory 🇮🇳</h2>
+                        <h2 class="card-title" style="font-size: 24px;">PR Directory </h2>
                         <button class="btn btn-primary ripple-btn" onclick="AdminApp.openAddPRModal()"><i class="ph ph-plus"></i> Add New PR</button>
                     </div>
                     <div class="filter-bar" style="margin-top: 16px;">
@@ -629,7 +656,7 @@
                 <!-- Admin Special Days Calendar -->
                 <div id="admin-special-days" class="dashboard-view">
                     <div class="card-header" style="border-bottom: none; padding-bottom: 0;">
-                        <h2 class="card-title" style="font-size: 24px;">Special Days Calendar 🇮🇳</h2>
+                        <h2 class="card-title" style="font-size: 24px;">Special Days Calendar </h2>
                         <div style="display:flex; gap:12px;">
                             <button class="btn btn-outline ripple-btn" onclick="AdminApp.exportSpecialDaysCSV()"><i class="ph ph-file-csv"></i> Export CSV (Bengali Support)</button>
                             <button class="btn btn-primary ripple-btn" onclick="AdminApp.exportSpecialDaysPDF()"><i class="ph ph-file-pdf"></i> Export PDF</button>
@@ -759,19 +786,49 @@
     </div>
 </div>
                 <!-- ADMIN LIVE CHAT VIEW -->
-                <div id="admin-chat" class="dashboard-view">
-                    <div class="card-header" style="border-bottom: none; padding-bottom: 0;">
-                        <h2 class="card-title" style="font-size: 24px;">Chinnapatra Connect <i class="ph-fill ph-chats-teardrop text-gold"></i></h2>
-                        <div class="festive-badge">Live Chat</div>
-                    </div>
-                    <div class="chat-container" style="margin-top: 16px;">
-                        <div class="chat-messages" id="chatMessagesArea_admin"></div>
-                        <div class="chat-input-area">
-                            <textarea id="chatInput_admin" class="chat-input" placeholder="Type a message to the team..." rows="1" onkeypress="ChatApp.handleEnter(event, 'admin')"></textarea>
-                            <button class="chat-send-btn" onclick="ChatApp.sendMessage('admin')"><i class="ph-fill ph-paper-plane-right"></i></button>
-                        </div>
-                    </div>
-                </div>
+                <!-- ADMIN LIVE CHAT VIEW -->
+<div id="admin-chat" class="dashboard-view">
+    <div class="card-header" style="border-bottom: none; padding-bottom: 0;">
+        <h2 class="card-title" style="font-size: 24px;">Chinnapatra Connect <i class="ph-fill ph-chats-teardrop text-gold"></i></h2>
+        <div class="festive-badge">Live Chat</div>
+    </div>
+    <div class="chat-container" style="margin-top: 16px;">
+        <div class="chat-messages" id="chatMessagesArea_admin"></div>
+        
+        <!-- Chat Input Area -->
+        <div class="chat-input-area" style="position: relative; display: flex; align-items: center; gap: 8px;">
+            
+            <!-- Emoji Picker Toggle Button -->
+            <button class="chat-emoji-btn" onclick="ChatApp.toggleEmojiPicker('admin')" type="button" style="background: none; border: none; font-size: 24px; cursor: pointer; color: var(--text-muted); padding: 0 4px; display: flex; align-items: center; justify-content: center;" title="Insert Emoji">
+                <i class="ph ph-smiley"></i>
+            </button>
+
+            <!-- Chat Input (Textarea) -->
+            <textarea id="chatInput_admin" class="chat-input" placeholder="Type a message to the team..." rows="1" onkeypress="ChatApp.handleEnter(event, 'admin')" style="flex-grow: 1; resize: none;"></textarea>
+            
+            <!-- Send Button -->
+            <button class="chat-send-btn" onclick="ChatApp.sendMessage('admin')">
+                <i class="ph-fill ph-paper-plane-right"></i>
+            </button>
+
+            <!-- The Emoji Picker Dropdown -->
+            <div id="emojiPicker_admin" style="display: none; position: absolute; bottom: 100%; left: 0; margin-bottom: 12px; background: var(--card-bg, #ffffff); border: 1px solid var(--border-color, #e5e7eb); padding: 12px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); gap: 10px; flex-wrap: wrap; width: 280px; z-index: 100;">
+                <span style="cursor:pointer; font-size:22px; transition: transform 0.1s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" onclick="ChatApp.insertEmoji('😀', 'admin')">😀</span>
+                <span style="cursor:pointer; font-size:22px; transition: transform 0.1s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" onclick="ChatApp.insertEmoji('😂', 'admin')">😂</span>
+                <span style="cursor:pointer; font-size:22px; transition: transform 0.1s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" onclick="ChatApp.insertEmoji('🥰', 'admin')">🥰</span>
+                <span style="cursor:pointer; font-size:22px; transition: transform 0.1s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" onclick="ChatApp.insertEmoji('🙏', 'admin')">🙏</span>
+                <span style="cursor:pointer; font-size:22px; transition: transform 0.1s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" onclick="ChatApp.insertEmoji('👍', 'admin')">👍</span>
+                <span style="cursor:pointer; font-size:22px; transition: transform 0.1s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" onclick="ChatApp.insertEmoji('🔥', 'admin')">🔥</span>
+                <span style="cursor:pointer; font-size:22px; transition: transform 0.1s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" onclick="ChatApp.insertEmoji('🎉', 'admin')">🎉</span>
+                <span style="cursor:pointer; font-size:22px; transition: transform 0.1s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" onclick="ChatApp.insertEmoji('✨', 'admin')">✨</span>
+                <span style="cursor:pointer; font-size:22px; transition: transform 0.1s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" onclick="ChatApp.insertEmoji('🙌', 'admin')">🙌</span>
+                <span style="cursor:pointer; font-size:22px; transition: transform 0.1s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" onclick="ChatApp.insertEmoji('💡', 'admin')">💡</span>
+                <span style="cursor:pointer; font-size:22px; transition: transform 0.1s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" onclick="ChatApp.insertEmoji('✅', 'admin')">✅</span>
+                <span style="cursor:pointer; font-size:22px; transition: transform 0.1s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" onclick="ChatApp.insertEmoji('👀', 'admin')">👀</span>
+            </div>
+        </div>
+    </div>
+</div>
 
                 <!-- Admin Settings -->
                 <div id="admin-settings" class="dashboard-view">
@@ -799,7 +856,7 @@
                        <i class="ph-fill ph-user-circle sidebar-logo-icon"></i>
                        <div class="sidebar-title">PR Portal</div>
                    </div>
-                   <div class="festive-badge">🇮🇳 Independence Special</div>
+                   <div class="festive-badge">CHINNAPATRA OFFICIAL</div>
                </div>
             </div>
             <nav class="nav-menu">
@@ -848,7 +905,7 @@
                     <div style="max-width: 600px; margin: 0 auto; text-align: center; margin-top: 40px;">
                         <div class="content-card" style="padding: 48px 32px; border-radius: 32px; position: relative; overflow: hidden; border-top: 4px solid var(--success);">
                             <div style="position: absolute; top: -50px; right: -50px; width: 150px; height: 150px; background: rgba(255, 153, 51, 0.1); border-radius: 50%;"></div>
-                            <h2 style="font-size: 28px; margin-bottom: 8px;" id="prGreeting">Good Morning! 🇮🇳</h2>
+                            <h2 style="font-size: 28px; margin-bottom: 8px;" id="prGreeting">Good Morning! </h2>
                             <p class="text-muted" style="margin-bottom: 32px;" id="prCurrentDate">Monday, 1 January 2026</p>
                             <div id="prActionArea"></div>
                         </div>
@@ -938,17 +995,45 @@
                 <!-- PR LIVE CHAT VIEW -->
                 <div id="pr-chat" class="dashboard-view">
                     <div class="card-header" style="border-bottom: none; padding-bottom: 0; display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                        <h2 class="card-title" style="font-size: 24px;">Chinnapatra Connect <i class="ph-fill ph-chats-teardrop text-gold"></i></h2>
-                        <div class="festive-badge">Live Chat</div>
-                    </div>
-                    <div class="chat-container">
-                        <div class="chat-messages" id="chatMessagesArea_pr"></div>
-                        <div class="chat-input-area">
-                            <textarea id="chatInput_pr" class="chat-input" placeholder="Type a message to the team..." rows="1" onkeypress="ChatApp.handleEnter(event, 'pr')"></textarea>
-                            <button class="chat-send-btn" onclick="ChatApp.sendMessage('pr')"><i class="ph-fill ph-paper-plane-right"></i></button>
-                        </div>
-                    </div>
-                </div>
+    <h2 class="card-title" style="font-size: 24px;">Chinnapatra Connect <i class="ph-fill ph-chats-teardrop text-gold"></i></h2>
+    <div class="festive-badge">Live Chat</div>
+</div>
+<div class="chat-container">
+    <div class="chat-messages" id="chatMessagesArea_pr"></div>
+    
+    <!-- Chat Input Area -->
+    <div class="chat-input-area" style="position: relative; display: flex; align-items: center; gap: 8px;">
+        
+        <!-- Emoji Picker Toggle Button -->
+        <button class="chat-emoji-btn" onclick="ChatApp.toggleEmojiPicker('pr')" type="button" style="background: none; border: none; font-size: 24px; cursor: pointer; color: var(--text-muted); padding: 0 4px; display: flex; align-items: center; justify-content: center;" title="Insert Emoji">
+            <i class="ph ph-smiley"></i>
+        </button>
+
+        <!-- Chat Input (Textarea) -->
+        <textarea id="chatInput_pr" class="chat-input" placeholder="Type a message to the team..." rows="1" onkeypress="ChatApp.handleEnter(event, 'pr')" style="flex-grow: 1; resize: none;"></textarea>
+        
+        <!-- Send Button -->
+        <button class="chat-send-btn" onclick="ChatApp.sendMessage('pr')">
+            <i class="ph-fill ph-paper-plane-right"></i>
+        </button>
+
+        <!-- The Emoji Picker Dropdown -->
+        <div id="emojiPicker_pr" style="display: none; position: absolute; bottom: 100%; left: 0; margin-bottom: 12px; background: var(--card-bg, #ffffff); border: 1px solid var(--border-color, #e5e7eb); padding: 12px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); gap: 10px; flex-wrap: wrap; width: 280px; z-index: 100;">
+            <span style="cursor:pointer; font-size:22px; transition: transform 0.1s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" onclick="ChatApp.insertEmoji('😀', 'pr')">😀</span>
+            <span style="cursor:pointer; font-size:22px; transition: transform 0.1s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" onclick="ChatApp.insertEmoji('😂', 'pr')">😂</span>
+            <span style="cursor:pointer; font-size:22px; transition: transform 0.1s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" onclick="ChatApp.insertEmoji('🥰', 'pr')">🥰</span>
+            <span style="cursor:pointer; font-size:22px; transition: transform 0.1s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" onclick="ChatApp.insertEmoji('🙏', 'pr')">🙏</span>
+            <span style="cursor:pointer; font-size:22px; transition: transform 0.1s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" onclick="ChatApp.insertEmoji('👍', 'pr')">👍</span>
+            <span style="cursor:pointer; font-size:22px; transition: transform 0.1s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" onclick="ChatApp.insertEmoji('🔥', 'pr')">🔥</span>
+            <span style="cursor:pointer; font-size:22px; transition: transform 0.1s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" onclick="ChatApp.insertEmoji('🎉', 'pr')">🎉</span>
+            <span style="cursor:pointer; font-size:22px; transition: transform 0.1s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" onclick="ChatApp.insertEmoji('✨', 'pr')">✨</span>
+            <span style="cursor:pointer; font-size:22px; transition: transform 0.1s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" onclick="ChatApp.insertEmoji('🙌', 'pr')">🙌</span>
+            <span style="cursor:pointer; font-size:22px; transition: transform 0.1s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" onclick="ChatApp.insertEmoji('💡', 'pr')">💡</span>
+            <span style="cursor:pointer; font-size:22px; transition: transform 0.1s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" onclick="ChatApp.insertEmoji('✅', 'pr')">✅</span>
+            <span style="cursor:pointer; font-size:22px; transition: transform 0.1s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" onclick="ChatApp.insertEmoji('👀', 'pr')">👀</span>
+        </div>
+    </div>
+</div>
 
                 <!-- PR Profile -->
                 <div id="pr-profile" class="dashboard-view">
@@ -996,150 +1081,210 @@
             }
         };
         // --- CHINNAPATRA CONNECT (LIVE CHAT) SYSTEM ---
-        const ChatApp = {
-            subscription: null,
-            
-            init: async (viewPrefix) => {
-                const area = document.getElementById(`chatMessagesArea_${viewPrefix}`);
-                if (!area) return;
-                
-                // Show loading state if it's the first time
-                if (area.innerHTML.trim() === '') {
-                    area.innerHTML = '<div style="text-align:center; padding: 40px; color: var(--text-muted);"><i class="ph ph-spinner ph-spin" style="font-size:32px; color:var(--gold);"></i><br>Connecting to secure server...</div>';
-                }
-                
-                // Fetch existing messages
-                const messages = await DB.get('pr_chat_messages');
-                messages.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
-                
-                // Render initial batch
-                area.innerHTML = '';
-                if (messages.length === 0) {
-                    area.innerHTML = '<div style="text-align:center; padding: 40px; color: var(--text-muted);">No messages yet. Be the first to start the conversation!</div>';
-                } else {
-                    messages.forEach(m => ChatApp.appendMessage(m, viewPrefix, false));
-                    area.scrollTop = area.scrollHeight;
-                }
-                
-                // Subscribe to real-time incoming messages
-                if (!ChatApp.subscription) {
-                    ChatApp.subscription = supabaseClient.channel('public:pr_chat_messages')
-                        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'pr_chat_messages' }, payload => {
-                            ChatApp.appendMessage(payload.new, 'admin', true);
-                            ChatApp.appendMessage(payload.new, 'pr', true);
-                        }).subscribe();
-                }
-            },
-            
-            appendMessage: (m, viewPrefix, isNewRealtimeMsg) => {
-                const area = document.getElementById(`chatMessagesArea_${viewPrefix}`);
-                if (!area) return;
-                
-                const u = App.currentUser;
-                if (!u) return;
-                
-                const isMe = m.user_id === (u.pr_id || u.username);
-                const isAdmin = m.user_role === 'Admin';
-                
-                const rawDate = new Date(m.created_at + (m.created_at.includes('Z') ? '' : 'Z'));
-                const timeStr = !isNaN(rawDate) ? rawDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
-                
-                const bubbleClass = isMe ? 'me' : 'other';
-                const adminClass = (!isMe && isAdmin) ? 'admin' : '';
-                
-                const nameDisplay = isMe ? 'You' : (isAdmin ? `🛡️ ${m.user_name} (Admin)` : m.user_name);
-                const textColor = isMe ? 'rgba(255,255,255,0.9)' : (isAdmin ? 'var(--primary)' : 'var(--text-muted)');
-                
-                const html = `
-                    <div class="chat-bubble ${bubbleClass} ${adminClass}">
-                        <div class="chat-meta" style="color: ${textColor};">
-                            <span>${nameDisplay}</span>
-                            <span>${timeStr}</span>
-                        </div>
-                        <div class="chat-text">${m.message.replace(/\n/g, '<br>')}</div>
-                    </div>
-                `;
-                
-                if (area.innerHTML.includes('No messages yet')) area.innerHTML = '';
-                
-                // Track scroll position before adding
-                const isScrolledToBottom = area.scrollHeight - area.clientHeight <= area.scrollTop + 50;
-                
-                area.insertAdjacentHTML('beforeend', html);
-                
-                // Auto scroll down if user was already at the bottom, or if they sent it
-                if (isScrolledToBottom || isMe) {
-                    area.scrollTop = area.scrollHeight;
-                }
-                
-                // Play soft notification sound if someone else sent a new message
-                if (isNewRealtimeMsg && !isMe) {
-                    try {
-                        const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/238/238-preview.mp3'); 
-                        audio.volume = 0.4;
-                        audio.play().catch(e => {}); // Ignore blocked autoplay warnings
-                    } catch(e) {}
-                }
-            },
-            
-            handleEnter: (e, viewPrefix) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    ChatApp.sendMessage(viewPrefix);
-                }
-            },
-            
-            sendMessage: async (viewPrefix) => {
-                const input = document.getElementById(`chatInput_${viewPrefix}`);
-                if (!input || !input.value.trim()) return;
-                
-                const msgText = input.value.trim();
-                input.value = ''; // clear immediately for UX
-                
-                const u = App.currentUser;
-                const userId = u.pr_id || u.username;
-                
-                // Insert into Supabase (Realtime will catch it and render it for everyone)
-                await DB.insert('pr_chat_messages', {
-                    user_name: u.full_name || 'Admin',
-                    user_id: userId,
-                    user_role: u.role,
-                    message: msgText
-                });
-            }
-        };
+const ChatApp = {
+    subscription: null,
+    
+    init: async (viewPrefix) => {
+        const area = document.getElementById(`chatMessagesArea_${viewPrefix}`);
+        if (!area) return;
+        
+        // Show loading state if it's the first time
+        if (area.innerHTML.trim() === '') {
+            area.innerHTML = '<div style="text-align:center; padding: 40px; color: var(--text-muted);"><i class="ph ph-spinner ph-spin" style="font-size:32px; color:var(--gold);"></i><br>Connecting to secure server...</div>';
+        }
+        
+        // Fetch existing messages
+        const messages = await DB.get('pr_chat_messages');
+        messages.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+        
+        // Render initial batch
+        area.innerHTML = '';
+        if (messages.length === 0) {
+            area.innerHTML = '<div style="text-align:center; padding: 40px; color: var(--text-muted);">No messages yet. Be the first to start the conversation!</div>';
+        } else {
+            messages.forEach(m => ChatApp.appendMessage(m, viewPrefix, false));
+            area.scrollTop = area.scrollHeight;
+        }
+        
+        // Subscribe to real-time incoming and deleted messages
+        if (!ChatApp.subscription) {
+            ChatApp.subscription = supabaseClient.channel('public:pr_chat_messages')
+                .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'pr_chat_messages' }, payload => {
+                    ChatApp.appendMessage(payload.new, 'admin', true);
+                    ChatApp.appendMessage(payload.new, 'pr', true);
+                })
+                .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'pr_chat_messages' }, payload => {
+                    ChatApp.removeMessage(payload.old.id, 'admin');
+                    ChatApp.removeMessage(payload.old.id, 'pr');
+                })
+                .subscribe();
+        }
+    },
+    
+    appendMessage: (m, viewPrefix, isNewRealtimeMsg) => {
+        const area = document.getElementById(`chatMessagesArea_${viewPrefix}`);
+        if (!area) return;
+        
+        const u = App.currentUser;
+        if (!u) return;
+        
+        const isMe = m.user_id === (u.pr_id || u.username);
+        const isAdmin = u.role === 'Admin'; // Current user viewing the chat
+        const isSenderAdmin = m.user_role === 'Admin'; // The user who sent the message
+        
+        // Users can delete their own messages, Admins can delete ANY message
+        const canDelete = isMe || isAdmin;
+        
+        const rawDate = new Date(m.created_at + (m.created_at.includes('Z') ? '' : 'Z'));
+        const timeStr = !isNaN(rawDate) ? rawDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
+        
+        const bubbleClass = isMe ? 'me' : 'other';
+        const adminClass = (!isMe && isSenderAdmin) ? 'admin' : '';
+        
+        const nameDisplay = isMe ? 'You' : (isSenderAdmin ? `🛡️ ${m.user_name} (Admin)` : m.user_name);
+        const textColor = isMe ? 'rgba(255,255,255,0.9)' : (isSenderAdmin ? 'var(--primary)' : 'var(--text-muted)');
+        
+        // Delete button HTML
+        const deleteBtnHtml = canDelete 
+            ? `<button onclick="ChatApp.deleteMessage('${m.id}')" title="Delete Message" style="background:none; border:none; cursor:pointer; color:inherit; opacity:0.6; font-size:14px; margin-left: 8px;">
+                 <i class="ph ph-trash"></i>
+               </button>` 
+            : '';
 
-        function showIndependenceDayPopup() {
-    // Prevent multiple popups if it already exists
-    if (document.getElementById('independencePopup')) return;
+        const html = `
+            <div id="msg_${viewPrefix}_${m.id}" class="chat-bubble ${bubbleClass} ${adminClass}">
+                <div class="chat-meta" style="color: ${textColor}; display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <span>${nameDisplay}</span>
+                        <span style="margin-left:5px;">${timeStr}</span>
+                    </div>
+                    ${deleteBtnHtml}
+                </div>
+                <div class="chat-text">${m.message.replace(/\n/g, '<br>')}</div>
+            </div>
+        `;
+        
+        if (area.innerHTML.includes('No messages yet')) area.innerHTML = '';
+        
+        // Track scroll position before adding
+        const isScrolledToBottom = area.scrollHeight - area.clientHeight <= area.scrollTop + 50;
+        
+        area.insertAdjacentHTML('beforeend', html);
+        
+        // Auto scroll down if user was already at the bottom, or if they sent it
+        if (isScrolledToBottom || isMe) {
+            area.scrollTop = area.scrollHeight;
+        }
+        
+        // Play soft notification sound if someone else sent a new message
+        if (isNewRealtimeMsg && !isMe) {
+            try {
+                const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/238/238-preview.mp3'); 
+                audio.volume = 0.4;
+                audio.play().catch(e => {}); 
+            } catch(e) {}
+        }
+    },
+    
+    // Removes the message element from the DOM (triggered by Realtime DELETE)
+    removeMessage: (msgId, viewPrefix) => {
+        const el = document.getElementById(`msg_${viewPrefix}_${msgId}`);
+        if (el) el.remove();
+    },
+
+    // Handles the database deletion
+    deleteMessage: async (msgId) => {
+        if (!confirm("Are you sure you want to delete this message?")) return;
+        
+        try {
+            // Assuming you have a wrapper method for delete, or use supabase directly:
+            await supabaseClient.from('pr_chat_messages').delete().eq('id', msgId);
+            // If using your DB wrapper: await DB.delete('pr_chat_messages', { id: msgId });
+        } catch (error) {
+            console.error("Error deleting message:", error);
+            alert("Failed to delete the message.");
+        }
+    },
+
+    handleEnter: (e, viewPrefix) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            ChatApp.sendMessage(viewPrefix);
+        }
+    },
+    
+    sendMessage: async (viewPrefix) => {
+        const input = document.getElementById(`chatInput_${viewPrefix}`);
+        if (!input || !input.value.trim()) return;
+        
+        const msgText = input.value.trim();
+        input.value = ''; // clear immediately for UX
+        ChatApp.toggleEmojiPicker(viewPrefix, true); // Close emoji picker if open
+        
+        const u = App.currentUser;
+        const userId = u.pr_id || u.username;
+        
+        await DB.insert('pr_chat_messages', {
+            user_name: u.full_name || 'Admin',
+            user_id: userId,
+            user_role: u.role,
+            message: msgText
+        });
+    },
+
+    // --- Emoji Picker Logic ---
+    toggleEmojiPicker: (viewPrefix, forceClose = false) => {
+        const picker = document.getElementById(`emojiPicker_${viewPrefix}`);
+        if (!picker) return;
+        
+        if (forceClose) {
+            picker.style.display = 'none';
+        } else {
+            picker.style.display = picker.style.display === 'none' ? 'flex' : 'none';
+        }
+    },
+
+    insertEmoji: (emoji, viewPrefix) => {
+        const input = document.getElementById(`chatInput_${viewPrefix}`);
+        if (!input) return;
+        
+        // Insert emoji at current cursor position or append to end
+        const start = input.selectionStart;
+        const end = input.selectionEnd;
+        const text = input.value;
+        
+        input.value = text.substring(0, start) + emoji + text.substring(end);
+        
+        // Refocus and move cursor past the inserted emoji
+        input.focus();
+        input.selectionStart = input.selectionEnd = start + emoji.length;
+    }
+};
+
+        // Welcome Popup (Replaces old Independence Day logic)
+function showWelcomePopup() {
+    if (document.getElementById('welcomePopup')) return;
 
     const popupOverlay = document.createElement('div');
-    popupOverlay.id = 'independencePopup';
+    popupOverlay.id = 'welcomePopup';
     
-    // Injecting HTML and Scoped CSS dynamically
     popupOverlay.innerHTML = `
         <style>
-            #independencePopup {
-                position: fixed; inset: 0; background: rgba(10, 25, 49, 0.85); backdrop-filter: blur(8px);
+            #welcomePopup {
+                position: fixed; inset: 0; background: rgba(31, 42, 68, 0.85); backdrop-filter: blur(8px);
                 z-index: 9999999; display: flex; align-items: center; justify-content: center;
                 animation: indFadeIn 0.4s ease-out forwards;
             }
-            
-            /* Modal Base & Floating Animation */
-            .ind-modal {
-                background: white; border-radius: 24px; padding: 40px; text-align: center;
+            .welcome-modal {
+                background: var(--bg-main); border-radius: 24px; padding: 40px; text-align: center;
                 max-width: 450px; width: 90%; position: relative;
                 box-shadow: 0 24px 60px rgba(0,0,0,0.6);
-                border-top: 8px solid #FF9933; border-bottom: 8px solid #138808;
+                border-top: 8px solid var(--gold); border-bottom: 8px solid var(--primary);
                 transform: scale(0.8) translateY(20px); opacity: 0;
-                animation: 
-                    indPopUp 0.6s 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards,
-                    indFloat 6s 1s ease-in-out infinite alternate;
+                animation: indPopUp 0.6s 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards, floatSlow 6s 1s ease-in-out infinite alternate;
             }
-
-            /* Cut (Cross) Button */
-            .ind-close-btn {
-                position: absolute; top: -18px; right: -18px; background: #EF4444; color: white;
+            .welcome-close-btn {
+                position: absolute; top: -18px; right: -18px; background: var(--danger); color: white;
                 border: 3px solid white; width: 44px; height: 44px; border-radius: 50%; 
                 font-size: 20px; font-weight: bold; font-family: Arial, sans-serif;
                 cursor: pointer; display: flex; align-items: center; justify-content: center;
@@ -1148,91 +1293,46 @@
                 animation: indClosePop 0.5s 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
                 transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.2s; 
             }
-            .ind-close-btn:hover { transform: scale(1.15) rotate(90deg) !important; background: #DC2626; }
-
-            /* Image Container */
-            .ind-image-container {
-                position: relative; width: 110px; height: 110px; margin: 0 auto 20px auto;
-            }
-            
-            /* Netaji Image */
-            .ind-netaji-img {
-                width: 100%; height: 100%; border-radius: 50%; object-fit: cover;
-                border: 4px solid #FF9933; box-shadow: 0 8px 24px rgba(255, 153, 51, 0.4);
-                position: relative; z-index: 2;
+            .welcome-close-btn:hover { transform: scale(1.15) rotate(90deg) !important; background: #DC2626; }
+            .welcome-icon-box {
+                width: 90px; height: 90px; background: var(--primary); border-radius: 50%; margin: 0 auto 20px auto;
+                display: flex; align-items: center; justify-content: center; font-size: 45px; color: var(--gold);
+                border: 4px solid var(--gold); box-shadow: 0 8px 24px rgba(200, 155, 60, 0.4);
                 transform: scale(0); opacity: 0;
                 animation: indZoomBounce 0.8s 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
             }
-
-            /* Animated Chakra Background Accent */
-            .ind-chakra-bg {
-                position: absolute; top: -15px; right: -15px; width: 55px; height: 55px;
-                opacity: 0; z-index: 1; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
-                animation: 
-                    indFadeIn 0.5s 0.6s forwards,
-                    indSpin 6s linear infinite;
+            .welcome-title {
+                font-family: var(--font-heading); font-size: 28px; font-weight: 700; margin-bottom: 8px; color: var(--primary);
+                opacity: 0; transform: translateY(10px); animation: indSlideUp 0.5s 0.5s forwards; 
             }
-
-            /* Animated Title */
-            .ind-title {
-                font-family: 'Playfair Display', serif; font-size: 30px; font-weight: 700; margin-bottom: 8px;
-                background: linear-gradient(90deg, #FF9933 0%, #FF9933 33%, #0A1931 33%, #0A1931 66%, #138808 66%);
-                -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-                background-size: 200% auto;
-                opacity: 0; transform: translateY(10px);
-                animation: indSlideUp 0.5s 0.5s forwards, indShimmer 4s infinite linear; 
-            }
-            
-            .ind-subtitle {
-                color: #64748B; font-size: 14px; opacity: 0;
-                animation: indFadeIn 0.5s 0.7s forwards;
-            }
-
-            /* Quote Box Sliding Up */
-            .ind-quote-box {
-                background: rgba(10, 25, 49, 0.03); border-radius: 12px; padding: 20px; margin-top: 24px;
-                border-left: 4px solid #FF9933; position: relative;
+            .welcome-subtitle { color: var(--text-muted); font-size: 14px; opacity: 0; animation: indFadeIn 0.5s 0.7s forwards; }
+            .welcome-quote-box {
+                background: rgba(31, 42, 68, 0.05); border-radius: 12px; padding: 20px; margin-top: 24px;
+                border-left: 4px solid var(--gold); position: relative;
                 opacity: 0; transform: translateY(20px);
                 animation: indSlideUp 0.6s 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
             }
-            .ind-quote { font-style: italic; color: #132F4C; font-size: 16px; font-weight: 500; line-height: 1.6; margin-bottom: 8px; }
-            .ind-author { color: #EF4444; font-weight: 700; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; }
-            
-            /* Keyframes */
+            .welcome-quote { font-style: italic; color: var(--primary); font-size: 15px; font-weight: 500; line-height: 1.6; }
+
             @keyframes indFadeIn { to { opacity: 1; } }
             @keyframes indPopUp { to { transform: scale(1) translateY(0); opacity: 1; } }
             @keyframes indClosePop { to { transform: scale(1) rotate(0deg); opacity: 1; } }
-            @keyframes indZoomBounce { 
-                0% { transform: scale(0); opacity: 0; } 
-                60% { transform: scale(1.1); opacity: 1; } 
-                100% { transform: scale(1); opacity: 1; } 
-            }
+            @keyframes indZoomBounce { 0% { transform: scale(0); opacity: 0; } 60% { transform: scale(1.1); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
             @keyframes indSlideUp { to { opacity: 1; transform: translateY(0); } }
-            @keyframes indSpin { 100% { transform: rotate(360deg); } }
-            @keyframes indShimmer { to { background-position: 200% center; } }
-            @keyframes indFloat {
-                0% { transform: translateY(0px); }
-                100% { transform: translateY(-8px); }
-            }
         </style>
 
-        <div class="ind-modal">
-            <!-- HTML Cross Entity (&#10006;) for the cut button -->
-            <button class="ind-close-btn" onclick="document.getElementById('independencePopup').remove()">&#10006;</button>
+        <div class="welcome-modal">
+            <button class="welcome-close-btn" onclick="document.getElementById('welcomePopup').remove()">&#10006;</button>
             
-            <div class="ind-image-container">
-                <!-- Netaji Image -->
-                <img src="https://upload.wikimedia.org/wikipedia/commons/4/44/Subhas_Chandra_Bose_NRB.jpg" class="ind-netaji-img" alt="Netaji Subhas Chandra Bose">
-                <!-- Spinning Chakra Accent behind image -->
-                <img src="https://upload.wikimedia.org/wikipedia/commons/1/17/Ashoka_Chakra.svg" class="ind-chakra-bg" alt="Chakra">
+            <div class="welcome-icon-box">
+                <i class="ph-fill ph-paint-brush-broad"></i>
             </div>
             
-            <h2 class="ind-title">Happy Independence Day</h2>
-            <p class="ind-subtitle">Celebrating the spirit of freedom and the glory of our nation! 🇮🇳</p>
+            <h2 class="welcome-title">Welcome to Chinnapatra</h2>
+            <p class="welcome-subtitle">Celebrating art, culture, and creativity. ✨</p>
             
-            <div class="ind-quote-box">
-                <div class="ind-quote">"Give me blood, and I shall give you freedom!"</div>
-                <div class="ind-author">- Netaji Subhas Chandra Bose</div>
+            <div class="welcome-quote-box">
+                <div class="welcome-quote">"শিল্প যেখানে কথা বলে।" <br><span style="font-size:12px;color:var(--text-muted);">(Where art speaks.)</span></div>
             </div>
         </div>
         `;
@@ -1352,7 +1452,7 @@
                     this.currentUser = JSON.parse(session);
                     this.route(this.currentUser.role === 'Admin' ? 'page-admin' : 'page-pr');
                     setTimeout(() => {
-                        showIndependenceDayPopup();
+                        showWelcomePopup();
                     }, 3600);
                 }
                 
@@ -1495,9 +1595,9 @@
                     if(user.status === 'Disabled') return UI.showToast('Account disabled by Admin.', 'error');
                     App.currentUser = user;
                     sessionStorage.setItem('active_user', JSON.stringify(user));
-                    UI.showToast(`Welcome back, ${user.full_name || r}! 🇮🇳`);
+                    UI.showToast(`Welcome back, ${user.full_name || r}! `);
                     App.route(r === 'Admin' ? 'page-admin' : 'page-pr');
-                    showIndependenceDayPopup();
+                    showWelcomePopupss();
                 } else {
                     UI.showToast('Invalid credentials. Check your username & password.', 'error');
                 }
@@ -3798,7 +3898,7 @@
                 
                 const hour = new Date().getHours();
                 let greeting = hour < 12 ? "Good Morning" : (hour < 15 ? "Good Noon" : (hour < 18 ? "Good Afternoon" : "Good Evening"));
-                document.getElementById("prGreeting").innerText = `${greeting}, ${u.full_name.split(" ")[0]}! 🇮🇳`;
+                document.getElementById("prGreeting").innerText = `${greeting}, ${u.full_name.split(" ")[0]}! `;
                 document.getElementById("prCurrentDate").innerText = new Date().toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
                 
                 document.getElementById('prProfileDetails').innerHTML = `
