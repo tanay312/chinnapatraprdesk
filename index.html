@@ -420,6 +420,9 @@ ss
                 <div class="nav-item" onclick="AdminApp.switchTab('admin-reports', event)"><i class="ph ph-file-text"></i> Reports</div>
                 <div class="nav-item" onclick="AdminApp.switchTab('admin-notifications', event)"><i class="ph ph-bell"></i> Notifications</div>
                 <div class="nav-item" onclick="AdminApp.switchTab('admin-pr-worklist', event)"><i class="ph ph-list-numbers"></i> Assign Work List</div>
+                <div class="nav-item" onclick="AdminApp.switchTab('admin-complaints', event)">
+    <i class="ph ph-warning-octagon"></i> Grievance Desk
+</div>
                 <div class="nav-item" onclick="AdminApp.switchTab('admin-chat', event)"><i class="ph ph-chats-teardrop"></i> Connect (Live Chat)</div>
                 <div class="nav-item" onclick="AdminApp.switchTab('admin-settings', event)"><i class="ph ph-gear"></i> Settings</div>
             </nav>
@@ -781,6 +784,30 @@ ss
             <table class="premium-table">
                 <thead><tr><th>Date Issued</th><th>Assigned PR</th><th>Title/Subject</th><th>Actions</th></tr></thead>
                 <tbody id="tableAdminWorkLists"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<!-- Admin Grievance / Complaints Desk -->
+<div id="admin-complaints" class="dashboard-view">
+    <div class="card-header" style="border-bottom: none; padding-bottom: 0;">
+        <h2 class="card-title" style="font-size: 24px; color: var(--danger);">
+            <i class="ph-fill ph-warning-octagon"></i> Grievance & Complaints
+        </h2>
+    </div>
+    <div class="content-card" style="padding: 0; margin-top: 24px;">
+        <div class="table-responsive">
+            <table class="premium-table">
+                <thead>
+                    <tr>
+                        <th>Date & Time</th>
+                        <th>Member Details</th>
+                        <th>Complaint Snippet</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="tableComplaints"></tbody>
             </table>
         </div>
     </div>
@@ -1750,6 +1777,7 @@ function showWelcomePopup() {
                 if(tabId === 'admin-pr-activity') AdminApp.initPRActivityTab();
                 if(tabId === 'admin-artists') AdminApp.renderArtistTracking();
                 if(tabId === 'admin-special-days') AdminApp.initSpecialDaysTab();
+                if(tabId === 'admin-complaints') AdminApp.renderComplaints();
                 if(tabId === 'admin-chat') ChatApp.init('admin');
                 if(tabId === 'admin-pr-worklist') AdminApp.initPRWorkListTab();
             },
@@ -1926,6 +1954,123 @@ function showWelcomePopup() {
                 
                 AdminApp.cachedSpecialDays = await DB.get('special_days') || [];
                 AdminApp.renderSpecialDays();
+            },
+            // --- GRIEVANCE / COMPLAINTS DESK ---
+            cachedComplaints: [], // Safely cache data to prevent HTML breaking
+
+            renderComplaints: async () => {
+                const tbody = document.getElementById('tableComplaints');
+                if (!tbody) return;
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center"><i class="ph ph-spinner ph-spin"></i> Loading complaints...</td></tr>';
+
+                const { data: complaints, error } = await supabaseClient.from('member_complaints').select('*').order('created_at', { ascending: false });
+                
+                if (error || !complaints || complaints.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">No complaints received yet.</td></tr>';
+                    return;
+                }
+
+                // Cache the data safely
+                AdminApp.cachedComplaints = complaints;
+
+                let html = '';
+                complaints.forEach(c => {
+                    const dateStr = new Date(c.created_at).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' });
+                    
+                    // Set Status Badge Colors
+                    let statusClass = 'badge-absent'; // Default Red (Pending)
+                    if (c.status === 'Reviewed') statusClass = 'badge-pending'; // Yellow
+                    if (c.status === 'Resolved') statusClass = 'badge-completed'; // Green
+                    
+                    const snippet = c.complaint_text.length > 50 ? c.complaint_text.substring(0, 50) + '...' : c.complaint_text;
+                    const attachBadge = (c.images && c.images.length > 0) ? `<br><small style="color:var(--primary);"><i class="ph-bold ph-image"></i> ${c.images.length} Photos</small>` : '';
+
+                    html += `<tr>
+                        <td>${dateStr}</td>
+                        <td><strong>${c.member_name}</strong><br><small>${c.mobile} | ID: ${c.member_id || 'N/A'}</small></td>
+                        <td style="max-width: 250px; white-space: normal;">${snippet} ${attachBadge}</td>
+                        <td><span class="badge ${statusClass}">${c.status}</span></td>
+                        <td>
+                            <div style="display: flex; gap: 8px;">
+                                <button class="btn btn-outline btn-sm" style="padding: 6px 12px; border-color: var(--primary); color: var(--primary);" onclick="AdminApp.viewComplaint('${c.id}')">
+                                    <i class="ph-bold ph-eye"></i> View
+                                </button>
+                                <button class="btn btn-danger btn-sm" style="padding: 6px 12px;" onclick="AdminApp.deleteComplaint('${c.id}')" title="Delete Complaint">
+                                    <i class="ph-bold ph-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>`;
+                });
+                tbody.innerHTML = html;
+            },
+
+            viewComplaint: (id) => {
+                // Fetch the complaint safely from cache
+                const c = AdminApp.cachedComplaints.find(x => x.id === id);
+                if (!c) return;
+
+                let imagesHtml = '';
+                if (c.images && c.images.length > 0) {
+                    imagesHtml = `<h4 style="margin-top:20px; font-size: 14px; color: var(--text-muted);">Attached Evidence:</h4>
+                    <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-top: 8px;">`;
+                    c.images.forEach(img => {
+                        imagesHtml += `<a href="${img}" target="_blank"><img src="${img}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px; border: 1px solid #ddd; cursor: pointer;"></a>`;
+                    });
+                    imagesHtml += `</div>`;
+                }
+
+                // Determine dynamic status color
+                let statusColor = c.status === 'Resolved' ? 'var(--success)' : (c.status === 'Reviewed' ? '#F59E0B' : 'var(--danger)');
+
+                UI.showModal('Complaint Details', `
+                    <div style="background: rgba(239, 68, 68, 0.05); padding: 16px; border-radius: 8px; border-left: 4px solid var(--danger); margin-bottom: 20px;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 14px;">
+                            <div><strong style="color: var(--text-muted);">From:</strong> <br>${c.member_name} (ID: ${c.member_id || 'None'})</div>
+                            <div><strong style="color: var(--text-muted);">Contact:</strong> <br>${c.mobile} <br>${c.email}</div>
+                        </div>
+                    </div>
+                    
+                    <h4 style="font-size: 14px; color: var(--text-muted); margin-bottom: 8px;">Grievance Text:</h4>
+                    <div style="background: #f9f9f9; padding: 16px; border-radius: 8px; font-size: 14px; line-height: 1.6; border: 1px solid #eee; white-space: pre-wrap;">${c.complaint_text}</div>
+                    
+                    ${imagesHtml}
+
+                    <div style="margin-top: 24px; border-top: 1px solid #eee; padding-top: 16px;">
+                        <h4 style="font-size: 14px; color: var(--text-muted); margin-bottom: 8px;">Current Status: <span style="color: ${statusColor}; font-weight: bold;">${c.status.toUpperCase()}</span></h4>
+                        <div style="display: flex; gap: 12px; margin-top: 12px;">
+                            ${c.status === 'Pending' ? `<button class="btn btn-outline" style="border-color: #F59E0B; color: #F59E0B;" onclick="AdminApp.updateComplaintStatus('${c.id}', 'Reviewed')">Mark as Reviewed</button>` : ''}
+                            ${c.status !== 'Resolved' ? `<button class="btn btn-success" onclick="AdminApp.updateComplaintStatus('${c.id}', 'Resolved')"><i class="ph-bold ph-check"></i> Mark as Resolved</button>` : ''}
+                            ${c.status === 'Resolved' ? `<div style="padding: 12px; width: 100%; background: var(--success-light); color: var(--success); text-align: center; border-radius: 8px; font-weight: 600;"><i class="ph-fill ph-check-circle"></i> This grievance has been completely resolved.</div>` : ''}
+                        </div>
+                    </div>
+                `);
+            },
+
+            updateComplaintStatus: async (id, status) => {
+                const { error } = await supabaseClient.from('member_complaints').update({ status: status }).eq('id', id);
+                if (error) {
+                    UI.showToast('Error updating status', 'error');
+                    console.error("Status Update Error:", error);
+                } else {
+                    UI.showToast(`Complaint marked as ${status}`, 'success');
+                    UI.closeModal();
+                    AdminApp.renderComplaints(); // Refresh the table
+                }
+            },
+
+            deleteComplaint: async (id) => {
+                // Confirm before deleting
+                UI.confirm('Delete Grievance', 'Are you sure you want to permanently delete this complaint? This action cannot be undone.', async () => {
+                    const { error } = await supabaseClient.from('member_complaints').delete().eq('id', id);
+                    if (error) {
+                        UI.showToast('Error deleting complaint', 'error');
+                        console.error("Delete Error:", error);
+                    } else {
+                        UI.showToast('Complaint deleted successfully', 'success');
+                        AdminApp.renderComplaints(); // Refresh the table
+                    }
+                });
             },
 
             exportSpecialDaysCSV: () => {
