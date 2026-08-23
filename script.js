@@ -705,6 +705,7 @@ function showWelcomePopup() {
                 if(tabId === 'admin-complaints') AdminApp.renderComplaints();
                 if(tabId === 'admin-chat') ChatApp.init('admin');
                 if(tabId === 'admin-pr-worklist') AdminApp.initPRWorkListTab();
+                if(tabId === 'admin-media-workflow') MediaAdmin.init()
             },
             // --- PR WORK LIST ASSIGNMENT ---
             initPRWorkListTab: async () => {
@@ -3348,6 +3349,7 @@ function showWelcomePopup() {
                 if(tabId === 'pr-notifications') PRApp.loadNotifications();
                 if(tabId === 'pr-chat') ChatApp.init('pr');
                 if(tabId === 'pr-worklist') PRApp.loadWorkLists();
+                if(tabId === 'pr-media-tasks') MediaPR.init();
             },
             loadDashboard: async () => {
                 const u = App.currentUser;
@@ -3623,6 +3625,886 @@ function showWelcomePopup() {
                 UI.showToast("Official ID Card Downloaded!", "success");
             }
         };
+        const MediaAdmin = {
+    workflows: [],
+    
+    // Sangrahashala List and Prefix Mapping
+    sangrahashalaList: {
+        'Kothakahon': 'KOT',
+        'Kolporekha': 'KOL',
+        'Munsinama': 'MUN',
+        'Abeger Khata': 'ABE',
+        'Ruptakkhor': 'RUP',
+        'Mridangam': 'MRI',
+        'Surangan': 'SUR',
+        'Konthokar': 'KON',
+        'Chittankan': 'CHI',
+        'Dristikon': 'DRI',
+        'Chandaseni': 'CHA',
+        'Protifalak': 'PRO'
+    },
+
+    init: async () => {
+        if (!AdminApp.cachedPRs || AdminApp.cachedPRs.length === 0) {
+            AdminApp.cachedPRs = (await DB.get('users') || []).filter(u => u.role === 'PR');
+        }
+        if (!AdminApp.cachedArtists || AdminApp.cachedArtists.length === 0) {
+            AdminApp.cachedArtists = await DB.get('artists') || [];
+        }
+        MediaAdmin.renderTable();
+    },
+
+    renderTable: async () => {
+        const data = await DB.get('media_workflows') || [];
+        MediaAdmin.workflows = data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+        let html = '';
+        MediaAdmin.workflows.forEach(w => {
+            const scheduler = AdminApp.cachedPRs.find(p => p.pr_id === w.scheduler_pr_id)?.full_name || w.scheduler_pr_id;
+            const poster = AdminApp.cachedPRs.find(p => p.pr_id === w.poster_pr_id)?.full_name || w.poster_pr_id;
+            
+            let artistsHtml = '';
+            if (w.artists_data) {
+                const arr = typeof w.artists_data === 'string' ? JSON.parse(w.artists_data) : w.artists_data;
+                artistsHtml = arr.map(a => `<span style="font-size:11px; background:rgba(200,155,60,0.1); color:var(--gold); padding:2px 6px; border-radius:4px; margin-right:4px; display:inline-block; margin-bottom:4px;">${a.artist_name} (${a.department})</span>`).join('');
+            }
+
+            let statusBadge = w.status === 'Posted' ? 'badge-completed' : (w.status === 'Scheduled' ? 'badge-working' : 'badge-absent');
+            
+            // Format Media Icon
+            let mediaIcon = 'ph-file';
+            if(w.media_type === 'Video') mediaIcon = 'ph-video-camera';
+            if(w.media_type === 'Image') mediaIcon = 'ph-image';
+            if(w.media_type === 'Text') mediaIcon = 'ph-text-t';
+
+            html += `<tr>
+                <td>
+                    <strong style="color:var(--primary); font-size:15px;">${w.work_id}</strong><br>
+                    <span style="font-weight:600; font-size:14px;">${w.title}</span><br>
+                    <div style="margin-top:6px; font-size:11px; color:var(--text-muted); display:grid; gap:2px;">
+                        <span><i class="ph-fill ph-folder" style="color:var(--gold);"></i> <strong>${w.sangrahashala || 'N/A'}</strong></span>
+                        <span><i class="ph-fill ${mediaIcon}" style="color:var(--primary);"></i> ${w.media_type || 'N/A'}</span>
+                        <span><i class="ph-fill ph-tag" style="color:var(--danger);"></i> Mark: ${w.special_marking}</span>
+                    </div>
+                </td>
+                <td style="max-width:200px;">${artistsHtml}</td>
+                <td><small><strong>Scheduler:</strong> ${scheduler}<br><strong>Poster:</strong> ${poster}</small></td>
+                <td>
+                    <span class="badge ${statusBadge}">${w.status}</span>
+                    ${w.schedule_time ? `<br><small style="color:var(--text-muted);"><i class="ph-fill ph-clock"></i> ${w.platform} | ${new Date(w.schedule_time).toLocaleString([], {dateStyle:'short', timeStyle:'short'})}</small>` : ''}
+                </td>
+                <td>
+                    <button class="btn btn-danger btn-sm" style="padding: 6px 12px;" onclick="MediaAdmin.deleteWorkflow('${w.id}')" title="Delete Workflow">
+                        <i class="ph-bold ph-trash"></i>
+                    </button>
+                </td>
+            </tr>`;
+        });
+
+        const tbody = document.getElementById('tableMediaWorkflows');
+        if (tbody) tbody.innerHTML = html || '<tr><td colspan="5" class="text-center text-muted">No workflows created.</td></tr>';
+    },
+
+    deleteWorkflow: async (id) => {
+        UI.confirm('Delete Media Workflow', 'Are you sure you want to permanently delete this scheduled workflow? This action cannot be undone.', async () => {
+            await DB.remove('media_workflows', id);
+            UI.showToast('Workflow deleted successfully.', 'success');
+            MediaAdmin.renderTable();
+        });
+    },
+
+    openCreateModal: () => {
+        const randomNum = Math.floor(10000 + Math.random() * 90000);
+        const workId = `WRK-${randomNum}`;
+        
+        let prOptions = `<option value="">-- Select PR --</option>`;
+        AdminApp.cachedPRs.forEach(pr => prOptions += `<option value="${pr.pr_id}">${pr.full_name} (${pr.pr_id})</option>`);
+
+        let sangrahashalaOptions = `<option value="">-- Select Sangrahashala --</option>`;
+        Object.keys(MediaAdmin.sangrahashalaList).forEach(s => {
+            sangrahashalaOptions += `<option value="${s}">${s}</option>`;
+        });
+
+        UI.showModal('Create New Media Workflow', `
+            <form onsubmit="MediaAdmin.saveWorkflow(event)">
+                
+                <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:16px;">
+                    <div class="form-group">
+                        <label class="form-label">Sangrahashala</label>
+                        <select id="mwSangrahashala" class="form-control" onchange="MediaAdmin.updateWorkIdPrefix()" required>
+                            ${sangrahashalaOptions}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Media Type</label>
+                        <select id="mwMediaType" class="form-control" required>
+                            <option value="">-- Select --</option>
+                            <option value="Video">🎬 Video</option>
+                            <option value="Image">🖼️ Image</option>
+                            <option value="Text">📝 Text</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Generated Work ID</label>
+                        <input type="text" id="mwWorkId" class="form-control" value="${workId}" readonly style="font-weight:bold; color:var(--primary); background:rgba(200,155,60,0.1); border-color:var(--gold);">
+                        <input type="hidden" id="mwRandomNum" value="${randomNum}">
+                    </div>
+                </div>
+
+                <div class="form-group"><label class="form-label">Post Title</label><input type="text" id="mwTitle" class="form-control" required placeholder="Enter the main title for this task"></div>
+                
+                <div class="form-group" style="background: rgba(10,25,49,0.02); padding: 16px; border-radius: 8px;">
+                    <label class="form-label" style="display:flex; justify-content:space-between;">
+                        <span>Artists Involved</span>
+                        <button type="button" class="btn btn-sm btn-outline" onclick="MediaAdmin.addArtistRow()" style="padding: 2px 8px; font-size:11px;">+ Add Artist</button>
+                    </label>
+                    <div id="mwArtistsContainer"></div>
+                </div>
+
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
+                    <div class="form-group"><label class="form-label">Assign Scheduler</label><select id="mwScheduler" class="form-control" required>${prOptions}</select></div>
+                    <div class="form-group"><label class="form-label">Assign Poster</label><select id="mwPoster" class="form-control" required>${prOptions}</select></div>
+                </div>
+
+                <div class="form-group"><label class="form-label">Special Marking</label>
+                    <select id="mwMarking" class="form-control"><option value="Standard">Standard</option><option value="Urgent">Urgent</option><option value="Collab">Collab</option></select>
+                </div>
+                <div class="form-group"><label class="form-label">Caption / Description</label><textarea id="mwCaption" class="form-control" placeholder="Optional notes or full caption..."></textarea></div>
+                
+                <button type="submit" class="btn btn-primary" style="width:100%; padding:14px; font-size:16px;"><i class="ph-bold ph-rocket-launch"></i> Create Pipeline</button>
+            </form>
+        `);
+        MediaAdmin.addArtistRow();
+    },
+
+    // Dynamically updates Work ID based on Sangrahashala Selection
+    updateWorkIdPrefix: () => {
+        const sangrahashalaSelect = document.getElementById('mwSangrahashala');
+        const workIdInput = document.getElementById('mwWorkId');
+        const randomNum = document.getElementById('mwRandomNum').value;
+        
+        if (sangrahashalaSelect && workIdInput) {
+            const selectedVal = sangrahashalaSelect.value;
+            if (selectedVal && MediaAdmin.sangrahashalaList[selectedVal]) {
+                const prefix = MediaAdmin.sangrahashalaList[selectedVal];
+                workIdInput.value = `${prefix}-${randomNum}`;
+            } else {
+                workIdInput.value = `WRK-${randomNum}`;
+            }
+        }
+    },
+
+    addArtistRow: () => {
+        const container = document.getElementById('mwArtistsContainer');
+        const rowId = Date.now();
+        let artistOpts = `<option value="">Select Artist...</option>`;
+        AdminApp.cachedArtists.forEach(a => artistOpts += `<option value="${a.id}">${a.name}</option>`);
+
+        const html = `
+            <div class="mw-artist-row" id="mw_row_${rowId}" style="display:flex; gap:12px; margin-bottom:12px;">
+                <select class="form-control a-select" style="flex:2;" onchange="MediaAdmin.updateDept(this, ${rowId})" required>${artistOpts}</select>
+                <select class="form-control d-select" id="mw_dept_${rowId}" style="flex:2;" required><option value="">Select Dept...</option></select>
+                <button type="button" class="btn btn-danger" style="padding: 8px 12px;" onclick="document.getElementById('mw_row_${rowId}').remove()"><i class="ph ph-trash"></i></button>
+            </div>
+        `;
+        container.insertAdjacentHTML('beforeend', html);
+    },
+
+    updateDept: (selectEl, rowId) => {
+        const deptSelect = document.getElementById(`mw_dept_${rowId}`);
+        const artist = AdminApp.cachedArtists.find(a => a.id === selectEl.value);
+        if (artist && artist.department) {
+            deptSelect.innerHTML = artist.department.split(',').map(d => `<option value="${d.trim()}">${d.trim()}</option>`).join('');
+        } else {
+            deptSelect.innerHTML = '<option value="General">General</option>';
+        }
+    },
+
+    saveWorkflow: async (e) => {
+        e.preventDefault();
+        const btn = e.target.querySelector('button[type="submit"]');
+        btn.innerHTML = '<i class="ph-bold ph-spinner ph-spin"></i> Saving...'; 
+        btn.disabled = true;
+
+        let artistsData = [];
+        document.querySelectorAll('.mw-artist-row').forEach(row => {
+            const id = row.querySelector('.a-select').value;
+            const dept = row.querySelector('.d-select').value;
+            const name = AdminApp.cachedArtists.find(a => a.id === id).name;
+            artistsData.push({ artist_id: id, artist_name: name, department: dept });
+        });
+
+        const payload = {
+            work_id: document.getElementById('mwWorkId').value,
+            sangrahashala: document.getElementById('mwSangrahashala').value, // NEW DATA
+            media_type: document.getElementById('mwMediaType').value, // NEW DATA
+            title: document.getElementById('mwTitle').value,
+            artists_data: JSON.stringify(artistsData),
+            special_marking: document.getElementById('mwMarking').value,
+            caption: document.getElementById('mwCaption').value,
+            scheduler_pr_id: document.getElementById('mwScheduler').value,
+            poster_pr_id: document.getElementById('mwPoster').value,
+            status: 'Pending Schedule'
+        };
+
+        await DB.insert('media_workflows', payload);
+        UI.closeModal();
+        UI.showToast('Workflow Created!', 'success');
+        MediaAdmin.renderTable();
+    },
+
+    exportCSV: (type) => {
+        const now = new Date();
+        const rows = [["Work ID", "Sangrahashala", "Media Type", "Title", "Status", "Platform", "Schedule Time", "Scheduler PR", "Poster PR", "Artists"]];
+        
+        let filtered = MediaAdmin.workflows.filter(w => w.schedule_time);
+
+        if (type === 'daily') {
+            const today = now.toISOString().split('T')[0];
+            filtered = filtered.filter(w => w.schedule_time.startsWith(today));
+        } else if (type === 'weekly') {
+            const oneWeekAgo = new Date(now.setDate(now.getDate() - 7));
+            filtered = filtered.filter(w => new Date(w.schedule_time) >= oneWeekAgo);
+        }
+
+        if (filtered.length === 0) return UI.showToast(`No scheduled posts found for this ${type === 'daily' ? 'day' : 'week'}.`, 'warning');
+
+        filtered.forEach(w => {
+            const arr = typeof w.artists_data === 'string' ? JSON.parse(w.artists_data) : (w.artists_data || []);
+            const artistsStr = arr.map(a => `${a.artist_name} (${a.department})`).join(' | ');
+            rows.push([
+                w.work_id, 
+                w.sangrahashala || 'N/A', 
+                w.media_type || 'N/A', 
+                w.title, 
+                w.status, 
+                w.platform || 'N/A', 
+                new Date(w.schedule_time).toLocaleString(), 
+                w.scheduler_pr_id, 
+                w.poster_pr_id, 
+                artistsStr
+            ]);
+        });
+
+        const csvContent = "\uFEFF" + rows.map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(",")).join("\n");
+        const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = `Media_Schedule_${type}_${new Date().toISOString().split('T')[0]}.csv`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+};
+const MediaPR = {
+    myTasks: [],
+    allDepartments: new Set(),
+
+    init: async () => {
+        const u = App.currentUser;
+        if (!u) return;
+
+        const container = document.getElementById('prMediaTasksContainer');
+        
+        if (!document.getElementById('pr-media-styles')) {
+            const style = document.createElement('style');
+            style.id = 'pr-media-styles';
+            style.innerHTML = `
+                @keyframes slideUpFadeIn { 0% { opacity: 0; transform: translateY(30px) scale(0.98); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
+                .media-task-card { transition: all 0.4s; border: 1px solid rgba(255,255,255,0.8); background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); opacity: 0; animation: slideUpFadeIn 0.5s forwards; display: flex; flex-direction: column; }
+                .media-task-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg); border-color: var(--gold-light); }
+                .workflow-tracker { display: flex; justify-content: space-between; margin-bottom: 20px; position: relative; padding: 0 10px; }
+                .workflow-step { flex: 1; text-align: center; position: relative; font-size: 10px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+                .workflow-step::after { content: ''; position: absolute; top: 12px; left: 50%; width: 100%; height: 2px; background: rgba(10,25,49,0.1); z-index: 1; transition: background 0.4s; }
+                .workflow-step:last-child::after { display: none; }
+                .workflow-step .step-icon { width: 26px; height: 26px; border-radius: 50%; background: var(--bg-main); border: 2px solid rgba(10,25,49,0.1); margin: 0 auto 6px auto; display: flex; align-items: center; justify-content: center; position: relative; z-index: 2; transition: all 0.4s; font-size: 12px; }
+                .workflow-step.completed .step-icon { background: var(--success); border-color: var(--success); color: white; }
+                .workflow-step.completed::after { background: var(--success); }
+                .workflow-step.active .step-icon { background: var(--gold); border-color: var(--gold); color: white; box-shadow: 0 0 12px rgba(200,155,60,0.5); }
+                .workflow-step.active { color: var(--primary); }
+                .dept-stat-card { background: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(255,255,255,0.6)); border: 1px solid rgba(200,155,60,0.3); border-radius: 12px; padding: 12px 20px; min-width: 140px; box-shadow: var(--shadow-sm); display: flex; flex-direction: column; align-items: center; justify-content: center; backdrop-filter: blur(10px); flex-shrink: 0; }
+                .dept-stat-scroll { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 12px; scrollbar-width: thin; }
+                .dept-stat-scroll::-webkit-scrollbar { height: 6px; }
+                .dept-stat-scroll::-webkit-scrollbar-thumb { background: rgba(200,155,60,0.4); border-radius: 10px; }
+            `;
+            document.head.appendChild(style);
+        }
+
+        container.innerHTML = `<div style="grid-column: 1/-1; text-align:center; padding: 40px;"><i class="ph ph-spinner-gap ph-spin" style="font-size: 40px; color: var(--gold);"></i><br><span style="color: var(--text-muted); margin-top: 12px; display: block; font-weight: 500;">Syncing Pipeline...</span></div>`;
+
+        const data = await DB.get('media_workflows') || [];
+        MediaPR.myTasks = data.filter(w => w.scheduler_pr_id === u.pr_id || w.poster_pr_id === u.pr_id);
+
+        if (MediaPR.myTasks.length === 0) {
+            container.innerHTML = `
+                <div style="grid-column: 1/-1; text-align:center; padding: 60px 20px; background: rgba(255,255,255,0.6); backdrop-filter: blur(10px); border-radius: 20px; border: 1px dashed rgba(200,155,60,0.4);">
+                    <div style="font-size: 60px; color: var(--gold); margin-bottom: 16px;"><i class="ph-fill ph-party-horn"></i></div>
+                    <h3 style="color: var(--primary); font-family: var(--font-heading); font-size: 24px;">All caught up!</h3>
+                    <p style="color: var(--text-muted); margin-top: 8px;">You have no pending media tasks at the moment.</p>
+                </div>`;
+            return;
+        }
+
+        let sangCounts = {};
+        MediaPR.myTasks.forEach(w => {
+            const sangId = w.sangrahashala || 'Uncategorized';
+            sangCounts[sangId] = (sangCounts[sangId] || 0) + 1;
+        });
+
+        let topDashboardHtml = '';
+        const sangKeys = Object.keys(sangCounts).sort();
+        
+        if (sangKeys.length > 0) {
+            let cardsHtml = sangKeys.map(s => `
+                <div class="dept-stat-card">
+                    <div style="font-size: 28px; font-weight: bold; color: var(--primary); font-family: var(--font-heading); line-height: 1;">${sangCounts[s]}</div>
+                    <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 700; text-align: center; margin-top: 6px; letter-spacing: 0.5px;">${s}</div>
+                </div>
+            `).join('');
+
+            topDashboardHtml = `
+                <div style="grid-column: 1/-1; margin-bottom: 8px;">
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 16px;">
+                        <i class="ph-fill ph-folder-star" style="color: var(--gold); font-size: 20px;"></i>
+                        <h3 style="font-size: 15px; font-weight: 700; color: var(--primary); text-transform: uppercase; margin: 0; letter-spacing: 0.5px;">Sangrahashala Overview</h3>
+                    </div>
+                    <div class="dept-stat-scroll">
+                        <div class="dept-stat-card" style="background: rgba(10,25,49,0.05); border-color: rgba(10,25,49,0.1);">
+                            <div style="font-size: 28px; font-weight: bold; color: var(--primary); font-family: var(--font-heading); line-height: 1;">${MediaPR.myTasks.length}</div>
+                            <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 700; text-align: center; margin-top: 6px; letter-spacing: 0.5px;">Total Tasks</div>
+                        </div>
+                        ${cardsHtml}
+                    </div>
+                </div>
+            `;
+        }
+
+        let filterOptions = `<option value="">All Sangrahashalas</option>`;
+        sangKeys.forEach(s => { filterOptions += `<option value="${s}">${s}</option>`; });
+
+        // ADDED: Export PDF Button in Filter Bar
+        const filterHtml = `
+            <div style="grid-column: 1/-1; display:flex; flex-wrap:wrap; gap:16px; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.7); padding:12px 16px; border-radius:12px; box-shadow:var(--shadow-sm); border:1px solid rgba(200,155,60,0.2);">
+                <div style="flex:1; min-width: 250px; position:relative;">
+                    <i class="ph-bold ph-magnifying-glass" style="position:absolute; left:12px; top:12px; color:var(--text-muted);"></i>
+                    <input type="text" id="prMediaSearch" class="form-control" placeholder="Search by Title, Work ID, or Artist..." oninput="MediaPR.renderTasks()" style="padding-left:36px; border-color:var(--gold-light);">
+                </div>
+                <div style="display:flex; gap:12px; flex-wrap:wrap;">
+                    <select id="prMediaSangFilter" class="form-control" style="width:200px; border-color:var(--gold);" onchange="MediaPR.renderTasks()">
+                        ${filterOptions}
+                    </select>
+                    <button class="btn btn-outline" style="border-color:var(--primary); color:var(--primary);" onclick="MediaPR.openExportModal()"><i class="ph-bold ph-download-simple"></i> Schedule PDF</button>
+                </div>
+            </div>
+        `;
+
+        container.innerHTML = topDashboardHtml + filterHtml + `<div id="prMediaCardsWrapper" style="grid-column: 1/-1; display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px;"></div>`;
+        MediaPR.renderTasks();
+    },
+
+    renderTasks: () => {
+        const u = App.currentUser;
+        if (!u) return;
+
+        const wrapper = document.getElementById('prMediaCardsWrapper');
+        const filterVal = document.getElementById('prMediaSangFilter').value;
+        const searchVal = document.getElementById('prMediaSearch').value.toLowerCase();
+        if (!wrapper) return;
+
+        wrapper.innerHTML = '';
+        
+        let filteredTasks = MediaPR.myTasks;
+        
+        if (filterVal) filteredTasks = filteredTasks.filter(w => w.sangrahashala === filterVal);
+        if (searchVal) {
+            filteredTasks = filteredTasks.filter(w => 
+                (w.title && w.title.toLowerCase().includes(searchVal)) || 
+                (w.work_id && w.work_id.toLowerCase().includes(searchVal)) ||
+                (w.artists_data && w.artists_data.toLowerCase().includes(searchVal))
+            );
+        }
+
+        filteredTasks.sort((a, b) => {
+            const sangA = a.sangrahashala || '';
+            const sangB = b.sangrahashala || '';
+            if (sangA < sangB) return -1;
+            if (sangA > sangB) return 1;
+            return new Date(b.created_at) - new Date(a.created_at);
+        });
+
+        if (filteredTasks.length === 0) {
+            wrapper.innerHTML = `<div style="grid-column: 1/-1; text-align:center; padding:30px; color:var(--text-muted);">No tasks match your search or filter.</div>`;
+            return;
+        }
+
+        let html = '';
+        const now = new Date();
+
+        filteredTasks.forEach((w, index) => {
+            const isScheduler = w.scheduler_pr_id === u.pr_id;
+            const isPoster = w.poster_pr_id === u.pr_id;
+            const delay = index * 0.05;
+
+            const createdDate = new Date(w.created_at);
+            const daysOld = Math.floor((now - createdDate) / (1000 * 60 * 60 * 24));
+            let oldTaskBadge = daysOld >= 30 ? `<span class="badge badge-absent" style="font-size:10px; margin-bottom:8px;"><i class="ph-bold ph-warning-circle"></i> OLD TASK (${daysOld} Days)</span>` : '';
+
+            const assignedDateStr = createdDate.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' });
+            
+            let mediaIcon = 'ph-file';
+            if(w.media_type === 'Video') mediaIcon = 'ph-video-camera';
+            if(w.media_type === 'Image') mediaIcon = 'ph-image';
+            if(w.media_type === 'Text') mediaIcon = 'ph-text-t';
+
+            let artistsHtml = '';
+            if (w.artists_data) {
+                const arr = typeof w.artists_data === 'string' ? JSON.parse(w.artists_data) : w.artists_data;
+                artistsHtml = arr.map(a => `<span style="background: rgba(10,25,49,0.04); border: 1px solid rgba(10,25,49,0.1); color: var(--primary); padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; margin: 0 6px 6px 0;"><i class="ph-fill ph-user-circle" style="color: var(--gold);"></i> ${a.artist_name} <span style="color: var(--text-muted); font-weight: 500; border-left: 1px solid rgba(10,25,49,0.2); padding-left: 4px; margin-left: 2px;">${a.department || 'General'}</span></span>`).join('');
+            }
+
+            let step1 = 'completed', step2 = '', step3 = '';
+            if (w.status === 'Pending Schedule') { step2 = 'active'; }
+            if (w.status === 'Scheduled') { step2 = 'completed'; step3 = 'active'; }
+            if (w.status === 'Posted') { step2 = 'completed'; step3 = 'completed'; }
+
+            let schedulerBtn = '';
+            let posterBtn = '';
+            let cardAccent = 'var(--primary)';
+
+            if (isScheduler) {
+                if (w.status === 'Pending Schedule') {
+                    cardAccent = 'var(--gold)';
+                    schedulerBtn = `<button class="btn btn-primary ripple-btn" style="width:100%; padding: 10px; font-size: 13px;" onclick="MediaPR.openScheduleModal('${w.id}')"><i class="ph-bold ph-calendar-plus"></i> Schedule Now</button>`;
+                } else if (w.status === 'Scheduled') {
+                    schedulerBtn = `<button class="btn btn-outline ripple-btn" style="width:100%; padding: 10px; font-size: 13px; border-color:var(--gold); color:var(--gold);" onclick="MediaPR.openScheduleModal('${w.id}')"><i class="ph-bold ph-calendar-edit"></i> Reschedule</button>`;
+                }
+            }
+            if (isPoster && w.status === 'Scheduled') {
+                cardAccent = 'var(--warning)';
+                posterBtn = `<button class="btn btn-success ripple-btn" style="width:100%; padding: 10px; font-size: 13px;" onclick="MediaPR.markPosted('${w.id}')"><i class="ph-bold ph-rocket-launch"></i> Execute & Post</button>`;
+            }
+
+            let finalActionArea = '';
+            if (w.status === 'Posted') {
+                cardAccent = 'var(--success)';
+                finalActionArea = `<div style="text-align:center; padding: 10px; background: rgba(16,185,129,0.1); color: var(--success); border-radius: var(--radius-pill); font-weight: 600; font-size: 13px;"><i class="ph-fill ph-check-circle"></i> Pipeline Completed</div>`;
+            } else {
+                if (schedulerBtn || posterBtn) {
+                    finalActionArea = `<div style="display:flex; flex-direction:column; gap:8px;">${schedulerBtn}${posterBtn}</div>`;
+                } else {
+                    finalActionArea = `<div style="text-align:center; padding: 10px; background: rgba(10,25,49,0.05); color: var(--text-muted); border-radius: var(--radius-pill); font-weight: 600; font-size: 13px;"><i class="ph ph-hourglass"></i> Waiting on other PR</div>`;
+                }
+            }
+
+            let markBadge = '';
+            if (w.special_marking && w.special_marking !== 'Standard') {
+                const markColor = w.special_marking === 'Urgent' ? 'var(--danger)' : 'var(--gold)';
+                const markIcon = w.special_marking === 'Urgent' ? 'ph-siren' : 'ph-star';
+                markBadge = `<span style="display:inline-flex; align-items:center; gap:4px; background: ${markColor}; color: white; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; text-transform: uppercase;"><i class="ph-fill ${markIcon}"></i> ${w.special_marking}</span>`;
+            }
+
+            let scheduleInfo = '';
+            if (w.fb_time || w.insta_time) {
+                let fbHtml = w.fb_time ? `<div style="display:flex; justify-content:space-between; font-size:12px; font-weight:600; color:#1877F2; margin-bottom:4px;"><span style="display:flex; align-items:center; gap:4px;"><i class="ph-fill ph-facebook-logo"></i> Facebook</span> <span>${new Date(w.fb_time).toLocaleString([], {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'})}</span></div>` : '';
+                let instaHtml = w.insta_time ? `<div style="display:flex; justify-content:space-between; font-size:12px; font-weight:600; color:#E4405F;"><span style="display:flex; align-items:center; gap:4px;"><i class="ph-fill ph-instagram-logo"></i> Instagram</span> <span>${new Date(w.insta_time).toLocaleString([], {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'})}</span></div>` : '';
+                
+                scheduleInfo = `
+                    <div style="background: rgba(10,25,49,0.03); padding: 12px; border-radius: 8px; border-left: 3px solid var(--primary); margin-bottom: 16px;">
+                        ${fbHtml}
+                        ${instaHtml}
+                    </div>
+                `;
+            }
+
+            html += `
+                <div class="content-card media-task-card" style="border-top: 4px solid ${cardAccent}; animation-delay: ${delay}s; padding-top:16px;">
+                    
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom: 12px;">
+                        <div>
+                            <span style="font-size: 11px; font-weight: 700; color: var(--text-muted); letter-spacing: 1px;">${w.work_id}</span>
+                            <h3 style="color: var(--primary); font-size: 18px; margin-top: 2px; font-family: var(--font-heading); line-height: 1.3;">${w.title}</h3>
+                        </div>
+                        <div style="text-align:right; flex-shrink:0;">
+                            ${oldTaskBadge}
+                            <div style="font-size:10px; font-weight:bold; color:var(--text-muted); background:rgba(0,0,0,0.05); padding:2px 8px; border-radius:12px; margin-bottom:4px;"><i class="ph-bold ph-calendar-blank"></i> ASSIGNED: ${assignedDateStr}</div>
+                            ${markBadge}
+                        </div>
+                    </div>
+
+                    <div style="display:flex; gap:12px; margin-bottom:16px; font-size:12px; font-weight:600; color:var(--primary);">
+                        <span><i class="ph-fill ph-folder-star" style="color:var(--gold);"></i> ${w.sangrahashala || 'Uncategorized'}</span>
+                        <span><i class="ph-fill ${mediaIcon}" style="color:var(--text-muted);"></i> ${w.media_type || 'N/A'}</span>
+                    </div>
+
+                    <div class="workflow-tracker">
+                        <div class="workflow-step ${step1}"><div class="step-icon"><i class="ph-bold ph-file-text"></i></div> Assigned</div>
+                        <div class="workflow-step ${step2}"><div class="step-icon"><i class="ph-bold ph-calendar"></i></div> Scheduled</div>
+                        <div class="workflow-step ${step3}"><div class="step-icon"><i class="ph-bold ph-rocket-launch"></i></div> Posted</div>
+                    </div>
+                    
+                    ${scheduleInfo}
+
+                    <div style="margin-bottom: 16px;">
+                        <div style="font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.5px;">Artists Involved</div>
+                        <div>${artistsHtml}</div>
+                    </div>
+                    
+                    ${w.caption ? `
+                        <div style="background: rgba(10,25,49,0.02); padding: 12px; border-radius: 8px; border-left: 2px dashed rgba(10,25,49,0.2); margin-bottom: 20px; position: relative;">
+                            <i class="ph-fill ph-quotes" style="position: absolute; top: -8px; left: 10px; color: var(--gold); background: white; padding: 0 4px;"></i>
+                            <div style="font-size: 13px; color: var(--text-dark); line-height: 1.5; font-style: italic; white-space: pre-wrap;">${w.caption}</div>
+                        </div>
+                    ` : '<div style="margin-bottom: 20px;"></div>'}
+                    
+                    <div style="margin-top: auto;">${finalActionArea}</div>
+                </div>
+            `;
+        });
+        wrapper.innerHTML = html;
+    },
+
+    toggleScheduleInputs: () => {
+        const fbChecked = document.getElementById('chkFb').checked;
+        const instaChecked = document.getElementById('chkInsta').checked;
+        document.getElementById('schFbArea').style.display = fbChecked ? 'block' : 'none';
+        document.getElementById('schInstaArea').style.display = instaChecked ? 'block' : 'none';
+    },
+
+    openScheduleModal: (id) => {
+        const w = MediaPR.myTasks.find(x => x.id === id);
+        if(!w) return;
+
+        const fbChecked = w.fb_time ? 'checked' : '';
+        const instaChecked = w.insta_time ? 'checked' : '';
+        const fbVal = w.fb_time ? new Date(w.fb_time).toISOString().slice(0,16) : '';
+        const instaVal = w.insta_time ? new Date(w.insta_time).toISOString().slice(0,16) : '';
+
+        UI.showModal('Plan Media Schedule', `
+            <div style="text-align:center; margin-bottom: 24px;">
+                <div style="font-size: 40px; color: var(--gold); margin-bottom: 4px;"><i class="ph-fill ph-calendar-plus"></i></div>
+                <h3 style="font-family: var(--font-heading); color: var(--primary); font-size:20px;">Set Post Details</h3>
+                <p style="font-size: 12px; color: var(--text-muted);">Update caption and configure platform schedules.</p>
+            </div>
+            <form onsubmit="MediaPR.saveSchedule(event, '${id}')">
+                
+                <div class="form-group" style="margin-bottom: 16px;">
+                    <label class="form-label">Post Caption (Bengali Supported)</label>
+                    <textarea id="prScheduleCaption" class="form-control" rows="4" placeholder="Write or update the post caption here...">${w.caption || ''}</textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Select Platforms to Schedule</label>
+                    <div style="display:flex; gap:16px; margin-bottom:12px;">
+                        <label style="display:flex; align-items:center; gap:6px; font-weight:600; cursor:pointer;"><input type="checkbox" id="chkFb" onchange="MediaPR.toggleScheduleInputs()" style="width:18px; height:18px;" ${fbChecked}> <i class="ph-fill ph-facebook-logo" style="color:#1877F2; font-size:20px;"></i> Facebook</label>
+                        <label style="display:flex; align-items:center; gap:6px; font-weight:600; cursor:pointer;"><input type="checkbox" id="chkInsta" onchange="MediaPR.toggleScheduleInputs()" style="width:18px; height:18px;" ${instaChecked}> <i class="ph-fill ph-instagram-logo" style="color:#E4405F; font-size:20px;"></i> Instagram</label>
+                    </div>
+                </div>
+
+                <div id="schFbArea" class="form-group" style="display:${w.fb_time ? 'block' : 'none'}; background: rgba(24, 119, 242, 0.05); padding: 12px; border-radius: 8px; border-left: 3px solid #1877F2;">
+                    <label class="form-label" style="color:#1877F2;">Facebook Upload Date & Time</label>
+                    <input type="datetime-local" id="prFbTime" class="form-control" value="${fbVal}">
+                </div>
+
+                <div id="schInstaArea" class="form-group" style="display:${w.insta_time ? 'block' : 'none'}; background: rgba(228, 64, 95, 0.05); padding: 12px; border-radius: 8px; border-left: 3px solid #E4405F;">
+                    <label class="form-label" style="color:#E4405F;">Instagram Upload Date & Time</label>
+                    <input type="datetime-local" id="prInstaTime" class="form-control" value="${instaVal}">
+                </div>
+
+                <div style="background: rgba(10,25,49,0.03); padding: 12px; border-radius: 8px; font-size: 12px; color: var(--text-muted); margin-bottom: 24px; display: flex; gap: 8px; align-items: flex-start;">
+                    <i class="ph-fill ph-info" style="color: var(--primary); font-size: 16px;"></i>
+                    <span>Once scheduled, this task will be forwarded to the assigned Poster PR to execute at the requested times.</span>
+                </div>
+                <button type="submit" class="btn btn-primary ripple-btn" style="width:100%; padding: 14px; font-size: 15px;">Lock in Schedule <i class="ph-bold ph-arrow-right"></i></button>
+            </form>
+        `);
+    },
+
+    saveSchedule: async (e, id) => {
+        e.preventDefault();
+        
+        const fbChecked = document.getElementById('chkFb').checked;
+        const instaChecked = document.getElementById('chkInsta').checked;
+        
+        if (!fbChecked && !instaChecked) {
+            return UI.showToast('Please select at least one platform to schedule.', 'error');
+        }
+
+        const fbTime = fbChecked ? document.getElementById('prFbTime').value : null;
+        const instaTime = instaChecked ? document.getElementById('prInstaTime').value : null;
+
+        if ((fbChecked && !fbTime) || (instaChecked && !instaTime)) {
+            return UI.showToast('Please set the date and time for the selected platforms.', 'error');
+        }
+
+        const btn = e.target.querySelector('button[type="submit"]');
+        btn.innerHTML = '<i class="ph ph-spinner ph-spin"></i> Saving...';
+        btn.disabled = true;
+
+        const payload = {
+            caption: document.getElementById('prScheduleCaption').value,
+            fb_time: fbTime,
+            insta_time: instaTime,
+            status: 'Scheduled'
+        };
+
+        await DB.update('media_workflows', id, payload);
+        UI.closeModal();
+        UI.showToast('Work Scheduled successfully!', 'success');
+        MediaPR.init();
+    },
+
+    markPosted: async (id) => {
+        UI.confirm('Confirm Execution', `
+            <div style="text-align: center; margin-bottom: 12px;">
+                <div style="font-size: 48px; color: var(--success); margin-bottom: 12px;"><i class="ph-fill ph-rocket-launch"></i></div>
+                <strong style="font-size: 16px; color: var(--primary);">Confirm Upload</strong>
+            </div>
+            Have you successfully uploaded the media to the scheduled platforms? This action cannot be undone.`, 
+            async () => {
+                await DB.update('media_workflows', id, { status: 'Posted' });
+                UI.showToast('Pipeline Completed! Excellent work.', 'success');
+                MediaPR.init();
+        });
+    },
+
+    // ==========================================
+    // 3. EXPORT SCHEDULE PDF (BENGALI SUPPORTED)
+    // ==========================================
+    openExportModal: () => {
+        const today = new Date().toISOString().split('T')[0];
+        UI.showModal('Export Schedule Data', `
+            <div style="text-align:center; margin-bottom: 20px;">
+                <div style="font-size: 40px; color: var(--gold); margin-bottom: 4px;"><i class="ph-fill ph-file-pdf"></i></div>
+                <h3 style="color: var(--primary); font-family: var(--font-heading);">Download Schedule</h3>
+                <p style="font-size: 12px; color: var(--text-muted);">Select a date to generate the schedule sheet (Supports Bengali).</p>
+            </div>
+            <form onsubmit="MediaPR.generateBengaliPDF(event)">
+                <div class="form-group">
+                    <label class="form-label">Select Target Date</label>
+                    <input type="date" id="prExportDate" class="form-control" value="${today}" required>
+                </div>
+                <button type="submit" class="btn btn-primary ripple-btn" style="width:100%; padding: 12px;"><i class="ph-bold ph-printer"></i> Generate & Print Report</button>
+            </form>
+        `);
+    },
+
+    generateBengaliPDF: (e) => {
+        e.preventDefault();
+        const date = document.getElementById('prExportDate').value;
+        if(!date) return UI.showToast('Please select a date', 'error');
+
+        // Filter for tasks scheduled on that exact date (checks both FB and Insta times)
+        const printTasks = MediaPR.myTasks.filter(w => {
+            if(!w.fb_time && !w.insta_time) return false;
+            const fbMatch = w.fb_time && w.fb_time.startsWith(date);
+            const instaMatch = w.insta_time && w.insta_time.startsWith(date);
+            return fbMatch || instaMatch;
+        });
+
+        if(printTasks.length === 0) {
+            UI.closeModal();
+            return UI.showToast('No posts scheduled for this specific date.', 'warning');
+        }
+
+        // Generate an HTML document that the browser prints to PDF perfectly with native OS Bengali fonts
+        let printWindow = window.open('', '_blank');
+        let html = `
+            <!DOCTYPE html>
+            <html lang="en">
+            <head>
+                <meta charset="UTF-8">
+                <title>Chinnapatra_Schedule_Report_${date}</title>
+                <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+                <style>
+                    :root {
+                        --primary: #0b1938;
+                        --gold: #c89b3c;
+                    }
+                    body { 
+                        font-family: 'Poppins', sans-serif; 
+                        padding: 20px; /* Reduced for screen view */
+                        color: #2b2b2b; 
+                        background: #ffffff;
+                        -webkit-print-color-adjust: exact; 
+                        print-color-adjust: exact;
+                        position: relative;
+                        min-height: 100vh;
+                    }
+                    
+                    /* --- MASSIVE CHINNAPATRA WATERMARK --- */
+                    .watermark {
+                        position: fixed;
+                        top: 50%;
+                        left: 50%;
+                        transform: translate(-50%, -50%) rotate(-35deg);
+                        font-size: 110px;
+                        font-family: 'Playfair Display', serif;
+                        font-weight: 700;
+                        color: rgba(200, 155, 60, 0.05); /* Extremely subtle gold */
+                        z-index: -10;
+                        white-space: nowrap;
+                        pointer-events: none;
+                        text-align: center;
+                        line-height: 1;
+                    }
+                    .watermark span {
+                        display: block;
+                        font-size: 36px;
+                        letter-spacing: 20px;
+                        font-family: 'Poppins', sans-serif;
+                        margin-top: 10px;
+                    }
+
+                    /* --- OFFICIAL HEADER --- */
+                    .header-container {
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: flex-end;
+                        border-bottom: 3px solid var(--primary);
+                        padding-bottom: 16px;
+                        margin-bottom: 20px;
+                        position: relative;
+                    }
+                    .header-container::after {
+                        content: ''; position: absolute; bottom: -6px; left: 0; width: 100%; height: 1px; background: var(--gold);
+                    }
+                    .brand-title {
+                        margin: 0; font-family: 'Playfair Display', serif; font-size: 32px; color: var(--primary); line-height: 1.1;
+                    }
+                    .brand-subtitle {
+                        color: var(--gold); font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-top: 4px;
+                    }
+                    .report-meta { text-align: right; }
+                    .report-title {
+                        font-size: 16px; font-weight: 700; color: var(--primary); margin: 0 0 4px 0; text-transform: uppercase;
+                    }
+                    .report-date {
+                        font-size: 12px; color: #555; font-weight: 600; background: rgba(200, 155, 60, 0.1); padding: 4px 12px; border-radius: 4px; display: inline-block; border: 1px solid rgba(200,155,60,0.3);
+                    }
+
+                    /* --- PREMIUM TABLE --- */
+                    table { width: 100%; border-collapse: collapse; margin-top: 10px; z-index: 1; position: relative; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
+                    th, td { border: 1px solid #e2e8f0; padding: 12px 10px; text-align: left; vertical-align: top; }
+                    th { 
+                        background-color: var(--primary) !important; 
+                        color: var(--gold) !important; 
+                        font-weight: 600; text-transform: uppercase; font-size: 11px; letter-spacing: 0.5px;
+                    }
+                    tr:nth-child(even) td { background-color: #f8fafc !important; }
+                    td { font-size: 12px; color: #1e293b; }
+                    .work-id { font-weight: 700; color: var(--primary); font-size: 14px; }
+                    .sangrahashala-tag { display: inline-block; font-size: 10px; color: var(--gold); font-weight: 700; text-transform: uppercase; margin-top: 4px; letter-spacing: 0.5px; }
+                    .caption-text { white-space: pre-wrap; line-height: 1.5; font-style: italic; color: #334155; }
+                    .time-badge { font-weight: 600; font-size: 11px; margin-bottom: 6px; display: block; }
+                    .fb-time { color: #1877F2; }
+                    .ig-time { color: #E4405F; }
+                    
+                    /* --- FOOTER & SIGNATURE --- */
+                    .footer {
+                        margin-top: 40px; display: flex; justify-content: space-between; align-items: flex-end; font-size: 11px; color: #475569; page-break-inside: avoid;
+                    }
+                    .signature-box { text-align: right; }
+                    .sig-line { width: 200px; border-top: 1px solid #1e293b; margin-bottom: 8px; margin-left: auto; }
+                    .sig-name { font-weight: 700; color: var(--primary); font-size: 15px; margin: 0; }
+                    .sig-role { color: var(--gold); font-weight: 700; font-size: 10px; text-transform: uppercase; margin: 2px 0 0 0; letter-spacing: 1px; }
+                    .sig-auth { color: #64748b; font-size: 9px; margin-top: 4px; font-style: italic; }
+
+                    /* --- NARROW PRINT MARGINS --- */
+                    @media print {
+                        body { padding: 0; }
+                        /* Set page to A4 and force narrow margins (8mm) */
+                        @page { size: A4 portrait; margin: 8mm; }
+                    }
+                </style>
+            </head>
+            <body>
+                <!-- Background Watermark -->
+                <div class="watermark">
+                    CHINNAPATRA
+                    <span>OFFICIAL</span>
+                </div>
+
+                <!-- Letterhead Header -->
+                <div class="header-container">
+                    <div>
+                        <h1 class="brand-title">CHINNAPATRA</h1>
+                        <div class="brand-subtitle">Public Relations & Media Desk</div>
+                    </div>
+                    <div class="report-meta">
+                        <h2 class="report-title">Daily Media Schedule</h2>
+                        <div class="report-date">Target Date: ${date}</div>
+                    </div>
+                </div>
+
+                <!-- Schedule Table -->
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 20%;">Work ID & Info</th>
+                            <th style="width: 50%;">Approved Post Caption</th>
+                            <th style="width: 30%;">Scheduled Upload Time</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+        `;
+
+        printTasks.forEach(w => {
+            let timesHtml = '';
+            if(w.fb_time) {
+                const fT = new Date(w.fb_time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                timesHtml += `<span class="time-badge fb-time">📘 Facebook: ${fT}</span>`;
+            }
+            if(w.insta_time) {
+                const iT = new Date(w.insta_time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                timesHtml += `<span class="time-badge ig-time">📸 Instagram: ${iT}</span>`;
+            }
+
+            html += `
+                <tr>
+                    <td>
+                        <span class="work-id">${w.work_id}</span><br>
+                        <span class="sangrahashala-tag">${w.sangrahashala || 'General'}</span>
+                    </td>
+                    <td class="caption-text">"${w.caption || 'No caption provided'}"</td>
+                    <td>${timesHtml}</td>
+                </tr>
+            `;
+        });
+
+        html += `
+                    </tbody>
+                </table>
+                
+                <!-- Footer & Signature Block -->
+                <div class="footer">
+                    <div>
+                        <strong>Generated by:</strong> ${App.currentUser.full_name}<br>
+                        <span style="font-size: 10px; color: #94a3b8;">Printed on: ${new Date().toLocaleString()}</span>
+                    </div>
+                    <div class="signature-box">
+                        <p class="sig-name">Chinnapatra Offical</p>
+                        <p class="sig-role">PR DESK</p>
+                        <p class="sig-auth">Authorized Signature</p>
+                    </div>
+                </div>
+
+                <!-- Auto-Print Script -->
+                <script>
+                    window.onload = function() { 
+                        setTimeout(() => {
+                            window.print();
+                        }, 800); // 800ms delay to ensure web-fonts load perfectly before print dialog opens
+                    }
+                </script>
+            </body>
+            </html>
+        `;
+
+        printWindow.document.write(html);
+        printWindow.document.close();
+        UI.closeModal();
+    }
+};
 
         // --- CLOCK ---
         const LiveClock = {
