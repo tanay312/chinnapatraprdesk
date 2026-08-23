@@ -418,6 +418,7 @@ ss
                 <div class="nav-item" onclick="AdminApp.switchTab('admin-pr-leave', event)"><i class="ph ph-calendar-minus"></i> PR Leaves</div>
                 <div class="nav-item" onclick="AdminApp.switchTab('admin-member-leave', event)"><i class="ph ph-users"></i> Member Leaves</div>
                 <div class="nav-item" onclick="AdminApp.switchTab('admin-approved-member-leave', event)"><i class="ph ph-check-square"></i> Appr. Member Leaves</div>
+                <div class="nav-item" onclick="AdminApp.switchTab('admin-media-workflow', event)"><i class="ph ph-kanban"></i> Media Workflows</div>
                 <div class="nav-item" onclick="AdminApp.switchTab('admin-reports', event)"><i class="ph ph-file-text"></i> Reports</div>
                 <div class="nav-item" onclick="AdminApp.switchTab('admin-notifications', event)"><i class="ph ph-bell"></i> Notifications</div>
                 <div class="nav-item" onclick="AdminApp.switchTab('admin-pr-worklist', event)"><i class="ph ph-list-numbers"></i> Assign Work List</div>
@@ -734,6 +735,24 @@ ss
                         </div>
                     </div>
                 </div>
+                <div id="admin-media-workflow" class="dashboard-view">
+    <div class="card-header" style="border-bottom: none; padding-bottom: 0;">
+        <h2 class="card-title" style="font-size: 24px;">Media Pipeline & Scheduling</h2>
+        <div style="display:flex; gap:12px;">
+            <button class="btn btn-outline ripple-btn" onclick="MediaAdmin.exportCSV('daily')"><i class="ph ph-file-csv"></i> Daily CSV</button>
+            <button class="btn btn-outline ripple-btn" onclick="MediaAdmin.exportCSV('weekly')"><i class="ph ph-file-csv"></i> Weekly CSV</button>
+            <button class="btn btn-primary ripple-btn" onclick="MediaAdmin.openCreateModal()"><i class="ph ph-plus"></i> Create Workflow</button>
+        </div>
+    </div>
+    <div class="content-card" style="padding: 0; margin-top: 24px;">
+        <div class="table-responsive">
+            <table class="premium-table">
+                <thead><tr><th>Work Info</th><th>Artists</th><th>Assigned Team</th><th>Status & Schedule</th><th>Actions</th></tr></thead>
+                <tbody id="tableMediaWorkflows"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
 
                 <!-- Admin Reports -->
                 <div id="admin-reports" class="dashboard-view">
@@ -891,6 +910,7 @@ ss
                 <div class="nav-item active" onclick="PRApp.switchTab('pr-dashboard', event)"><i class="ph ph-clock"></i> Attendance Desk</div>
                 <div class="nav-item" onclick="PRApp.switchTab('pr-history', event)"><i class="ph ph-list-dashes"></i> Attendance History</div>
                 <div class="nav-item" onclick="PRApp.switchTab('pr-leave', event)"><i class="ph ph-calendar-plus"></i> Apply Leave</div>
+                <div class="nav-item" onclick="PRApp.switchTab('pr-media-tasks', event)"><i class="ph ph-kanban"></i> Media Tasks</div>
                 <div class="nav-item" onclick="PRApp.switchTab('pr-leave-history', event)"><i class="ph ph-calendar-check"></i> Leave History</div>
                 <div class="nav-item" onclick="PRApp.switchTab('pr-notifications', event)"><i class="ph ph-bell"></i> My Notifications</div>
                 <div class="nav-item" onclick="PRApp.switchTab('pr-worklist', event)"><i class="ph ph-list-numbers"></i> My Work List</div>
@@ -979,6 +999,10 @@ ss
                         </div>
                     </div>
                 </div>
+                <div id="pr-media-tasks" class="dashboard-view">
+    <h2 class="card-title" style="font-size: 24px; margin-bottom: 24px;">My Media Pipeline Tasks</h2>
+    <div id="prMediaTasksContainer" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px;"></div>
+</div>
 
                 <!-- PR Leave History -->
                 <div id="pr-leave-history" class="dashboard-view">
