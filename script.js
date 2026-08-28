@@ -3036,6 +3036,88 @@ function showWelcomePopup() {
                     else { UI.showToast('Notification safely removed.', 'success'); AdminApp.renderNotifications(); }
                 });
             },
+                // --- NEW: ARTIST NOTIFICATION SYSTEM ---
+            openArtistNotificationModal: async () => {
+                const html = `
+                    <form onsubmit="AdminApp.sendArtistNotification(event)">
+                        <div class="form-group">
+                            <label class="form-label" style="color: var(--gold);">Target Artist Audience</label>
+                            <div style="display:flex; gap:16px; margin-bottom:12px;">
+                                <label style="cursor:pointer; display:flex; align-items:center; gap:4px;">
+                                    <input type="radio" name="artTargetType" value="ALL_ARTISTS" checked onchange="document.getElementById('specificArtistBox').style.display='none'"> 
+                                    All Artists
+                                </label>
+                                <label style="cursor:pointer; display:flex; align-items:center; gap:4px;">
+                                    <input type="radio" name="artTargetType" value="SPECIFIC" onchange="document.getElementById('specificArtistBox').style.display='block'"> 
+                                    Specific Artist
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group" id="specificArtistBox" style="display:none;">
+                            <label class="form-label">Select Artist</label>
+                            <select id="notifArtistId" class="form-control">
+                                <option value="">Loading artists...</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Notification Title</label>
+                            <input type="text" id="artNotifTitle" class="form-control" required placeholder="e.g. New Art Assignment / System Update">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Message Content</label>
+                            <textarea id="artNotifMessage" class="form-control" required placeholder="Write your message for the artist(s)..."></textarea>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary" style="width:100%">
+                            <i class="ph-bold ph-paper-plane-right"></i> Broadcast to Artist(s)
+                        </button>
+                    </form>
+                `;
+                
+                UI.showModal('Send Artist Notification', html);
+
+                // Fetch Artists for the dropdown
+                const { data, error } = await supabaseClient.from('artists').select('id, name');
+                if (data) {
+                    document.getElementById('notifArtistId').innerHTML = data.map(art => 
+                        `<option value="${art.id}">${art.name} (${art.id.substring(0, 6).toUpperCase()})</option>`
+                    ).join('');
+                }
+            },
+
+            sendArtistNotification: async (e) => {
+                e.preventDefault();
+                const btn = e.target.querySelector('button');
+                const origText = btn.innerHTML;
+                btn.innerHTML = '<i class="ph ph-spinner ph-spin"></i> Sending...';
+                btn.disabled = true;
+
+                const type = document.querySelector('input[name="artTargetType"]:checked').value;
+                const target = type === 'ALL_ARTISTS' ? 'ALL_ARTISTS' : document.getElementById('notifArtistId').value;
+                
+                const payload = {
+                    title: document.getElementById('artNotifTitle').value,
+                    message: document.getElementById('artNotifMessage').value,
+                    target_member_id: target,
+                    created_at: new Date().toISOString() // Using standard ISO string
+                };
+
+                const { error } = await supabaseClient.from('admin_messages').insert([payload]);
+                
+                if (error) {
+                    UI.showToast('Error sending message: ' + error.message, 'error'); 
+                } else {
+                    UI.showToast('Artist Notification broadcasted successfully!', 'success');
+                    UI.closeModal();
+                }
+                
+                btn.innerHTML = origText;
+                btn.disabled = false;
+            },
+            // ----------------------------------------
             saveSettings: async (e) => {
                 e.preventDefault();
                 const btn = e.target.querySelector('button');
