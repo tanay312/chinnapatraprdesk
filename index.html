@@ -775,21 +775,41 @@ ss
                     </div>
                 </div>
 
-                <!-- Admin Notifications -->
-                <div id="admin-notifications" class="dashboard-view">
-                    <div class="card-header" style="border-bottom: none; padding-bottom: 0;">
-                        <h2 class="card-title" style="font-size: 24px;">System Notifications</h2>
-                        <button class="btn btn-primary ripple-btn" onclick="AdminApp.openNotificationModal()"><i class="ph ph-bell-ringing"></i> Send Notification</button>
-                    </div>
-                    <div class="content-card" style="padding: 0; margin-top: 24px;">
-                        <div class="table-responsive">
-                            <table class="premium-table">
-                                <thead><tr><th>Time</th><th>Title & Urgency</th><th>Message & Action</th><th>Targets</th><th>Attachment</th><th>Actions</th></tr></thead>
-                                <tbody id="tableNotifications"></tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
+               <!-- Admin Notifications -->
+<div id="admin-notifications" class="dashboard-view">
+    <div class="card-header" style="border-bottom: none; padding-bottom: 0;">
+        <h2 class="card-title" style="font-size: 24px;">System Notifications</h2>
+        
+        <!-- Two separate buttons for PR and Artists -->
+        <div style="display: flex; gap: 12px;">
+            <button class="btn btn-primary ripple-btn" onclick="AdminApp.openNotificationModal()">
+                <i class="ph ph-bell-ringing"></i> Alert PR Team
+            </button>
+            <button class="btn btn-outline ripple-btn" onclick="AdminApp.openArtistNotificationModal()">
+                <i class="ph-fill ph-palette"></i> Alert Artists
+            </button>
+        </div>
+    </div>
+    
+    <div class="content-card" style="padding: 0; margin-top: 24px;">
+        <div class="table-responsive">
+            <table class="premium-table">
+                <thead>
+                    <tr>
+                        <th>Time</th>
+                        <th>Title & Urgency</th>
+                        <th>Message Content</th>
+                        <th>Target Audience</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="tableNotifications">
+                    <!-- Notification History will load here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
                 
                 <!-- Admin PR Work List Assignment -->
 <div id="admin-pr-worklist" class="dashboard-view">
