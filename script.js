@@ -4089,8 +4089,8 @@ const MediaPR = {
         if (!u) return;
 
         const wrapper = document.getElementById('prMediaCardsWrapper');
-        const filterVal = document.getElementById('prMediaSangFilter').value;
-        const searchVal = document.getElementById('prMediaSearch').value.toLowerCase();
+        const filterVal = document.getElementById('prMediaSangFilter') ? document.getElementById('prMediaSangFilter').value : '';
+        const searchVal = document.getElementById('prMediaSearch') ? document.getElementById('prMediaSearch').value.toLowerCase() : '';
         if (!wrapper) return;
 
         wrapper.innerHTML = '';
@@ -4102,7 +4102,8 @@ const MediaPR = {
             filteredTasks = filteredTasks.filter(w => 
                 (w.title && w.title.toLowerCase().includes(searchVal)) || 
                 (w.work_id && w.work_id.toLowerCase().includes(searchVal)) ||
-                (w.artists_data && w.artists_data.toLowerCase().includes(searchVal))
+                (w.artists_data && w.artists_data.toLowerCase().includes(searchVal)) ||
+                (w.platform && w.platform.toLowerCase().includes(searchVal))
             );
         }
 
@@ -4115,7 +4116,12 @@ const MediaPR = {
         });
 
         if (filteredTasks.length === 0) {
-            wrapper.innerHTML = `<div style="grid-column: 1/-1; text-align:center; padding:30px; color:var(--text-muted);">No tasks match your search or filter.</div>`;
+            wrapper.innerHTML = `
+                <div style="grid-column: 1/-1; padding: 60px 20px; text-align: center; border: 2px dashed #E5E7EB; border-radius: var(--radius-lg); background: var(--white); animation: fadeIn 0.5s;">
+                    <i class="ph-fill ph-magnifying-glass" style="font-size: 40px; color: var(--gold); margin-bottom: 12px;"></i>
+                    <h3 style="color: var(--primary); font-size: 18px;">No Tasks Found</h3>
+                    <p style="color: var(--text-muted); font-size: 14px;">Adjust your search or filter settings.</p>
+                </div>`;
             return;
         }
 
@@ -4129,9 +4135,9 @@ const MediaPR = {
 
             const createdDate = new Date(w.created_at);
             const daysOld = Math.floor((now - createdDate) / (1000 * 60 * 60 * 24));
-            let oldTaskBadge = daysOld >= 30 ? `<span class="badge badge-absent" style="font-size:10px; margin-bottom:8px;"><i class="ph-bold ph-warning-circle"></i> OLD TASK (${daysOld} Days)</span>` : '';
+            let oldTaskBadge = daysOld >= 30 ? `<span class="badge badge-absent" style="font-size:10px; margin-bottom:8px; display:inline-flex; align-items:center; gap:4px; animation:pulse 2s infinite;"><i class="ph-bold ph-warning-circle"></i> OLD TASK (${daysOld} Days)</span>` : '';
 
-            const assignedDateStr = createdDate.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' });
+            const assignedDateStr = createdDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
             
             let mediaIcon = 'ph-file';
             if(w.media_type === 'Video') mediaIcon = 'ph-video-camera';
@@ -4140,8 +4146,10 @@ const MediaPR = {
 
             let artistsHtml = '';
             if (w.artists_data) {
-                const arr = typeof w.artists_data === 'string' ? JSON.parse(w.artists_data) : w.artists_data;
-                artistsHtml = arr.map(a => `<span style="background: rgba(10,25,49,0.04); border: 1px solid rgba(10,25,49,0.1); color: var(--primary); padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; margin: 0 6px 6px 0;"><i class="ph-fill ph-user-circle" style="color: var(--gold);"></i> ${a.artist_name} <span style="color: var(--text-muted); font-weight: 500; border-left: 1px solid rgba(10,25,49,0.2); padding-left: 4px; margin-left: 2px;">${a.department || 'General'}</span></span>`).join('');
+                try {
+                    const arr = typeof w.artists_data === 'string' ? JSON.parse(w.artists_data) : w.artists_data;
+                    artistsHtml = arr.map(a => `<span style="background: rgba(10,25,49,0.04); border: 1px solid rgba(10,25,49,0.1); color: var(--primary); padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; margin: 0 6px 6px 0;"><i class="ph-fill ph-user-circle" style="color: var(--gold);"></i> ${a.artist_name} <span style="color: var(--text-muted); font-weight: 500; border-left: 1px solid rgba(10,25,49,0.2); padding-left: 4px; margin-left: 2px;">${a.department || 'General'}</span></span>`).join('');
+                } catch(e) {}
             }
 
             let step1 = 'completed', step2 = '', step3 = '';
@@ -4174,7 +4182,7 @@ const MediaPR = {
                 if (schedulerBtn || posterBtn) {
                     finalActionArea = `<div style="display:flex; flex-direction:column; gap:8px;">${schedulerBtn}${posterBtn}</div>`;
                 } else {
-                    finalActionArea = `<div style="text-align:center; padding: 10px; background: rgba(10,25,49,0.05); color: var(--text-muted); border-radius: var(--radius-pill); font-weight: 600; font-size: 13px;"><i class="ph ph-hourglass"></i> Waiting on other PR</div>`;
+                    finalActionArea = `<div style="text-align:center; padding: 10px; background: rgba(10,25,49,0.05); color: var(--text-muted); border-radius: var(--radius-pill); font-weight: 600; font-size: 13px;"><i class="ph ph-hourglass ph-spin" style="display:inline-block;"></i> Waiting on other PR</div>`;
                 }
             }
 
@@ -4187,13 +4195,11 @@ const MediaPR = {
 
             let scheduleInfo = '';
             if (w.fb_time || w.insta_time) {
-                let fbHtml = w.fb_time ? `<div style="display:flex; justify-content:space-between; font-size:12px; font-weight:600; color:#1877F2; margin-bottom:4px;"><span style="display:flex; align-items:center; gap:4px;"><i class="ph-fill ph-facebook-logo"></i> Facebook</span> <span>${new Date(w.fb_time.replace(/(Z|\+00:00)$/, '')).toLocaleString([], {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'})}</span></div>` : '';
-                
-                let instaHtml = w.insta_time ? `<div style="display:flex; justify-content:space-between; font-size:12px; font-weight:600; color:#E4405F;"><span style="display:flex; align-items:center; gap:4px;"><i class="ph-fill ph-instagram-logo"></i> Instagram</span> <span>${new Date(w.insta_time.replace(/(Z|\+00:00)$/, '')).toLocaleString([], {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'})}</span></div>` : '';
-                
+                let fbHtml = w.fb_time ? `<div style="display:flex; justify-content:space-between; font-size:12px; font-weight:600; color:#1877F2; margin-bottom:6px; background:rgba(24,119,242,0.05); padding:8px; border-radius:6px;"><span style="display:flex; align-items:center; gap:6px;"><i class="ph-fill ph-facebook-logo" style="font-size:16px;"></i> Facebook</span> <span>${new Date(w.fb_time.replace(/(Z|\+00:00)$/, '')).toLocaleString([], {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'})}</span></div>` : '';
+                let instaHtml = w.insta_time ? `<div style="display:flex; justify-content:space-between; font-size:12px; font-weight:600; color:#E4405F; background:rgba(228,64,95,0.05); padding:8px; border-radius:6px;"><span style="display:flex; align-items:center; gap:6px;"><i class="ph-fill ph-instagram-logo" style="font-size:16px;"></i> Instagram</span> <span>${new Date(w.insta_time.replace(/(Z|\+00:00)$/, '')).toLocaleString([], {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'})}</span></div>` : '';
                 
                 scheduleInfo = `
-                    <div style="background: rgba(10,25,49,0.03); padding: 12px; border-radius: 8px; border-left: 3px solid var(--primary); margin-bottom: 16px;">
+                    <div style="margin-bottom: 16px;">
                         ${fbHtml}
                         ${instaHtml}
                     </div>
@@ -4201,7 +4207,7 @@ const MediaPR = {
             }
 
             html += `
-                <div class="content-card media-task-card" style="border-top: 4px solid ${cardAccent}; animation-delay: ${delay}s; padding-top:16px;">
+                <div class="content-card media-task-card" style="border-top: 4px solid ${cardAccent}; animation: fadeUp 0.6s forwards; opacity:0; animation-delay: ${delay}s; padding-top:16px;">
                     
                     <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom: 12px;">
                         <div>
@@ -4210,17 +4216,17 @@ const MediaPR = {
                         </div>
                         <div style="text-align:right; flex-shrink:0;">
                             ${oldTaskBadge}
-                            <div style="font-size:10px; font-weight:bold; color:var(--text-muted); background:rgba(0,0,0,0.05); padding:2px 8px; border-radius:12px; margin-bottom:4px;"><i class="ph-bold ph-calendar-blank"></i> ASSIGNED: ${assignedDateStr}</div>
+                            <div style="font-size:10px; font-weight:bold; color:var(--text-muted); background:rgba(0,0,0,0.05); padding:4px 8px; border-radius:12px; margin-bottom:4px; display:inline-flex; align-items:center; gap:4px;"><i class="ph-bold ph-calendar-blank"></i> ASSIGNED: ${assignedDateStr}</div><br>
                             ${markBadge}
                         </div>
                     </div>
 
-                    <div style="display:flex; gap:12px; margin-bottom:16px; font-size:12px; font-weight:600; color:var(--primary);">
-                        <span><i class="ph-fill ph-folder-star" style="color:var(--gold);"></i> ${w.sangrahashala || 'Uncategorized'}</span>
-                        <span><i class="ph-fill ${mediaIcon}" style="color:var(--text-muted);"></i> ${w.media_type || 'N/A'}</span>
+                    <div style="display:flex; gap:12px; margin-bottom:20px; font-size:12px; font-weight:600; color:var(--primary); flex-wrap:wrap;">
+                        <span style="background: rgba(212,175,55,0.1); padding: 4px 10px; border-radius: 6px;"><i class="ph-fill ph-folder-star" style="color:var(--gold);"></i> ${w.sangrahashala || 'Uncategorized'}</span>
+                        <span style="background: rgba(10,17,40,0.05); padding: 4px 10px; border-radius: 6px;"><i class="ph-fill ${mediaIcon}" style="color:var(--text-muted);"></i> ${w.media_type || 'N/A'}</span>
                     </div>
 
-                    <div class="workflow-tracker">
+                    <div class="workflow-tracker" style="margin-bottom: 20px;">
                         <div class="workflow-step ${step1}"><div class="step-icon"><i class="ph-bold ph-file-text"></i></div> Assigned</div>
                         <div class="workflow-step ${step2}"><div class="step-icon"><i class="ph-bold ph-calendar"></i></div> Scheduled</div>
                         <div class="workflow-step ${step3}"><div class="step-icon"><i class="ph-bold ph-rocket-launch"></i></div> Posted</div>
@@ -4250,8 +4256,15 @@ const MediaPR = {
     toggleScheduleInputs: () => {
         const fbChecked = document.getElementById('chkFb').checked;
         const instaChecked = document.getElementById('chkInsta').checked;
-        document.getElementById('schFbArea').style.display = fbChecked ? 'block' : 'none';
-        document.getElementById('schInstaArea').style.display = instaChecked ? 'block' : 'none';
+        
+        const fbArea = document.getElementById('schFbArea');
+        const instaArea = document.getElementById('schInstaArea');
+        
+        if(fbChecked) { fbArea.style.display = 'block'; fbArea.style.animation = 'fadeIn 0.3s forwards'; } 
+        else { fbArea.style.display = 'none'; }
+        
+        if(instaChecked) { instaArea.style.display = 'block'; instaArea.style.animation = 'fadeIn 0.3s forwards'; } 
+        else { instaArea.style.display = 'none'; }
     },
 
     openScheduleModal: (id) => {
@@ -4260,8 +4273,11 @@ const MediaPR = {
 
         const fbChecked = w.fb_time ? 'checked' : '';
         const instaChecked = w.insta_time ? 'checked' : '';
-        const fbVal = w.fb_time ? new Date(w.fb_time).toISOString().slice(0,16) : '';
-        const instaVal = w.insta_time ? new Date(w.insta_time).toISOString().slice(0,16) : '';
+        
+        // Fix for datetime-local timezone shift
+        const offset = new Date().getTimezoneOffset() * 60000;
+        const fbVal = w.fb_time ? new Date(new Date(w.fb_time).getTime() - offset).toISOString().slice(0,16) : '';
+        const instaVal = w.insta_time ? new Date(new Date(w.insta_time).getTime() - offset).toISOString().slice(0,16) : '';
 
         UI.showModal('Plan Media Schedule', `
             <div style="text-align:center; margin-bottom: 24px;">
@@ -4278,9 +4294,15 @@ const MediaPR = {
 
                 <div class="form-group">
                     <label class="form-label">Select Platforms to Schedule</label>
-                    <div style="display:flex; gap:16px; margin-bottom:12px;">
-                        <label style="display:flex; align-items:center; gap:6px; font-weight:600; cursor:pointer;"><input type="checkbox" id="chkFb" onchange="MediaPR.toggleScheduleInputs()" style="width:18px; height:18px;" ${fbChecked}> <i class="ph-fill ph-facebook-logo" style="color:#1877F2; font-size:20px;"></i> Facebook</label>
-                        <label style="display:flex; align-items:center; gap:6px; font-weight:600; cursor:pointer;"><input type="checkbox" id="chkInsta" onchange="MediaPR.toggleScheduleInputs()" style="width:18px; height:18px;" ${instaChecked}> <i class="ph-fill ph-instagram-logo" style="color:#E4405F; font-size:20px;"></i> Instagram</label>
+                    <div style="display:flex; gap:16px; margin-bottom:12px; background:var(--bg-main); padding:12px; border-radius:8px; border:1px solid #E5E7EB;">
+                        <label style="display:flex; align-items:center; gap:6px; font-weight:600; cursor:pointer;">
+                            <input type="checkbox" id="chkFb" onchange="MediaPR.toggleScheduleInputs()" style="width:18px; height:18px;" ${fbChecked}> 
+                            <i class="ph-fill ph-facebook-logo" style="color:#1877F2; font-size:20px;"></i> Facebook
+                        </label>
+                        <label style="display:flex; align-items:center; gap:6px; font-weight:600; cursor:pointer;">
+                            <input type="checkbox" id="chkInsta" onchange="MediaPR.toggleScheduleInputs()" style="width:18px; height:18px;" ${instaChecked}> 
+                            <i class="ph-fill ph-instagram-logo" style="color:#E4405F; font-size:20px;"></i> Instagram
+                        </label>
                     </div>
                 </div>
 
@@ -4320,21 +4342,35 @@ const MediaPR = {
             return UI.showToast('Please set the date and time for the selected platforms.', 'error');
         }
 
+        // --- NEW: Generate Dynamic Platform String for Database ---
+        let selectedPlatforms = [];
+        if (fbChecked) selectedPlatforms.push('Facebook');
+        if (instaChecked) selectedPlatforms.push('Instagram');
+        const platformString = selectedPlatforms.join(', ');
+
         const btn = e.target.querySelector('button[type="submit"]');
+        const originalText = btn.innerHTML;
         btn.innerHTML = '<i class="ph ph-spinner ph-spin"></i> Saving...';
         btn.disabled = true;
 
         const payload = {
             caption: document.getElementById('prScheduleCaption').value,
+            platform: platformString, // Updates DB with Facebook, Instagram, or both
             fb_time: fbTime,
             insta_time: instaTime,
             status: 'Scheduled'
         };
 
-        await DB.update('media_workflows', id, payload);
-        UI.closeModal();
-        UI.showToast('Work Scheduled successfully!', 'success');
-        MediaPR.init();
+        try {
+            await DB.update('media_workflows', id, payload);
+            UI.closeModal();
+            UI.showToast('Work Scheduled successfully!', 'success');
+            MediaPR.init();
+        } catch(err) {
+            UI.showToast('Failed to save schedule', 'error');
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        }
     },
 
     markPosted: async (id) => {
@@ -4350,7 +4386,6 @@ const MediaPR = {
                 MediaPR.init();
         });
     },
-
     // ==========================================
     // 3. EXPORT SCHEDULE PDF (BENGALI SUPPORTED)
     // ==========================================
