@@ -4533,11 +4533,15 @@ const MediaPR = {
         printTasks.forEach(w => {
             let timesHtml = '';
             if(w.fb_time) {
-                const fT = new Date(w.fb_time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                // Strip the trailing Z or +00:00 to force local time parsing
+                const cleanFb = w.fb_time.replace(/(Z|\+00:00)$/, '');
+                const fT = new Date(cleanFb).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
                 timesHtml += `<span class="time-badge fb-time">📘 Facebook: ${fT}</span>`;
             }
             if(w.insta_time) {
-                const iT = new Date(w.insta_time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                // Strip the trailing Z or +00:00 to force local time parsing
+                const cleanInsta = w.insta_time.replace(/(Z|\+00:00)$/, '');
+                const iT = new Date(cleanInsta).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
                 timesHtml += `<span class="time-badge ig-time">📸 Instagram: ${iT}</span>`;
             }
 
