@@ -4187,8 +4187,10 @@ const MediaPR = {
 
             let scheduleInfo = '';
             if (w.fb_time || w.insta_time) {
-                let fbHtml = w.fb_time ? `<div style="display:flex; justify-content:space-between; font-size:12px; font-weight:600; color:#1877F2; margin-bottom:4px;"><span style="display:flex; align-items:center; gap:4px;"><i class="ph-fill ph-facebook-logo"></i> Facebook</span> <span>${new Date(w.fb_time).toLocaleString([], {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'})}</span></div>` : '';
-                let instaHtml = w.insta_time ? `<div style="display:flex; justify-content:space-between; font-size:12px; font-weight:600; color:#E4405F;"><span style="display:flex; align-items:center; gap:4px;"><i class="ph-fill ph-instagram-logo"></i> Instagram</span> <span>${new Date(w.insta_time).toLocaleString([], {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'})}</span></div>` : '';
+                let fbHtml = w.fb_time ? `<div style="display:flex; justify-content:space-between; font-size:12px; font-weight:600; color:#1877F2; margin-bottom:4px;"><span style="display:flex; align-items:center; gap:4px;"><i class="ph-fill ph-facebook-logo"></i> Facebook</span> <span>${new Date(w.fb_time.replace(/(Z|\+00:00)$/, '')).toLocaleString([], {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'})}</span></div>` : '';
+                
+                let instaHtml = w.insta_time ? `<div style="display:flex; justify-content:space-between; font-size:12px; font-weight:600; color:#E4405F;"><span style="display:flex; align-items:center; gap:4px;"><i class="ph-fill ph-instagram-logo"></i> Instagram</span> <span>${new Date(w.insta_time.replace(/(Z|\+00:00)$/, '')).toLocaleString([], {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'})}</span></div>` : '';
+                
                 
                 scheduleInfo = `
                     <div style="background: rgba(10,25,49,0.03); padding: 12px; border-radius: 8px; border-left: 3px solid var(--primary); margin-bottom: 16px;">
