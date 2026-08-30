@@ -340,90 +340,109 @@ function showWelcomePopup() {
                 if (nameInput) nameInput.value = settings.officeName || 'Premium PR Headquarters';
                 if (logoInput) logoInput.value = settings.logoUrl || '';
             },
-        checkUpcomingBirthdays: async function() {
-                try {
-                    // Fetch all artists to check DOBs
-                    const artists = await DB.get('artists');
-                    if (!artists || artists.length === 0) return;
+        renderBirthdayWidgets: async function() {
+        const adminContainer = document.getElementById('adminBirthdayWidget');
+        const prContainer = document.getElementById('prBirthdayWidget');
 
-                    // Setup Dates in Kolkata Timezone
-                    const getKolkataDate = (offsetDays = 0) => {
-                        const d = new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Kolkata"}));
-                        d.setDate(d.getDate() + offsetDays);
-                        const mm = String(d.getMonth() + 1).padStart(2, '0');
-                        const dd = String(d.getDate()).padStart(2, '0');
-                        return `${mm}-${dd}`; // Returns MM-DD format
-                    };
+        // যদি পেজে কন্টেইনার না থাকে তবে রিটার্ন করবে
+        if (!adminContainer && !prContainer) return;
 
-                    const todayMMDD = getKolkataDate(0);
-                    const tomorrowMMDD = getKolkataDate(1);
-                    const dayAfterMMDD = getKolkataDate(2);
+        try {
+            const artists = await DB.get('artists');
+            if (!artists || artists.length === 0) return;
 
-                    let todayBdays = [];
-                    let upcomingBdays = [];
+            // কলকাতা টাইমজোন (IST) অনুযায়ী আজকের ডেট সেট করা
+            const getKolkataDate = (offsetDays = 0) => {
+                const d = new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Kolkata"}));
+                d.setDate(d.getDate() + offsetDays);
+                const mm = String(d.getMonth() + 1).padStart(2, '0');
+                const dd = String(d.getDate()).padStart(2, '0');
+                return `${mm}-${dd}`;
+            };
 
-                    // Categorize Birthdays
-                    artists.forEach(a => {
-                        if (!a.dob) return;
-                        const dobMMDD = a.dob.substring(5); // Extract MM-DD from YYYY-MM-DD
-                        
-                        if (dobMMDD === todayMMDD) {
-                            todayBdays.push(a);
-                        } else if (dobMMDD === tomorrowMMDD) {
-                            upcomingBdays.push({ ...a, dayText: 'Tomorrow' });
-                        } else if (dobMMDD === dayAfterMMDD) {
-                            upcomingBdays.push({ ...a, dayText: 'in 2 days' });
-                        }
-                    });
+            const todayMMDD = getKolkataDate(0);
+            const tomorrowMMDD = getKolkataDate(1);
+            const dayAfterMMDD = getKolkataDate(2);
 
-                    // If no birthdays, do nothing
-                    if (todayBdays.length === 0 && upcomingBdays.length === 0) return;
+            let todayBdays = [];
+            let upcomingBdays = [];
 
-                    // Build Premium Banner HTML
-                    let bannerHtml = `
-                        <div id="globalBirthdayBanner" style="background: linear-gradient(135deg, var(--primary), var(--primary-light)); border-bottom: 3px solid var(--gold); padding: 14px 24px; display: flex; align-items: center; justify-content: center; gap: 16px; position: relative; z-index: 99; box-shadow: var(--shadow-md); animation: slideDown 0.5s ease-out;">
-                            <style>
-                                @keyframes slideDown { from { transform: translateY(-100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-                                .bday-text strong { color: var(--gold); font-family: var(--font-heading); font-size: 16px; letter-spacing: 0.5px; }
-                            </style>
-                            <div style="font-size: 28px; animation: floatIcon 2s infinite alternate;">🎂</div>
-                            <div class="bday-text" style="color: white; font-size: 14px; line-height: 1.6;">
-                    `;
+            artists.forEach(a => {
+                if (!a.dob) return;
+                const dobMMDD = a.dob.substring(5); 
+                
+                if (dobMMDD === todayMMDD) todayBdays.push(a);
+                else if (dobMMDD === tomorrowMMDD) upcomingBdays.push({ ...a, dayText: 'Tomorrow' });
+                else if (dobMMDD === dayAfterMMDD) upcomingBdays.push({ ...a, dayText: 'In 2 Days' });
+            });
 
-                    if (todayBdays.length > 0) {
-                        const names = todayBdays.map(a => `<strong>${a.name}</strong>`).join(', ');
-                        bannerHtml += `🎉 Wishing a very Happy Birthday to ${names} today! &nbsp;&nbsp;`;
-                    }
+            // যদি কারও বার্থডে না থাকে
+            if (todayBdays.length === 0 && upcomingBdays.length === 0) {
+                const emptyHtml = `
+                    <div class="glass-card" style="padding: 24px; text-align: center; border-top: 4px solid rgba(10,25,49,0.1);">
+                        <i class="ph-fill ph-cake" style="font-size: 32px; color: var(--text-muted); opacity: 0.3; margin-bottom: 8px;"></i>
+                        <p style="color: var(--text-muted); font-size: 13px; font-weight: 500; margin: 0;">No birthdays today or in the next 2 days.</p>
+                    </div>`;
+                if (adminContainer) adminContainer.innerHTML = emptyHtml;
+                if (prContainer) prContainer.innerHTML = emptyHtml;
+                return;
+            }
 
-                    if (upcomingBdays.length > 0) {
-                        const names = upcomingBdays.map(a => `<span style="color:#D1D5DB;"><strong>${a.name}</strong> (${a.dayText})</span>`).join(', ');
-                        bannerHtml += `✨ <em>Upcoming Birthdays:</em> ${names}.`;
-                    }
+            // প্রিমিয়াম বার্থডে উইজেট ডিজাইন
+            let html = `
+                <div class="glass-card" style="padding: 24px; border-top: 4px solid var(--gold); position: relative; overflow: hidden;">
+                    <i class="ph-fill ph-confetti" style="position: absolute; right: -20px; top: -20px; font-size: 120px; color: rgba(212, 175, 55, 0.05); transform: rotate(15deg); pointer-events: none;"></i>
+                    <div style="position: relative; z-index: 1;">
+                        <h3 style="font-family: var(--font-heading); color: var(--primary); font-size: 18px; margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
+                            <i class="ph-fill ph-cake" style="color: var(--gold); font-size: 24px;"></i> Birthday Calendar
+                        </h3>
+            `;
 
-                    bannerHtml += `
+            // আজকের বার্থডে (সবুজ রঙের)
+            if (todayBdays.length > 0) {
+                html += `<div style="font-size: 11px; font-weight: 800; color: var(--success); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px;">🎉 Today's Birthdays</div>`;
+                html += `<div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px;">`;
+                todayBdays.forEach(a => {
+                    html += `
+                        <div style="background: rgba(16, 185, 129, 0.05); border-left: 3px solid var(--success); padding: 12px 16px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <strong style="color: var(--primary); font-size: 15px;">${a.name}</strong>
+                                <div style="font-size: 11px; color: var(--text-muted); font-weight: 600; margin-top: 2px;">${a.department || 'Creative Team'}</div>
                             </div>
-                            <button onclick="this.parentElement.remove()" style="position: absolute; right: 20px; background: rgba(255,255,255,0.1); border: none; color: white; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.3s;" onmouseover="this.style.background='var(--danger)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'">
-                                <i class="ph-bold ph-x"></i>
-                            </button>
+                            <span class="badge badge-completed" style="font-size: 10px; animation: pulse 2s infinite;">TODAY</span>
                         </div>
                     `;
+                });
+                html += `</div>`;
+            }
 
-                    // Inject into the active dashboard view
-                    const activeView = document.querySelector('.page-view.active');
-                    if (activeView) {
-                        // Remove existing banner if routing changed
-                        const existing = document.getElementById('globalBirthdayBanner');
-                        if (existing) existing.remove();
-                        
-                        // Prepend right at the top of the main wrapper area
-                        const mainWrapper = activeView.querySelector('.main-wrapper') || activeView;
-                        mainWrapper.insertAdjacentHTML('afterbegin', bannerHtml);
-                    }
+            // আপকামিং বার্থডে (সোনালী রঙের)
+            if (upcomingBdays.length > 0) {
+                html += `<div style="font-size: 11px; font-weight: 800; color: var(--gold); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px;">✨ Upcoming Birthdays</div>`;
+                html += `<div style="display: flex; flex-direction: column; gap: 10px;">`;
+                upcomingBdays.forEach(a => {
+                    html += `
+                        <div style="background: rgba(212, 175, 55, 0.05); border-left: 3px solid var(--gold); padding: 12px 16px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <strong style="color: var(--primary); font-size: 14px;">${a.name}</strong>
+                                <div style="font-size: 11px; color: var(--text-muted); font-weight: 600; margin-top: 2px;">${a.department || 'Creative Team'}</div>
+                            </div>
+                            <span class="badge badge-pending" style="font-size: 10px;">${a.dayText}</span>
+                        </div>
+                    `;
+                });
+                html += `</div>`;
+            }
 
-                } catch (err) {
-                    console.error("Failed to load birthdays:", err);
-                }
-            },
+            html += `</div></div>`;
+
+            if (adminContainer) adminContainer.innerHTML = html;
+            if (prContainer) prContainer.innerHTML = html;
+
+        } catch (err) {
+            console.error("Failed to load birthdays:", err);
+        }
+    },
 
             init: function() {
                 setTimeout(() => {
@@ -537,12 +556,7 @@ function showWelcomePopup() {
                 if (pageId === 'page-pr') PRApp.init();
                 if (pageId === 'page-public-member-leave') PublicApp.init(); 
 
-                // Add this line to trigger the banner after the view is loaded!
-                if (pageId === 'page-admin' || pageId === 'page-pr') {
-                    setTimeout(() => {
-                        this.checkUpcomingBirthdays();
-                    }, 1000); // 1-second delay for a smooth entrance
-                }
+                
             }
         };
 
@@ -2600,6 +2614,7 @@ function showWelcomePopup() {
                     const tbody = activityTable.querySelector('tbody');
                     if (tbody) tbody.innerHTML = html || '<tr><td colspan="4" class="text-center text-muted">No activity today</td></tr>';
                 }
+                App.renderBirthdayWidgets();
             },
 
             exportAttendanceCSV: async () => {
@@ -3552,6 +3567,7 @@ function showWelcomePopup() {
                         actionArea.innerHTML = `<button class="btn btn-primary ripple-btn" style="padding:16px 48px;font-size:18px;" onclick="PRApp.checkIn()"><i class="ph-bold ph-fingerprint" style="font-size:24px;"></i> Check In Again</button><div style="margin-top:10px;font-size:14px;color:green;">Today's Sessions : ${sessions.length}</div>`;
                     }
                 }
+                App.renderBirthdayWidgets();
             },
             checkIn: async () => {
                 const u = App.currentUser;
@@ -4804,3 +4820,4 @@ const MediaPR = {
         };
 
         window.onload = () => { App.init(); };
+
