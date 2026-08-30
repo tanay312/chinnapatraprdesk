@@ -4084,61 +4084,64 @@ const MediaPR = {
         MediaPR.renderTasks();
     },
 
-    renderTasks: () => {
-        console.log("1. renderTasks initiated...");
-
-        // FIX 1: Safely check for the user object depending on which app context is running
-        const u = (typeof App !== 'undefined' && App.currentUser) ? App.currentUser : 
-                  (typeof ArtistApp !== 'undefined' ? ArtistApp.user : null);
-        
+    renderTasks: async () => {
+        // ১. User Check
+        const u = App.currentUser || (typeof MediaPR !== 'undefined' ? MediaPR.user : null);
         if (!u) {
-            console.error("Render Failed: No user logged in or user object is missing.");
+            console.error("Render Failed: No user logged in.");
             return;
         }
 
+        // ২. Wrapper Check
         const wrapper = document.getElementById('prMediaCardsWrapper');
         if (!wrapper) {
-            console.error("Render Failed: Could not find HTML element with ID 'prMediaCardsWrapper'.");
+            console.error("Render Failed: HTML ID 'prMediaCardsWrapper' not found.");
             return;
         }
 
-        // FIX 2: Safely handle missing filters/search inputs without breaking
-        const filterInput = document.getElementById('prMediaSangFilter');
-        const searchInput = document.getElementById('prMediaSearch');
-        const filterVal = filterInput ? filterInput.value : '';
-        const searchVal = searchInput ? searchInput.value.toLowerCase() : '';
-
-        // FIX 3: Ensure MediaPR.myTasks exists and is an array to prevent .filter() crashes
-        if (typeof MediaPR === 'undefined' || !MediaPR.myTasks || !Array.isArray(MediaPR.myTasks)) {
-            console.warn("No tasks loaded in MediaPR.myTasks yet.");
-            wrapper.innerHTML = `<div style="text-align:center; padding:40px; color:var(--text-muted);">Loading tasks or no tasks available...</div>`;
-            return;
-        }
-
-        console.log(`2. Total tasks loaded in array: ${MediaPR.myTasks.length}`);
-
-        // Inject dynamic keyframes for the timeline animation
+        // ৩. Loading State (ডেটা আসার আগে লোডিং দেখাবে)
         wrapper.innerHTML = `
             <style>
                 @keyframes fillProgressPR { from { width: 0%; } }
-                @keyframes pulseAccent { 
-                    0% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.4); } 
-                    70% { box-shadow: 0 0 0 10px rgba(212, 175, 55, 0); } 
-                    100% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0); } 
-                }
+                @keyframes pulseAccent { 0% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(212, 175, 55, 0); } 100% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0); } }
                 .pr-line-fill { animation: fillProgressPR 1.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
                 .pr-step-active { animation: pulseAccent 2s infinite; border-color: var(--gold) !important; background: var(--white) !important; color: var(--gold) !important; }
                 .pr-step-done { background: var(--gold) !important; color: var(--white) !important; border-color: var(--gold) !important; }
                 .pr-step-future { background: var(--bg-main) !important; color: #9CA3AF !important; border-color: #E5E7EB !important; }
             </style>
+            <div style="grid-column: 1/-1; text-align: center; padding: 80px 20px;">
+                <i class="ph-fill ph-spinner-gap ph-spin" style="font-size: 48px; color: var(--gold);"></i>
+                <p style="color: var(--primary); font-size: 15px; margin-top: 16px; font-weight: 600;">Syncing PR Tasks...</p>
+            </div>
         `;
+
+        // ৪. DIRECT DATABASE FETCH (যাতে MediaPR.myTasks এর উপর নির্ভর করতে না হয়)
+        const workflows = await DB.get('media_workflows');
         
-        let filteredTasks = [...MediaPR.myTasks]; // Use spread to avoid mutating original array
+        if (!workflows || workflows.length === 0) {
+            wrapper.innerHTML = `
+                <div style="grid-column: 1/-1; padding: 60px 20px; text-align: center; border: 2px dashed #E5E7EB; border-radius: var(--radius-lg); background: var(--white);">
+                    <i class="ph-fill ph-magnifying-glass" style="font-size: 40px; color: var(--gold); margin-bottom: 12px;"></i>
+                    <h3 style="color: var(--primary); font-size: 20px;">No Tasks Found</h3>
+                    <p style="color: var(--text-muted); font-size: 14px;">There are no media tasks in the database.</p>
+                </div>`;
+            return;
+        }
+
+        // Update global variable for search/filter usage
+        if (typeof MediaPR !== 'undefined') MediaPR.myTasks = workflows;
+
+        // ৫. Apply Search & Filters
+        let filteredTasks = [...workflows];
         
+        const filterInput = document.getElementById('prMediaSangFilter');
+        const searchInput = document.getElementById('prMediaSearch');
+        const filterVal = filterInput ? filterInput.value : '';
+        const searchVal = searchInput ? searchInput.value.toLowerCase() : '';
+
         if (filterVal) {
             filteredTasks = filteredTasks.filter(w => w.sangrahashala === filterVal);
         }
-        
         if (searchVal) {
             filteredTasks = filteredTasks.filter(w => 
                 (w.title && w.title.toLowerCase().includes(searchVal)) || 
@@ -4157,20 +4160,17 @@ const MediaPR = {
         });
 
         if (filteredTasks.length === 0) {
-            wrapper.innerHTML += `
+            wrapper.innerHTML = `
                 <div style="grid-column: 1/-1; padding: 60px 20px; text-align: center; border: 2px dashed #E5E7EB; border-radius: var(--radius-lg); background: var(--white); animation: fadeIn 0.5s;">
-                    <div style="width: 80px; height: 80px; background: rgba(212, 175, 55, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
-                        <i class="ph-fill ph-magnifying-glass" style="font-size: 40px; color: var(--gold);"></i>
-                    </div>
-                    <h3 style="color: var(--primary); font-size: 20px; font-family: var(--font-heading);">No Tasks Found</h3>
-                    <p style="color: var(--text-muted); font-size: 14px; margin-top: 8px;">Adjust your search or filter settings.</p>
+                    <i class="ph-fill ph-magnifying-glass" style="font-size: 40px; color: var(--gold); margin-bottom: 12px;"></i>
+                    <h3 style="color: var(--primary); font-size: 20px;">No Matches</h3>
+                    <p style="color: var(--text-muted); font-size: 14px;">Adjust your search or filter settings.</p>
                 </div>`;
             return;
         }
 
+        // ৬. Render HTML Cards
         let html = '';
-        
-        // Force Kolkata Timezone safely for 'Now'
         const nowKolkata = new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Kolkata"}));
 
         filteredTasks.forEach((w, index) => {
@@ -4197,9 +4197,7 @@ const MediaPR = {
                 try {
                     const arr = typeof w.artists_data === 'string' ? JSON.parse(w.artists_data) : w.artists_data;
                     artistsHtml = arr.map(a => `<span style="background: rgba(10,25,49,0.04); border: 1px solid rgba(10,25,49,0.1); color: var(--primary); padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; margin: 0 6px 6px 0; transition: 0.3s;"><i class="ph-fill ph-user-circle" style="color: var(--gold);"></i> ${a.artist_name} <span style="color: var(--text-muted); font-weight: 500; border-left: 1px solid rgba(10,25,49,0.2); padding-left: 6px; margin-left: 2px;">${a.department || 'General'}</span></span>`).join('');
-                } catch(e) {
-                    console.warn("Could not parse artists_data for task", w.work_id);
-                }
+                } catch(e) {}
             }
 
             // --- Premium Timeline Logic ---
@@ -4337,8 +4335,8 @@ const MediaPR = {
                 </div>
             `;
         });
-        wrapper.innerHTML += html;
-        console.log("3. Render Complete. Cards injected successfully.");
+        
+        wrapper.innerHTML = html;
     },
     toggleScheduleInputs: () => {
         const fbChecked = document.getElementById('chkFb').checked;
