@@ -4085,230 +4085,35 @@ const MediaPR = {
     },
 
     renderTasks: () => {
-        const u = App.currentUser;
-        if (!u) return;
+        console.log("1. renderTasks started");
 
-        const wrapper = document.getElementById('prMediaCardsWrapper');
-        const filterVal = document.getElementById('prMediaSangFilter') ? document.getElementById('prMediaSangFilter').value : '';
-        const searchVal = document.getElementById('prMediaSearch') ? document.getElementById('prMediaSearch').value.toLowerCase() : '';
-        if (!wrapper) return;
-
-        // Inject dynamic keyframes for the timeline animation
-        wrapper.innerHTML = `
-            <style>
-                @keyframes fillProgressPR { from { width: 0%; } }
-                @keyframes pulseAccent { 
-                    0% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.4); } 
-                    70% { box-shadow: 0 0 0 10px rgba(212, 175, 55, 0); } 
-                    100% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0); } 
-                }
-                .pr-line-fill { animation: fillProgressPR 1.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-                .pr-step-active { animation: pulseAccent 2s infinite; border-color: var(--gold) !important; background: var(--white) !important; color: var(--gold) !important; }
-                .pr-step-done { background: var(--gold) !important; color: var(--white) !important; border-color: var(--gold) !important; }
-                .pr-step-future { background: var(--bg-main) !important; color: #9CA3AF !important; border-color: #E5E7EB !important; }
-            </style>
-        `;
-        
-        let filteredTasks = MediaPR.myTasks;
-        
-        if (filterVal) filteredTasks = filteredTasks.filter(w => w.sangrahashala === filterVal);
-        if (searchVal) {
-            filteredTasks = filteredTasks.filter(w => 
-                (w.title && w.title.toLowerCase().includes(searchVal)) || 
-                (w.work_id && w.work_id.toLowerCase().includes(searchVal)) ||
-                (w.artists_data && w.artists_data.toLowerCase().includes(searchVal)) ||
-                (w.platform && w.platform.toLowerCase().includes(searchVal))
-            );
-        }
-
-        filteredTasks.sort((a, b) => {
-            const sangA = a.sangrahashala || '';
-            const sangB = b.sangrahashala || '';
-            if (sangA < sangB) return -1;
-            if (sangA > sangB) return 1;
-            return new Date(b.created_at) - new Date(a.created_at);
-        });
-
-        if (filteredTasks.length === 0) {
-            wrapper.innerHTML += `
-                <div style="grid-column: 1/-1; padding: 60px 20px; text-align: center; border: 2px dashed #E5E7EB; border-radius: var(--radius-lg); background: var(--white); animation: fadeIn 0.5s;">
-                    <div style="width: 80px; height: 80px; background: rgba(212, 175, 55, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
-                        <i class="ph-fill ph-magnifying-glass" style="font-size: 40px; color: var(--gold);"></i>
-                    </div>
-                    <h3 style="color: var(--primary); font-size: 20px; font-family: var(--font-heading);">No Tasks Found</h3>
-                    <p style="color: var(--text-muted); font-size: 14px; margin-top: 8px;">Adjust your search or filter settings.</p>
-                </div>`;
+        // Check User
+        const u = App.currentUser; 
+        console.log("2. Current User:", u);
+        if (!u) {
+            console.error("FAIL: User is missing! (Check if you should be using ArtistApp.user instead of App.currentUser)");
             return;
         }
 
-        let html = '';
+        // Check HTML Wrapper
+        const wrapper = document.getElementById('prMediaCardsWrapper');
+        console.log("3. Wrapper Element:", wrapper);
+        if (!wrapper) {
+            console.error("FAIL: HTML ID 'prMediaCardsWrapper' not found on this page!");
+            return;
+        }
+
+        // Check Data Array
+        console.log("4. Raw Tasks Data:", MediaPR.myTasks);
+        if (!MediaPR.myTasks || !Array.isArray(MediaPR.myTasks)) {
+            console.error("FAIL: MediaPR.myTasks is empty, undefined, or not an array!");
+            return;
+        }
+
+        wrapper.innerHTML = '';
         
-        // Force Kolkata Timezone for 'Now'
-        const now = new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Kolkata"}));
-
-        filteredTasks.forEach((w, index) => {
-            const isScheduler = w.scheduler_pr_id === u.pr_id;
-            const isPoster = w.poster_pr_id === u.pr_id;
-            const delay = index * 0.05;
-
-            // Force Kolkata Timezone for created_at
-            const createdDate = new Date(new Date(w.created_at).toLocaleString("en-US", {timeZone: "Asia/Kolkata"}));
-            const daysOld = Math.floor((now - createdDate) / (1000 * 60 * 60 * 24));
-            let oldTaskBadge = daysOld >= 30 ? `<span class="badge badge-absent" style="font-size:10px; margin-bottom:8px; display:inline-flex; align-items:center; gap:4px; animation:pulse 2s infinite;"><i class="ph-bold ph-warning-circle"></i> OLD TASK (${daysOld} Days)</span>` : '';
-
-            const assignedDateStr = createdDate.toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'Asia/Kolkata' });
-            
-            let mediaIcon = 'ph-file';
-            if(w.media_type === 'Video') mediaIcon = 'ph-video-camera';
-            if(w.media_type === 'Image') mediaIcon = 'ph-image';
-            if(w.media_type === 'Text') mediaIcon = 'ph-text-t';
-
-            let artistsHtml = '';
-            if (w.artists_data) {
-                try {
-                    const arr = typeof w.artists_data === 'string' ? JSON.parse(w.artists_data) : w.artists_data;
-                    artistsHtml = arr.map(a => `<span style="background: rgba(10,25,49,0.04); border: 1px solid rgba(10,25,49,0.1); color: var(--primary); padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; margin: 0 6px 6px 0; transition: 0.3s;"><i class="ph-fill ph-user-circle" style="color: var(--gold);"></i> ${a.artist_name} <span style="color: var(--text-muted); font-weight: 500; border-left: 1px solid rgba(10,25,49,0.2); padding-left: 6px; margin-left: 2px;">${a.department || 'General'}</span></span>`).join('');
-                } catch(e) {}
-            }
-
-            // --- Premium Timeline Logic ---
-            let progressWidth = '0%';
-            let step2Icon = 'ph-calendar';
-            let step3Icon = 'ph-rocket-launch';
-            let step2Class = 'pr-step-future';
-            let step3Class = 'pr-step-future';
-
-            if (w.status === 'Pending Schedule') {
-                progressWidth = '33%';
-                step2Class = 'pr-step-active';
-                step2Icon = 'ph-spinner ph-spin';
-            } else if (w.status === 'Scheduled') {
-                progressWidth = '66%';
-                step2Class = 'pr-step-done';
-                step3Class = 'pr-step-active';
-                step2Icon = 'ph-calendar-check';
-                step3Icon = 'ph-spinner ph-spin';
-            } else if (w.status === 'Posted') {
-                progressWidth = '100%';
-                step2Class = 'pr-step-done';
-                step3Class = 'pr-step-done';
-                step2Icon = 'ph-calendar-check';
-                step3Icon = 'ph-check-circle';
-            }
-
-            // --- Action Buttons ---
-            let schedulerBtn = '';
-            let posterBtn = '';
-            let cardAccent = 'var(--primary)';
-
-            if (isScheduler) {
-                if (w.status === 'Pending Schedule') {
-                    cardAccent = 'var(--gold)';
-                    schedulerBtn = `<button class="btn btn-primary ripple-btn" style="width:100%; padding: 12px; font-size: 13px;" onclick="MediaPR.openScheduleModal('${w.id}')"><i class="ph-bold ph-calendar-plus"></i> Schedule Now</button>`;
-                } else if (w.status === 'Scheduled') {
-                    schedulerBtn = `<button class="btn btn-outline ripple-btn" style="width:100%; padding: 12px; font-size: 13px; border-color:var(--gold); color:var(--gold);" onclick="MediaPR.openScheduleModal('${w.id}')"><i class="ph-bold ph-calendar-edit"></i> Reschedule</button>`;
-                }
-            }
-            if (isPoster && w.status === 'Scheduled') {
-                cardAccent = 'var(--warning)';
-                posterBtn = `<button class="btn btn-success ripple-btn" style="width:100%; padding: 12px; font-size: 13px; background: #059669; color: white;" onclick="MediaPR.markPosted('${w.id}')"><i class="ph-bold ph-rocket-launch"></i> Execute & Post</button>`;
-            }
-
-            let finalActionArea = '';
-            if (w.status === 'Posted') {
-                cardAccent = 'var(--success)';
-                finalActionArea = `<div style="text-align:center; padding: 12px; background: rgba(16,185,129,0.1); color: var(--success); border-radius: var(--radius-md); font-weight: 700; font-size: 13px; display:flex; align-items:center; justify-content:center; gap:6px;"><i class="ph-fill ph-check-circle" style="font-size:18px;"></i> Pipeline Completed</div>`;
-            } else {
-                if (schedulerBtn || posterBtn) {
-                    finalActionArea = `<div style="display:flex; flex-direction:column; gap:8px;">${schedulerBtn}${posterBtn}</div>`;
-                } else {
-                    finalActionArea = `<div style="text-align:center; padding: 12px; background: rgba(10,25,49,0.05); color: var(--text-muted); border-radius: var(--radius-md); font-weight: 600; font-size: 13px; display:flex; align-items:center; justify-content:center; gap:6px;"><i class="ph ph-hourglass ph-spin" style="font-size:18px;"></i> Waiting on other PR</div>`;
-                }
-            }
-
-            let markBadge = '';
-            if (w.special_marking && w.special_marking !== 'Standard') {
-                const markColor = w.special_marking === 'Urgent' ? 'var(--danger)' : 'var(--gold)';
-                const markIcon = w.special_marking === 'Urgent' ? 'ph-siren' : 'ph-star';
-                markBadge = `<span style="display:inline-flex; align-items:center; gap:4px; background: ${markColor}; color: white; padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: 800; text-transform: uppercase;"><i class="ph-fill ${markIcon}"></i> ${w.special_marking}</span>`;
-            }
-
-            let scheduleInfo = '';
-            if (w.fb_time || w.insta_time) {
-                // Ensure Kolkata time format rendering
-                const formatTimeKolkata = (isoStr) => {
-                    return new Date(new Date(isoStr).toLocaleString("en-US", {timeZone: "Asia/Kolkata"}))
-                    .toLocaleString('en-IN', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true });
-                };
-
-                let fbHtml = w.fb_time ? `<div style="display:flex; justify-content:space-between; align-items:center; font-size:12px; font-weight:700; color:#1877F2; margin-bottom:8px; background:rgba(24,119,242,0.05); padding:10px 14px; border-radius:8px; border-left: 3px solid #1877F2;"><span style="display:flex; align-items:center; gap:6px;"><i class="ph-fill ph-facebook-logo" style="font-size:18px;"></i> Facebook</span> <span>${formatTimeKolkata(w.fb_time)}</span></div>` : '';
-                let instaHtml = w.insta_time ? `<div style="display:flex; justify-content:space-between; align-items:center; font-size:12px; font-weight:700; color:#E4405F; background:rgba(228,64,95,0.05); padding:10px 14px; border-radius:8px; border-left: 3px solid #E4405F;"><span style="display:flex; align-items:center; gap:6px;"><i class="ph-fill ph-instagram-logo" style="font-size:18px;"></i> Instagram</span> <span>${formatTimeKolkata(w.insta_time)}</span></div>` : '';
-                
-                scheduleInfo = `<div style="margin-bottom: 24px;">${fbHtml}${instaHtml}</div>`;
-            }
-
-            html += `
-                <div class="content-card media-task-card" style="border-top: 4px solid ${cardAccent}; animation: fadeUp 0.6s forwards; opacity:0; animation-delay: ${delay}s; padding: 24px;">
-                    
-                    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom: 16px;">
-                        <div>
-                            <span style="font-size: 11px; font-weight: 800; color: var(--text-muted); letter-spacing: 1px;">ID: ${w.work_id}</span>
-                            <h3 style="color: var(--primary); font-size: 20px; margin-top: 4px; font-family: var(--font-heading); line-height: 1.3;">${w.title}</h3>
-                        </div>
-                        <div style="text-align:right; flex-shrink:0;">
-                            ${oldTaskBadge}
-                            <div style="font-size:10px; font-weight:800; color:var(--text-muted); background:rgba(0,0,0,0.05); padding:6px 10px; border-radius:12px; margin-bottom:6px; display:inline-flex; align-items:center; gap:4px;"><i class="ph-bold ph-calendar-blank"></i> ASSIGNED: ${assignedDateStr}</div><br>
-                            ${markBadge}
-                        </div>
-                    </div>
-
-                    <div style="display:flex; gap:12px; margin-bottom:24px; font-size:12px; font-weight:700; color:var(--primary); flex-wrap:wrap;">
-                        <span style="background: rgba(212,175,55,0.1); padding: 6px 12px; border-radius: 8px; border: 1px solid rgba(212,175,55,0.2);"><i class="ph-fill ph-folder-star" style="color:var(--gold);"></i> ${w.sangrahashala || 'Uncategorized'}</span>
-                        <span style="background: rgba(10,17,40,0.05); padding: 6px 12px; border-radius: 8px; border: 1px solid rgba(10,17,40,0.1);"><i class="ph-fill ${mediaIcon}" style="color:var(--text-muted);"></i> ${w.media_type || 'N/A'}</span>
-                    </div>
-
-                    <!-- Animated Timeline -->
-                    <div style="position: relative; margin-bottom: 32px; padding-bottom: 10px;">
-                        <div style="position: absolute; top: 14px; left: 15%; right: 15%; height: 3px; background: #E5E7EB; z-index: 1; border-radius: 2px;"></div>
-                        <div class="pr-line-fill" style="position: absolute; top: 14px; left: 15%; width: ${progressWidth}; max-width: 70%; height: 3px; background: var(--gold); z-index: 2; border-radius: 2px;"></div>
-                        
-                        <div style="display: flex; justify-content: space-between; position: relative; z-index: 3;">
-                            <div style="display: flex; flex-direction: column; align-items: center; width: 33%;">
-                                <div class="pr-step-done" style="width: 32px; height: 32px; border-radius: 50%; border: 2px solid; display: flex; justify-content: center; align-items: center; font-size: 14px; margin-bottom: 8px; background: var(--white);"><i class="ph-bold ph-file-text"></i></div>
-                                <span style="font-size: 11px; font-weight: 700; color: var(--primary);">Assigned</span>
-                            </div>
-                            <div style="display: flex; flex-direction: column; align-items: center; width: 33%;">
-                                <div class="${step2Class}" style="width: 32px; height: 32px; border-radius: 50%; border: 2px solid; display: flex; justify-content: center; align-items: center; font-size: 14px; margin-bottom: 8px; background: var(--white); transition:0.3s;"><i class="ph-bold ${step2Icon}"></i></div>
-                                <span style="font-size: 11px; font-weight: 700; color: ${w.status === 'Pending Schedule' ? 'var(--gold)' : 'var(--primary)'};">Scheduled</span>
-                            </div>
-                            <div style="display: flex; flex-direction: column; align-items: center; width: 33%;">
-                                <div class="${step3Class}" style="width: 32px; height: 32px; border-radius: 50%; border: 2px solid; display: flex; justify-content: center; align-items: center; font-size: 14px; margin-bottom: 8px; background: var(--white); transition:0.3s;"><i class="ph-bold ${step3Icon}"></i></div>
-                                <span style="font-size: 11px; font-weight: 700; color: ${w.status === 'Posted' ? 'var(--primary)' : '#9CA3AF'};">Posted</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    ${scheduleInfo}
-
-                    <div style="margin-bottom: 20px;">
-                        <div style="font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 12px; letter-spacing: 0.5px;"><i class="ph-bold ph-users"></i> Artists Involved</div>
-                        <div>${artistsHtml}</div>
-                    </div>
-                    
-                    ${w.caption ? `
-                        <div style="background: rgba(10,25,49,0.02); padding: 16px; border-radius: 12px; border-left: 3px dashed rgba(212,175,55,0.4); margin-bottom: 24px; position: relative;">
-                            <i class="ph-fill ph-quotes" style="position: absolute; top: -10px; left: 12px; color: var(--gold); background: white; padding: 0 4px; font-size: 18px;"></i>
-                            <div style="font-size: 13.5px; color: var(--text-dark); line-height: 1.6; font-style: italic; white-space: pre-wrap;">${w.caption}</div>
-                        </div>
-                    ` : '<div style="margin-bottom: 24px;"></div>'}
-                    
-                    <div style="margin-top: auto; border-top: 1px solid #E5E7EB; padding-top: 16px;">${finalActionArea}</div>
-                </div>
-            `;
-        });
-        wrapper.innerHTML += html;
-    },
-
+        // ... (rest of your filtering and sorting code stays exactly the same)
+        let filteredTasks = MediaPR.myTasks;
     toggleScheduleInputs: () => {
         const fbChecked = document.getElementById('chkFb').checked;
         const instaChecked = document.getElementById('chkInsta').checked;
