@@ -403,6 +403,7 @@ function showWelcomePopup() {
                                     <div>
                                         <strong style="color: var(--primary); font-size: 15px;">${a.name}</strong>
                                         <div style="font-size: 11px; color: var(--text-muted); font-weight: 600; margin-top: 2px;">${a.department || 'Creative Team'}</div>
+                                        <div style="font-size: 11px; color: var(--text-muted); font-weight: 600; margin-top: 2px;">Contact Birthday Manager: Subhajit Mondal,9832597202</div>
                                     </div>
                                     <span class="badge badge-completed" style="font-size: 10px; animation: pulse 2s infinite;">TODAY</span>
                                 </div>
@@ -420,6 +421,7 @@ function showWelcomePopup() {
                                     <div>
                                         <strong style="color: var(--primary); font-size: 14px;">${a.name}</strong>
                                         <div style="font-size: 11px; color: var(--text-muted); font-weight: 600; margin-top: 2px;">${a.department || 'Creative Team'}</div>
+                                        <div style="font-size: 11px; color: var(--text-muted); font-weight: 600; margin-top: 2px;">Contact Birthday Manager: Subhajit Mondal,9832597202</div>
                                     </div>
                                     <span class="badge badge-pending" style="font-size: 10px;">${a.dayText}</span>
                                 </div>
