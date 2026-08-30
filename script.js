@@ -340,6 +340,90 @@ function showWelcomePopup() {
                 if (nameInput) nameInput.value = settings.officeName || 'Premium PR Headquarters';
                 if (logoInput) logoInput.value = settings.logoUrl || '';
             },
+        checkUpcomingBirthdays: async function() {
+                try {
+                    // Fetch all artists to check DOBs
+                    const artists = await DB.get('artists');
+                    if (!artists || artists.length === 0) return;
+
+                    // Setup Dates in Kolkata Timezone
+                    const getKolkataDate = (offsetDays = 0) => {
+                        const d = new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Kolkata"}));
+                        d.setDate(d.getDate() + offsetDays);
+                        const mm = String(d.getMonth() + 1).padStart(2, '0');
+                        const dd = String(d.getDate()).padStart(2, '0');
+                        return `${mm}-${dd}`; // Returns MM-DD format
+                    };
+
+                    const todayMMDD = getKolkataDate(0);
+                    const tomorrowMMDD = getKolkataDate(1);
+                    const dayAfterMMDD = getKolkataDate(2);
+
+                    let todayBdays = [];
+                    let upcomingBdays = [];
+
+                    // Categorize Birthdays
+                    artists.forEach(a => {
+                        if (!a.dob) return;
+                        const dobMMDD = a.dob.substring(5); // Extract MM-DD from YYYY-MM-DD
+                        
+                        if (dobMMDD === todayMMDD) {
+                            todayBdays.push(a);
+                        } else if (dobMMDD === tomorrowMMDD) {
+                            upcomingBdays.push({ ...a, dayText: 'Tomorrow' });
+                        } else if (dobMMDD === dayAfterMMDD) {
+                            upcomingBdays.push({ ...a, dayText: 'in 2 days' });
+                        }
+                    });
+
+                    // If no birthdays, do nothing
+                    if (todayBdays.length === 0 && upcomingBdays.length === 0) return;
+
+                    // Build Premium Banner HTML
+                    let bannerHtml = `
+                        <div id="globalBirthdayBanner" style="background: linear-gradient(135deg, var(--primary), var(--primary-light)); border-bottom: 3px solid var(--gold); padding: 14px 24px; display: flex; align-items: center; justify-content: center; gap: 16px; position: relative; z-index: 99; box-shadow: var(--shadow-md); animation: slideDown 0.5s ease-out;">
+                            <style>
+                                @keyframes slideDown { from { transform: translateY(-100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+                                .bday-text strong { color: var(--gold); font-family: var(--font-heading); font-size: 16px; letter-spacing: 0.5px; }
+                            </style>
+                            <div style="font-size: 28px; animation: floatIcon 2s infinite alternate;">🎂</div>
+                            <div class="bday-text" style="color: white; font-size: 14px; line-height: 1.6;">
+                    `;
+
+                    if (todayBdays.length > 0) {
+                        const names = todayBdays.map(a => `<strong>${a.name}</strong>`).join(', ');
+                        bannerHtml += `🎉 Wishing a very Happy Birthday to ${names} today! &nbsp;&nbsp;`;
+                    }
+
+                    if (upcomingBdays.length > 0) {
+                        const names = upcomingBdays.map(a => `<span style="color:#D1D5DB;"><strong>${a.name}</strong> (${a.dayText})</span>`).join(', ');
+                        bannerHtml += `✨ <em>Upcoming Birthdays:</em> ${names}.`;
+                    }
+
+                    bannerHtml += `
+                            </div>
+                            <button onclick="this.parentElement.remove()" style="position: absolute; right: 20px; background: rgba(255,255,255,0.1); border: none; color: white; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.3s;" onmouseover="this.style.background='var(--danger)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'">
+                                <i class="ph-bold ph-x"></i>
+                            </button>
+                        </div>
+                    `;
+
+                    // Inject into the active dashboard view
+                    const activeView = document.querySelector('.page-view.active');
+                    if (activeView) {
+                        // Remove existing banner if routing changed
+                        const existing = document.getElementById('globalBirthdayBanner');
+                        if (existing) existing.remove();
+                        
+                        // Prepend right at the top of the main wrapper area
+                        const mainWrapper = activeView.querySelector('.main-wrapper') || activeView;
+                        mainWrapper.insertAdjacentHTML('afterbegin', bannerHtml);
+                    }
+
+                } catch (err) {
+                    console.error("Failed to load birthdays:", err);
+                }
+            },
 
             init: function() {
                 setTimeout(() => {
@@ -452,6 +536,13 @@ function showWelcomePopup() {
                 if (pageId === 'page-admin') AdminApp.init();
                 if (pageId === 'page-pr') PRApp.init();
                 if (pageId === 'page-public-member-leave') PublicApp.init(); 
+
+                // Add this line to trigger the banner after the view is loaded!
+                if (pageId === 'page-admin' || pageId === 'page-pr') {
+                    setTimeout(() => {
+                        this.checkUpcomingBirthdays();
+                    }, 1000); // 1-second delay for a smooth entrance
+                }
             }
         };
 
