@@ -4575,14 +4575,31 @@ const MediaPR = {
 
     generateBengaliPDF: (e) => {
         e.preventDefault();
-        const date = document.getElementById('prExportDate').value;
+        const date = document.getElementById('prExportDate').value; // YYYY-MM-DD Format
         if(!date) return UI.showToast('Please select a date', 'error');
 
-        // Filter for tasks scheduled on that exact date (checks both FB and Insta times)
+        // ১. হেল্পার ফাংশন: UTC টাইমকে লোকাল IST Date (YYYY-MM-DD) তে কনভার্ট করার জন্য
+        const getISTDateString = (isoStr) => {
+            if (!isoStr) return null;
+            const d = new Date(new Date(isoStr).toLocaleString("en-US", {timeZone: "Asia/Kolkata"}));
+            const yyyy = d.getFullYear();
+            const mm = String(d.getMonth() + 1).padStart(2, '0');
+            const dd = String(d.getDate()).padStart(2, '0');
+            return `${yyyy}-${mm}-${dd}`;
+        };
+
+        // ২. হেল্পার ফাংশন: UTC টাইমকে লোকাল IST Time (hh:mm AM/PM) তে কনভার্ট করার জন্য
+        const formatTimeKolkata = (isoStr) => {
+            if(!isoStr) return '';
+            return new Date(new Date(isoStr).toLocaleString("en-US", {timeZone: "Asia/Kolkata"}))
+                .toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
+        };
+
+        // Filter for tasks scheduled on that exact IST date
         const printTasks = MediaPR.myTasks.filter(w => {
             if(!w.fb_time && !w.insta_time) return false;
-            const fbMatch = w.fb_time && w.fb_time.startsWith(date);
-            const instaMatch = w.insta_time && w.insta_time.startsWith(date);
+            const fbMatch = w.fb_time && getISTDateString(w.fb_time) === date;
+            const instaMatch = w.insta_time && getISTDateString(w.insta_time) === date;
             return fbMatch || instaMatch;
         });
 
@@ -4591,7 +4608,7 @@ const MediaPR = {
             return UI.showToast('No posts scheduled for this specific date.', 'warning');
         }
 
-        // Generate an HTML document that the browser prints to PDF perfectly with native OS Bengali fonts
+        // Generate an HTML document that the browser prints to PDF perfectly
         let printWindow = window.open('', '_blank');
         let html = `
             <!DOCTYPE html>
@@ -4607,7 +4624,7 @@ const MediaPR = {
                     }
                     body { 
                         font-family: 'Poppins', sans-serif; 
-                        padding: 20px; /* Reduced for screen view */
+                        padding: 20px; 
                         color: #2b2b2b; 
                         background: #ffffff;
                         -webkit-print-color-adjust: exact; 
@@ -4625,7 +4642,7 @@ const MediaPR = {
                         font-size: 110px;
                         font-family: 'Playfair Display', serif;
                         font-weight: 700;
-                        color: rgba(200, 155, 60, 0.05); /* Extremely subtle gold */
+                        color: rgba(200, 155, 60, 0.05); 
                         z-index: -10;
                         white-space: nowrap;
                         pointer-events: none;
@@ -4697,19 +4714,16 @@ const MediaPR = {
                     /* --- NARROW PRINT MARGINS --- */
                     @media print {
                         body { padding: 0; }
-                        /* Set page to A4 and force narrow margins (8mm) */
                         @page { size: A4 portrait; margin: 8mm; }
                     }
                 </style>
             </head>
             <body>
-                <!-- Background Watermark -->
                 <div class="watermark">
                     CHINNAPATRA
                     <span>OFFICIAL</span>
                 </div>
 
-                <!-- Letterhead Header -->
                 <div class="header-container">
                     <div>
                         <h1 class="brand-title">CHINNAPATRA</h1>
@@ -4721,7 +4735,6 @@ const MediaPR = {
                     </div>
                 </div>
 
-                <!-- Schedule Table -->
                 <table>
                     <thead>
                         <tr>
@@ -4735,16 +4748,13 @@ const MediaPR = {
 
         printTasks.forEach(w => {
             let timesHtml = '';
+            // ৩. এখানে IST তে টাইম কনভার্ট করে বসানো হচ্ছে
             if(w.fb_time) {
-                // Strip the trailing Z or +00:00 to force local time parsing
-                const cleanFb = w.fb_time.replace(/(Z|\+00:00)$/, '');
-                const fT = new Date(cleanFb).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                const fT = formatTimeKolkata(w.fb_time);
                 timesHtml += `<span class="time-badge fb-time">📘 Facebook: ${fT}</span>`;
             }
             if(w.insta_time) {
-                // Strip the trailing Z or +00:00 to force local time parsing
-                const cleanInsta = w.insta_time.replace(/(Z|\+00:00)$/, '');
-                const iT = new Date(cleanInsta).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                const iT = formatTimeKolkata(w.insta_time);
                 timesHtml += `<span class="time-badge ig-time">📸 Instagram: ${iT}</span>`;
             }
 
@@ -4764,7 +4774,6 @@ const MediaPR = {
                     </tbody>
                 </table>
                 
-                <!-- Footer & Signature Block -->
                 <div class="footer">
                     <div>
                         <strong>Generated by:</strong> ${App.currentUser.full_name}<br>
@@ -4777,12 +4786,11 @@ const MediaPR = {
                     </div>
                 </div>
 
-                <!-- Auto-Print Script -->
                 <script>
                     window.onload = function() { 
                         setTimeout(() => {
                             window.print();
-                        }, 800); // 800ms delay to ensure web-fonts load perfectly before print dialog opens
+                        }, 800);
                     }
                 </script>
             </body>
