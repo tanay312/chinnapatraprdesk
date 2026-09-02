@@ -4561,14 +4561,18 @@ const MediaPR = {
             <div style="text-align:center; margin-bottom: 20px;">
                 <div style="font-size: 40px; color: var(--gold); margin-bottom: 4px;"><i class="ph-fill ph-file-pdf"></i></div>
                 <h3 style="color: var(--primary); font-family: var(--font-heading);">Download Schedule</h3>
-                <p style="font-size: 12px; color: var(--text-muted);">Select a date to generate the schedule sheet (Supports Bengali).</p>
+                <p style="font-size: 12px; color: var(--text-muted);">Select a date and add optional instructions for the poster.</p>
             </div>
             <form onsubmit="MediaPR.generateBengaliPDF(event)">
                 <div class="form-group">
                     <label class="form-label">Select Target Date</label>
                     <input type="date" id="prExportDate" class="form-control" value="${today}" required>
                 </div>
-                <button type="submit" class="btn btn-primary ripple-btn" style="width:100%; padding: 12px;"><i class="ph-bold ph-printer"></i> Generate & Print Report</button>
+                <div class="form-group" style="margin-top: 16px;">
+                    <label class="form-label">Message / Instructions for Poster (Optional)</label>
+                    <textarea id="prExportMessage" class="form-control" rows="3" placeholder="Write any specific instructions like tags to use, urgency, etc..."></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary ripple-btn" style="width:100%; padding: 12px; margin-top: 8px;"><i class="ph-bold ph-printer"></i> Generate & Print Report</button>
             </form>
         `);
     },
@@ -4576,6 +4580,8 @@ const MediaPR = {
     generateBengaliPDF: (e) => {
         e.preventDefault();
         const date = document.getElementById('prExportDate').value; // YYYY-MM-DD Format
+        const exportMessage = document.getElementById('prExportMessage').value.trim(); // Optional Message
+        
         if(!date) return UI.showToast('Please select a date', 'error');
 
         // ১. হেল্পার ফাংশন: UTC টাইমকে লোকাল IST Date (YYYY-MM-DD) তে কনভার্ট করার জন্য
@@ -4606,6 +4612,19 @@ const MediaPR = {
         if(printTasks.length === 0) {
             UI.closeModal();
             return UI.showToast('No posts scheduled for this specific date.', 'warning');
+        }
+
+        // Custom Message Box HTML (Only renders if a message is typed)
+        let messageBoxHtml = '';
+        if (exportMessage) {
+            messageBoxHtml = `
+                <div style="background-color: rgba(200, 155, 60, 0.05); border-left: 4px solid var(--gold); padding: 12px 16px; margin-bottom: 20px; border-radius: 6px;">
+                    <div style="font-size: 11px; font-weight: 700; color: var(--gold); text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.5px;">
+                        📌 Important Instructions
+                    </div>
+                    <div style="font-size: 13px; color: #334155; font-style: italic; white-space: pre-wrap; line-height: 1.5;">${exportMessage}</div>
+                </div>
+            `;
         }
 
         // Generate an HTML document that the browser prints to PDF perfectly
@@ -4734,6 +4753,8 @@ const MediaPR = {
                         <div class="report-date">Target Date: ${date}</div>
                     </div>
                 </div>
+
+                ${messageBoxHtml} <!-- Optional Message Box injected here -->
 
                 <table>
                     <thead>
