@@ -31,7 +31,7 @@
                 if (error) UI.showToast(`DB Error: ${error.message}`, 'error');
             }
         };
-        // --- CHINNAPATRA CONNECT (LIVE CHAT) SYSTEM ---
+        // --- KothaVerse CONNECT (LIVE CHAT) SYSTEM ---
 const ChatApp = {
     subscription: null,
     
@@ -279,7 +279,7 @@ function showWelcomePopup() {
                 <i class="ph-fill ph-paint-brush-broad"></i>
             </div>
             
-            <h2 class="welcome-title">Welcome to Chinnapatra</h2>
+            <h2 class="welcome-title">Welcome to KothaVerse</h2>
             <p class="welcome-subtitle">Celebrating art, culture, and creativity. ✨</p>
             
             <div class="welcome-quote-box">
@@ -1178,7 +1178,7 @@ function showWelcomePopup() {
 
                 if(rows.length === 0) return UI.showToast("No special days to export.", "warning");
 
-                // --- CHINNAPATRA OFFICIAL THEME HEADER ---
+                // --- KothaVerse OFFICIAL THEME HEADER ---
                 // Navy Blue Background Header
                 doc.setFillColor(10, 25, 49); // var(--primary)
                 doc.rect(0, 0, 210, 40, 'F');
@@ -1191,7 +1191,7 @@ function showWelcomePopup() {
                 doc.setTextColor(255, 153, 51); // Gold text
                 doc.setFont("helvetica", "bold");
                 doc.setFontSize(26);
-                doc.text("CHINNAPATRA OFFICIAL", 105, 20, { align: "center" });
+                doc.text("KothaVerse OFFICIAL", 105, 20, { align: "center" });
                 
                 // Subtitle
                 doc.setTextColor(255, 255, 255); // White text
@@ -1225,7 +1225,7 @@ function showWelcomePopup() {
                     }
                 });
 
-                // --- CHINNAPATRA OFFICIAL STAMP ---
+                // --- KothaVerse OFFICIAL STAMP ---
                 const finalY = doc.lastAutoTable.finalY; // Get the Y position where the table ended
                 
                 // Draw Stamp Box at the bottom right
@@ -1239,10 +1239,10 @@ function showWelcomePopup() {
                 doc.setFontSize(10);
                 doc.text("AUTHORIZED BY", 165, finalY + 22, { align: "center" });
                 doc.setFontSize(12);
-                doc.text("CHINNAPATRA OFFICIAL", 165, finalY + 28, { align: "center" });
+                doc.text("KothaVerse OFFICIAL", 165, finalY + 28, { align: "center" });
 
                 // --- SAVE PDF ---
-                doc.save(`Chinnapatra_Special_Days_${monthVal || searchDate}.pdf`);
+                doc.save(`KothaVerse_Special_Days_${monthVal || searchDate}.pdf`);
                 UI.showToast("Premium PDF Generated!", "success");
             },
 
@@ -1510,7 +1510,7 @@ function showWelcomePopup() {
     doc.setTextColor(212, 175, 55); // Gold Text
     doc.setFontSize(28);
     doc.setFont("helvetica", "bold");
-    doc.text("CHINNAPATRA", pageWidth / 2, 22, { align: "center" });
+    doc.text("KothaVerse", pageWidth / 2, 22, { align: "center" });
 
     // Subtitle (Public Relations Dept)
     doc.setTextColor(220, 220, 220); // Light Gray
@@ -1541,7 +1541,7 @@ function showWelcomePopup() {
     doc.setFontSize(60);
     doc.setFont("helvetica", "bolditalic");
     // Draws a large angled watermark in the center of the page
-    doc.text("CHINNAPATRA", pageWidth / 2, pageHeight / 2 + 20, { 
+    doc.text("KothaVerse", pageWidth / 2, pageHeight / 2 + 20, { 
         align: "center", 
         angle: 45 
     });
@@ -1615,7 +1615,7 @@ function showWelcomePopup() {
             doc.setFontSize(8);
             doc.setTextColor(150, 150, 150);
             doc.text(
-                `Chinnapatra PR Management System  |  Page ${doc.internal.getNumberOfPages()}`, 
+                `KothaVerse PR Management System  |  Page ${doc.internal.getNumberOfPages()}`, 
                 pageWidth / 2, 
                 pageHeight - 8, 
                 { align: "center" }
@@ -1627,7 +1627,7 @@ function showWelcomePopup() {
     // 6. EXPORT
     // ==========================================
     
-    doc.save(`Chinnapatra_Invites_${date}.pdf`);
+    doc.save(`KothaVerse_Invites_${date}.pdf`);
     UI.showToast("Stylish Official Invite PDF generated successfully!");
 },
             
@@ -2075,7 +2075,7 @@ function showWelcomePopup() {
                 UI.showModal(`Department Status Report`, `
                     <div style="background: #F8FAFC; border: 1.5px solid rgba(10, 25, 49, 0.1); border-radius: 12px; padding: 24px; font-family: var(--font-main);">
                         <div style="text-align: center; margin-bottom: 20px;">
-                            <h3 style="font-family: var(--font-heading); color: var(--primary); font-size: 20px; letter-spacing: 1px;">📋 CHINNAPATRA DEPARTMENT ARTIST STATUS</h3>
+                            <h3 style="font-family: var(--font-heading); color: var(--primary); font-size: 20px; letter-spacing: 1px;">📋 KothaVerse DEPARTMENT ARTIST STATUS</h3>
                             <div style="height: 2px; width: 100px; background: var(--gold); margin: 8px auto;"></div>
                         </div>
                         <div style="display: grid; grid-template-columns: 140px 1fr; gap: 12px; align-items: center; background: var(--white); padding: 16px; border-radius: 8px; box-shadow: var(--shadow-sm); margin-bottom: 20px;">
@@ -3291,15 +3291,15 @@ function showWelcomePopup() {
                         <!-- Gold Top Accent -->
                         <div style="position: absolute; top: 0; left: 0; right: 0; height: 6px; background: var(--gold);"></div>
                         
-                        <!-- Chinnapatra Official Stamp -->
+                        <!-- KothaVerse Official Stamp -->
                         <div style="position: absolute; bottom: 20px; right: 16px; border: 2px solid rgba(212, 175, 55, 0.4); color: rgba(212, 175, 55, 0.4); font-weight: bold; font-size: 11px; text-transform: uppercase; padding: 6px 10px; transform: rotate(-12deg); border-radius: 6px; letter-spacing: 1px; text-align: center; pointer-events: none;">
-                            CHINNAPATRA<br>OFFICIAL
+                            KothaVerse<br>OFFICIAL
                         </div>
                         
                         <!-- Header -->
                         <div style="border-bottom: 1px solid rgba(212, 175, 55, 0.3); padding-bottom: 16px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
                             <div>
-                                <h3 style="color: var(--gold); margin: 0; font-family: var(--font-heading); font-size: 18px; letter-spacing: 1px; text-transform: uppercase;">CHINNAPATRA</h3>
+                                <h3 style="color: var(--gold); margin: 0; font-family: var(--font-heading); font-size: 18px; letter-spacing: 1px; text-transform: uppercase;">KothaVerse</h3>
                                 <div style="font-size: 9px; letter-spacing: 2px; color: rgba(255,255,255,0.7);">OFFICIAL PR DESK</div>
                             </div>
                         </div>
@@ -3453,7 +3453,7 @@ function showWelcomePopup() {
                 doc.setTextColor(255, 153, 51);
                 doc.setFont("helvetica", "bold");
                 doc.setFontSize(22);
-                doc.text("CHINNAPATRA OFFICIAL", 105, 18, { align: "center" });
+                doc.text("KothaVerse OFFICIAL", 105, 18, { align: "center" });
                 
                 doc.setTextColor(255, 255, 255);
                 doc.setFontSize(12);
@@ -3507,7 +3507,7 @@ function showWelcomePopup() {
                 doc.setFontSize(10);
                 doc.text("AUTHORIZED BY", 165, finalY - 3, { align: "center" });
                 doc.setFontSize(12);
-                doc.text("CHINNAPATRA ADMIN", 165, finalY + 3, { align: "center" });
+                doc.text("KothaVerse ADMIN", 165, finalY + 3, { align: "center" });
 
                 doc.save(`WorkList_${u.pr_id}_${dateStr.replace(/\//g, '-')}.pdf`);
                 UI.showToast("Work List PDF Downloaded!", "success");
@@ -3749,11 +3749,11 @@ function showWelcomePopup() {
                 doc.setLineWidth(0.5);
                 doc.roundedRect(2, 5, 50, 79, 2, 2, 'S');
 
-                // Header Text: CHINNAPATRA OFFICIAL
+                // Header Text: KothaVerse OFFICIAL
                 doc.setTextColor(255, 153, 51); // Gold
                 doc.setFontSize(12);
                 doc.setFont("helvetica", "bold");
-                doc.text("CHINNAPATRA", 27, 13, { align: "center" });
+                doc.text("KothaVerse", 27, 13, { align: "center" });
                 
                 doc.setTextColor(255, 255, 255);
                 doc.setFontSize(5.5);
@@ -3796,7 +3796,7 @@ function showWelcomePopup() {
                 doc.setFont("helvetica", "normal"); doc.text(`Mob:`, 8, 69);       
                 doc.setFont("helvetica", "bold");   doc.text(`${u.mobile}`, 18, 69); 
 
-                // "Chinnapatra Official" Stamp at the bottom
+                // "KothaVerse Official" Stamp at the bottom
                 doc.setTextColor(255, 153, 51); // Gold text
                 doc.setFontSize(7);
                 doc.setFont("helvetica", "bold");
@@ -3804,10 +3804,10 @@ function showWelcomePopup() {
                 doc.setLineWidth(0.4);
                 // Creating a stamp border and text
                 doc.roundedRect(12, 76, 30, 5, 1, 1, 'S');
-                doc.text("CHINNAPATRA OFFICIAL", 27, 79.5, { align: "center" });
+                doc.text("KothaVerse OFFICIAL", 27, 79.5, { align: "center" });
                 
                 // Trigger Download
-                doc.save(`Chinnapatra_ID_${u.pr_id}.pdf`);
+                doc.save(`KothaVerse_ID_${u.pr_id}.pdf`);
                 UI.showToast("Official ID Card Downloaded!", "success");
             }
         };
@@ -4634,7 +4634,7 @@ const MediaPR = {
             <html lang="en">
             <head>
                 <meta charset="UTF-8">
-                <title>Chinnapatra_Schedule_Report_${date}</title>
+                <title>KothaVerse_Schedule_Report_${date}</title>
                 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
                 <style>
                     :root {
@@ -4652,7 +4652,7 @@ const MediaPR = {
                         min-height: 100vh;
                     }
                     
-                    /* --- MASSIVE CHINNAPATRA WATERMARK --- */
+                    /* --- MASSIVE KothaVerse WATERMARK --- */
                     .watermark {
                         position: fixed;
                         top: 50%;
@@ -4739,13 +4739,13 @@ const MediaPR = {
             </head>
             <body>
                 <div class="watermark">
-                    CHINNAPATRA
+                    KothaVerse
                     <span>OFFICIAL</span>
                 </div>
 
                 <div class="header-container">
                     <div>
-                        <h1 class="brand-title">CHINNAPATRA</h1>
+                        <h1 class="brand-title">KothaVerse</h1>
                         <div class="brand-subtitle">Public Relations & Media Desk</div>
                     </div>
                     <div class="report-meta">
@@ -4801,7 +4801,7 @@ const MediaPR = {
                         <span style="font-size: 10px; color: #94a3b8;">Printed on: ${new Date().toLocaleString()}</span>
                     </div>
                     <div class="signature-box">
-                        <p class="sig-name">Chinnapatra Offical</p>
+                        <p class="sig-name">KothaVerse Offical</p>
                         <p class="sig-role">PR DESK</p>
                         <p class="sig-auth">Authorized Signature</p>
                     </div>
