@@ -4,8 +4,8 @@
   "description": "PR Attendance & Management System",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#0A1931",
-  "theme_color": "#0A1931",
+  "background_color": "#36013F",
+  "theme_color": "#36013F",
   "icons": [
     {
       "src": "3b81e8eb-b9aa-4741-a15b-05089409732e(3).png",
