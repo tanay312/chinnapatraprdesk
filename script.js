@@ -283,7 +283,7 @@ function showWelcomePopup() {
             <p class="welcome-subtitle">Celebrating art, culture, and creativity. ✨</p>
             
             <div class="welcome-quote-box">
-                <div class="welcome-quote">"শিল্প যেখানে কথা বলে।" <br><span style="font-size:12px;color:var(--text-muted);">(Where art speaks.)</span></div>
+                <div class="welcome-quote">"শব্দের পরিপাটে, মনের আলাপন।" <br><span style="font-size:12px;color:var(--text-muted);">(Where art speaks.)</span></div>
             </div>
         </div>
         `;
