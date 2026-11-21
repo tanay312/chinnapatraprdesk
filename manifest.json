@@ -1,5 +1,5 @@
 {
-  "name": "Premium PR Desk",
+  "name": "KothaVerse",
   "short_name": "KothaVerse PR Desk",
   "description": "PR Attendance & Management System",
   "start_url": "./index.html",
@@ -8,12 +8,12 @@
   "theme_color": "#36013F",
   "icons": [
     {
-      "src": "3b81e8eb-b9aa-4741-a15b-05089409732e(3).png",
+      "src": "20261121_192551.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "3b81e8eb-b9aa-4741-a15b-05089409732e(3).png",
+      "src": "20261121_192551.png",
       "sizes": "512x512",
       "type": "image/png"
     }
